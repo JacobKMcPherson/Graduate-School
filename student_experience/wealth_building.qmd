@@ -307,7 +307,7 @@ If you carry undergraduate loans into graduate school:
 |---|---|---|
 | Claim the **Lifetime Learning Credit** | Up to $2,000 credit on tuition & fees | Phases out at higher incomes; cannot be combined with some exclusions |
 | Deduct **student loan interest** | Up to $2,500 deduction | Income limits apply |
-| Contribute to **Roth IRA** | Tax-free growth | Requires earned income; file IRS Form 8606 |
+| Contribute to **Roth IRA** | Tax-free growth | Requires earned income; standard Roth contributions do not require Form 8606 (that form is for nondeductible traditional IRA contributions and Roth conversions) |
 | Track **unreimbursed business expenses** (conferences, supplies) | May be deductible as Schedule C expenses if self-employed (fellowship) | Keep receipts |
 | File **quarterly estimated taxes** (fellowships) | Avoid underpayment penalty | Use IRS Form 1040-ES |
 
@@ -327,7 +327,7 @@ Good credit saves money on car loans, mortgages, and insurance premiums post-PhD
 
 ## 7. Additional Resources
 
-- [GradFinances subreddit](https://www.reddit.com/r/GradSchool/) — community discussions
+- [r/GradSchool (Reddit)](https://www.reddit.com/r/GradSchool/) — community discussions
 - [The PhD Student's Guide to Personal Finance (NerdWallet)](https://www.nerdwallet.com/)
 - [Bogleheads Wiki: Getting Started](https://www.bogleheads.org/wiki/Getting_started) — low-cost index fund investing
 - [Personal Finance for PhDs (blog)](https://pfforphds.com/) — tax and finance advice specifically for graduate students

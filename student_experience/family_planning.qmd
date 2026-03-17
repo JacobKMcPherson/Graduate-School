@@ -88,10 +88,11 @@ fp_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '3000
 
 viewof fp_stipend = {
   const el = Inputs.range([15000, 60000], {
-    label: "Annual Stipend (pre-tax, $) — override if needed",
+    label: "Annual Stipend (pre-tax, $) — override if needed (updates other pages)",
     step: 500,
     value: isFinite(fp_stipend_init) ? fp_stipend_init : 30000
   });
+  el.addEventListener('input', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
   return el;
 }
 ```
