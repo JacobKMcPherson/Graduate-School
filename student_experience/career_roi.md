@@ -1,0 +1,203 @@
+# Career ROI, Contracts & Employment Prospects for PhD Graduates
+
+## Overview
+
+A PhD is a significant investment of time and opportunity cost. This guide helps you evaluate the financial and professional return on that investment, review employment contracts critically, and plan a strategic job search across academia, industry, government, and nonprofit sectors.
+
+---
+
+## 1. Calculating the ROI of a PhD
+
+### Time and Opportunity Cost
+
+A PhD in the US takes an average of **5–7 years** to complete. During that time, most students earn $25,000–$40,000/year rather than the $55,000–$85,000 a bachelor's degree holder might earn in their field. Use the table below to estimate your opportunity cost.
+
+| Factor | Your Estimate |
+|---|---|
+| Expected PhD duration (years) | |
+| Average annual stipend (post-tax) | |
+| Estimated alternative salary (BS/MS entry-level, post-tax) | |
+| **Annual opportunity cost** = Alternative salary − Stipend | |
+| **Total opportunity cost** = Annual × Years | |
+| Estimated additional value of PhD salary premium (per year, post-degree) | |
+| **Break-even point** = Total opportunity cost ÷ Annual salary premium | |
+
+### PhD Salary Premium by Sector (2024 approximate figures, STEM)
+
+| Sector | Median Salary (PhD, 0–5 yrs post-degree) | Compared to BS (same field) |
+|---|---|---|
+| Industry (biotech / pharma) | $110,000 – $150,000 | +$30,000 – $50,000/yr |
+| Industry (tech / data science) | $130,000 – $180,000 | +$20,000 – $40,000/yr |
+| Government / national lab | $85,000 – $120,000 | +$20,000 – $30,000/yr |
+| Nonprofit / NGO | $60,000 – $90,000 | +$10,000 – $20,000/yr |
+| Tenure-track academia (assistant professor) | $80,000 – $120,000 | +$5,000 – $25,000/yr |
+| Teaching-focused faculty / lecturer | $50,000 – $75,000 | Minimal to none |
+| Postdoc (transitional) | $55,000 – $70,000 | Below break-even during postdoc |
+
+> **Key insight:** A postdoc extending 3–5 years post-PhD significantly delays break-even. Evaluate whether a postdoc is necessary for your career goals or if you can transition directly into your target role.
+
+**Tools:**
+- [NSF Survey of Doctorate Recipients](https://www.nsf.gov/statistics/srvydoctoratework/) — salary data by field, sector, and degree year
+- [ACS Salary Survey (chemistry)](https://www.acs.org/jobs/salary-survey.html)
+- [FASEB Workforce Data (biology, biomedical)](https://www.faseb.org/workforce-data)
+- [LinkedIn Salary](https://www.linkedin.com/salary/) — self-reported data, searchable by role and location
+- [Glassdoor](https://www.glassdoor.com/) — company-specific salary data
+
+---
+
+## 2. Employment Prospects by Field and Sector
+
+### Academic Job Market Reality
+
+- Tenure-track faculty positions are **highly competitive**: in most STEM fields, fewer than 10–20% of PhD graduates who pursue academic careers obtain a tenure-track position.
+- Publication record, postdoc training, grants (K99/R00, NIH F32, NSF postdoc), and institutional prestige of PhD/postdoc are all significant factors.
+- The academic job market varies dramatically by field — check your professional society's annual workforce data.
+
+### Non-Academic Career Pathways
+
+Most PhD graduates now work outside of academia. Plan accordingly:
+
+| Sector | Example Roles | Key Skills to Develop |
+|---|---|---|
+| Biotechnology / Pharma | Research scientist, scientific director, regulatory affairs | Project management, teamwork, communication |
+| Consulting (life sciences, management) | Associate consultant, analyst | Problem framing, slide decks, Excel/data tools |
+| Data science / AI | Data scientist, ML engineer | Python/R, statistics, model deployment |
+| Government / Policy | Program officer (NIH, NSF), science policy analyst | Grant writing, policy communication |
+| Science writing / Communication | Writer, editor, communications officer | Clear writing, social media, journalism skills |
+| Patent law / Technology transfer | Patent agent/examiner, licensing associate | Law school (JD) or Patent Bar exam |
+| Finance / Venture capital | Analyst, associate (deep-tech/biotech VC) | Finance fundamentals, network, MBA may help |
+| Entrepreneurship | Founder, CTO | Business fundamentals, fundraising, network |
+
+### Building Readiness During Your PhD
+
+- [ ] Complete at least one **internship** in a non-academic sector (industry, government, nonprofit).
+- [ ] Develop **transferable skills**: project management, data analysis, scientific communication, team leadership.
+- [ ] Build a **professional network** outside academia: LinkedIn, professional societies, alumni networks, informational interviews.
+- [ ] Maintain a current **CV and resume** (note: they serve different purposes — see below).
+- [ ] Develop an **elevator pitch** that summarizes your expertise for a non-expert audience.
+
+---
+
+## 3. Reviewing Employment Offers and Contracts
+
+### The Offer Letter / Employment Contract Checklist
+
+When you receive an offer, review these elements carefully **before** signing:
+
+#### Compensation
+- [ ] **Base salary** — Is it clearly stated and consistent with market rates?
+- [ ] **Bonus structure** — What is the target bonus %? What are the performance metrics? Is it guaranteed or discretionary?
+- [ ] **Equity / stock options / RSUs** — Vesting schedule (typically 4 years with 1-year cliff)? Number of shares and current strike price?
+- [ ] **Signing bonus** — Is there a repayment clause if you leave within 1–2 years?
+- [ ] **Relocation assistance** — Amount, conditions, tax gross-up?
+- [ ] **Salary review timeline** — When is the first review? Annual vs. merit-based?
+
+#### Benefits
+- [ ] **Health insurance** — Which plans are offered? What is the premium cost? Does it cover dependents?
+- [ ] **Dental and vision** — Included or separate cost?
+- [ ] **Retirement** — 401(k)/403(b) with employer match? Vesting schedule for the match?
+- [ ] **Paid time off (PTO)** — Number of days? Does unused PTO carry over or pay out?
+- [ ] **Parental leave** — Weeks of paid leave for primary and secondary caregivers?
+- [ ] **Professional development funds** — Budget for conferences, courses, books?
+- [ ] **Student loan repayment assistance** — Some employers now offer this benefit.
+
+#### Role and Scope
+- [ ] **Job title and reporting structure** — Who do you report to? Is there a clear path for advancement?
+- [ ] **Job description / responsibilities** — Is the role consistent with what was discussed?
+- [ ] **Location and remote work policy** — Are remote / hybrid arrangements documented?
+
+#### Legal Clauses
+- [ ] **Non-compete agreement** — How long? Which geographic area or companies are restricted? (Many are unenforceable; consult an employment attorney if broad.)
+- [ ] **Non-solicitation clause** — Restrictions on recruiting colleagues if you leave.
+- [ ] **Intellectual property (IP) assignment** — Does the company claim ownership of IP developed on personal time or with personal equipment? If so, negotiate a carve-out.
+- [ ] **Arbitration clause** — Waives your right to sue; consider implications.
+- [ ] **At-will employment** — Standard in the US; verify if there is any severance policy.
+
+#### Academic Offer Letters (Faculty Positions)
+- [ ] **Startup package** — Lab equipment, renovation funds, graduate student support, postdoc support: is the amount, duration, and conditions specified in writing?
+- [ ] **Course load** — Number of courses per year during the tenure clock?
+- [ ] **Tenure clock** — How many years to tenure decision? Clock-stopping provisions for parental leave?
+- [ ] **Salary for 9 months vs. 12 months** — Summer salary must be covered by grants.
+- [ ] **Lab space** — Is specific space committed, or only promised?
+- [ ] **Moving expenses** — Covered? Tax gross-up included?
+
+> **Do not assume verbal promises will be honored. Get everything in writing before signing.**
+
+---
+
+## 4. Negotiating Your Offer
+
+Negotiation is expected — especially for industry positions. Most offers have flexibility.
+
+### What Is Negotiable?
+- Base salary (almost always)
+- Signing bonus
+- Start date
+- Remote / hybrid arrangements
+- Equity (especially at startups)
+- Title (sometimes affects future salary)
+- Startup package (faculty positions)
+- PTO / professional development funds
+
+### How to Negotiate
+1. **Get the offer in writing** before negotiating.
+2. **Research market rates** (LinkedIn Salary, Glassdoor, NSF survey, professional society data).
+3. **Make a specific counter-offer** with a justification: *"Based on my research and the cost of living in [city], I'd like to request $X."*
+4. **Negotiate the full package**, not just salary — if salary is fixed, push on signing bonus, equity, or PTO.
+5. **Be professional and positive** — you will work with these people.
+6. **Do not accept or decline on the spot** — request 1–2 weeks to review.
+
+---
+
+## 5. CV vs. Resume: Know the Difference
+
+| Document | Use When | Typical Length | What to Include |
+|---|---|---|---|
+| **CV (Curriculum Vitae)** | Academic positions, grants, fellowships | No limit (grows with career) | All publications, presentations, teaching, awards, service |
+| **Resume** | Industry, government, nonprofit | 1–2 pages maximum | Relevant skills, selected accomplishments, quantified impact |
+
+**Common mistakes:**
+- Using a CV when a resume is expected (too long; wrong format)
+- Failing to quantify accomplishments on a resume (*"Led project"* vs. *"Led 3-person team to deliver X, reducing Y by 30%"*)
+- Not tailoring documents to each specific job description
+
+---
+
+## 6. Job Search Timeline and Strategy
+
+| Timeline Before Target Start | Action |
+|---|---|
+| 2–3 years before | Identify career options; start informational interviews; do an internship |
+| 12–18 months before | Build network in target sector; attend professional society meetings; refine CV/resume |
+| 6–12 months before | Begin actively applying; prepare for interviews |
+| 3–6 months before | On-site / final-round interviews; negotiate offers |
+| 1–3 months before | Accept offer; begin transition planning |
+
+### Helpful Resources
+
+- [myIDP (Individual Development Plan)](https://myidp.sciencecareers.org/) — self-assessment tool for STEM PhD career planning
+- [Versatile PhD](https://versatilephd.com/) — non-academic career resources for PhDs
+- [AAAS Science Careers](https://jobs.sciencecareers.org/)
+- [Bitesize Bio Career Hub](https://bitesizebio.com/careers/)
+- [LinkedIn Jobs](https://www.linkedin.com/jobs/)
+- [USAJOBS (federal government)](https://www.usajobs.gov/)
+- [Association for Women in Science (AWIS)](https://www.awis.org/)
+- [National Postdoc Association (NPA)](https://www.nationalpostdoc.org/)
+- Your university's **career center** (many now have PhD-specific advisors)
+
+---
+
+## 7. Postdoctoral Considerations
+
+If you are considering a postdoc, evaluate it rigorously:
+
+- [ ] Is a postdoc **necessary** for your target career (e.g., academic PI, some senior scientist roles)? Or is it habit / inertia?
+- [ ] What is the **NIH NRSA postdoc minimum** ($61,008/year in FY2024)? Is your offer at or above this?
+- [ ] Does the postdoc offer **clear independence** — first-author publications, grant opportunities (K99/R00, F32)?
+- [ ] What is the **advisor's track record** for postdoc career placements?
+- [ ] Is there a **defined exit timeline** (typically 2–3 years maximum)?
+- [ ] Does the institution have a **postdoc association** and formal career development programming?
+
+---
+
+*Last reviewed: 2024. Salary data and program benchmarks change annually. Verify current figures with NSF, NIH, and your professional society.*

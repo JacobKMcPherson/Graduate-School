@@ -1,6 +1,28 @@
-# Project Title
+# PhD Graduate Student Template Repository
 
-Welcome to our Science Project Repository!
+Welcome to our Graduate Student Template Repository!
+
+This repository is a **comprehensive toolkit** for PhD students, combining academic-work templates (manuscripts, grants, presentations, protocols) with practical resources to improve every dimension of the graduate student experience — from fair compensation and financial wellness to family planning, healthcare, and career readiness.
+
+> Jump to: [Academic Templates](#academic-templates) · [PhD Student Experience Resources](#phd-student-experience-resources)
+
+---
+
+## PhD Student Experience Resources
+
+These guides are designed to help PhD students make informed decisions about finances, health, family, and career. They live in the [`student_experience/`](student_experience/) directory.
+
+| Resource | Description |
+|---|---|
+| [Salary & Cost of Living](student_experience/salary_and_cost_of_living.md) | Evaluate your stipend against local cost of living; negotiate effectively |
+| [Wealth Building](student_experience/wealth_building.md) | Budgeting, emergency funds, retirement, and tax strategy on a grad stipend |
+| [Family Planning](student_experience/family_planning.md) | Parental leave, childcare, partner employment, and family-friendly policies |
+| [Health Insurance & Mental Health](student_experience/health_insurance.md) | Understand your coverage, find mental health support, and navigate crises |
+| [Career ROI, Contracts & Employment Prospects](student_experience/career_roi.md) | Assess the value of your PhD, review offer letters, and plan your job search |
+
+---
+
+## Academic Templates
 
 This project uses [CRediT (Contributor Roles Taxonomy)](https://credit.niso.org/) to clearly specify the roles and contributions of each individual participant from the outset. CRediT enables transparency and recognition for the diverse contributions to scholarly work.
 
@@ -63,3 +85,4 @@ For clarifications on CRediT roles or project process, open an issue or contact 
 
 **References:**
 - [CRediT Taxonomy](https://credit.niso.org/)
+- [PhD Student Experience Resources](student_experience/README.md)
