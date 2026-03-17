@@ -1,6 +1,9 @@
-# Health Insurance & Mental Health for PhD Students
-
-## Overview
+---
+title: "Health Insurance & Mental Health"
+subtitle: "Navigating coverage, mental health support, and wellbeing as a PhD student"
+description: "Insurance glossary, coverage-gap solutions, mental health resource tiers, US crisis hotlines, and advisor-relationship red flags for PhD students."
+order: 4
+---
 
 Access to affordable, comprehensive health insurance and mental health support is a critical — and often underdiscussed — dimension of graduate student well-being. This guide covers understanding your university health plan, supplementing coverage gaps, navigating mental health resources, and recognizing and responding to crisis situations.
 
@@ -68,6 +71,7 @@ Access to affordable, comprehensive health insurance and mental health support i
 ### Why Graduate Students Are at High Risk
 
 Research consistently shows PhD students experience depression and anxiety at rates 6 times higher than the general population (Evans et al., *Nature Biotechnology*, 2018). Stressors include:
+
 - Funding uncertainty
 - Isolation and lack of social support
 - Advisor relationship difficulties
@@ -78,6 +82,7 @@ Research consistently shows PhD students experience depression and anxiety at ra
 ### Recognizing When to Seek Help
 
 It is appropriate to seek support if you experience, for more than two weeks:
+
 - [ ] Persistent sadness, emptiness, or hopelessness
 - [ ] Loss of interest in research or activities you previously enjoyed
 - [ ] Significant changes in sleep, appetite, or weight
@@ -127,6 +132,7 @@ It is appropriate to seek support if you experience, for more than two weeks:
 ## 6. Advisor Relationship and Mental Health
 
 The advisor relationship is one of the strongest predictors of graduate student mental health. Signs of an unhealthy advising relationship include:
+
 - Unpredictable or volatile emotional reactions
 - Unrealistic demands on time (including nights, weekends, holidays)
 - Dismissiveness about mental health or personal circumstances
@@ -134,6 +140,7 @@ The advisor relationship is one of the strongest predictors of graduate student 
 - Isolation from other mentors or collaborators
 
 **If you are experiencing difficulties:**
+
 1. Consult your program's **graduate student ombudsperson** or **Dean of Graduate Studies** — these conversations are typically confidential.
 2. Reach out to a **committee member** or secondary mentor.
 3. Document interactions in writing where possible.

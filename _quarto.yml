@@ -1,0 +1,47 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "PhD Graduate Student Experience"
+  description: "Practical resources for PhD students: salary, wealth, family, health, and career."
+  favicon: "thinking.png"
+  repo-url: https://github.com/JacobKMcPherson/Graduate-School
+  repo-actions: [edit, issue]
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+    right:
+      - icon: github
+        href: https://github.com/JacobKMcPherson/Graduate-School
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - section: "Overview"
+        contents:
+          - index.qmd
+      - section: "Compensation & Finances"
+        contents:
+          - student_experience/salary_and_cost_of_living.qmd
+          - student_experience/wealth_building.qmd
+      - section: "Life & Wellbeing"
+        contents:
+          - student_experience/family_planning.qmd
+          - student_experience/health_insurance.qmd
+      - section: "Career"
+        contents:
+          - student_experience/career_roi.qmd
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
+    toc-depth: 3
+    toc-title: "On this page"
+    code-fold: true
+    smooth-scroll: true
+    link-external-newwindow: true

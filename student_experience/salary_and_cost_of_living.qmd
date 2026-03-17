@@ -1,6 +1,9 @@
-# Salary & Cost of Living for PhD Students
-
-## Overview
+---
+title: "Salary & Cost of Living"
+subtitle: "Evaluate your stipend against local cost of living and advocate for fair compensation"
+description: "A worksheet-based guide to assessing PhD stipend purchasing power, city-by-city cost of living adjustments, negotiation strategies, and tax treatment."
+order: 1
+---
 
 PhD stipends vary widely — from below $18,000 to over $45,000 per year — while the cost of living in university cities ranges just as dramatically. A stipend that sounds reasonable in one city may leave students unable to afford rent, food, or transportation in another. This guide helps you evaluate your real purchasing power and advocate for fair compensation.
 
@@ -27,10 +30,10 @@ Use the table below to compare your stipend against your estimated monthly expen
 | Utilities (electric, gas, water, internet) | | | Typically $100–$200/mo |
 | Groceries | | | USDA moderate-cost plan: ~$350–$450/mo |
 | Transportation (bus pass / car / bike) | | | Check if university offers discounted transit passes |
-| Health insurance premium (if not fully covered) | | | See [Health Insurance guide](health_insurance.md) |
+| Health insurance premium (if not fully covered) | | | See [Health Insurance guide](health_insurance.qmd) |
 | Dental / vision (if not covered) | | | |
 | Phone | | | |
-| Childcare (if applicable) | | | See [Family Planning guide](family_planning.md) |
+| Childcare (if applicable) | | | See [Family Planning guide](family_planning.qmd) |
 | Loan repayment (undergraduate debt) | | | |
 | Personal care & clothing | | | |
 | Entertainment & dining | | | |
@@ -70,6 +73,7 @@ To compare stipends across cities, use the **Cost of Living Index (COLI)**. The 
 `Adjusted Purchasing Power = Stipend × (100 / Local COLI)`
 
 **Tools:**
+
 - [NerdWallet Cost of Living Calculator](https://www.nerdwallet.com/cost-of-living-calculator)
 - [MIT Living Wage Calculator](https://livingwage.mit.edu/)
 - [BLS Consumer Expenditure Survey](https://www.bls.gov/cex/)
@@ -110,6 +114,7 @@ Stipend taxation depends on how you are funded:
 > **Action:** File Form 1040-ES quarterly to avoid underpayment penalties if you receive a fellowship. See IRS Publication 970.
 
 **Resources:**
+
 - [IRS Publication 970: Tax Benefits for Education](https://www.irs.gov/pub/irs-pdf/p970.pdf)
 - [GradTaxes.com](https://www.gradtaxes.com/) — tax guides specifically for graduate students
 - Your university's international student office (if applicable) for treaty exemptions

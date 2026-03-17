@@ -10,15 +10,17 @@ This repository is a **comprehensive toolkit** for PhD students, combining acade
 
 ## PhD Student Experience Resources
 
-These guides are designed to help PhD students make informed decisions about finances, health, family, and career. They live in the [`student_experience/`](student_experience/) directory.
+These guides are rendered as an interactive [Quarto](https://quarto.org/) website via GitHub Actions and deployed to GitHub Pages. The source files live in the [`student_experience/`](student_experience/) directory.
+
+> 🌐 **[View the live website](https://jacobkmcpherson.github.io/Graduate-School/)**
 
 | Resource | Description |
 |---|---|
-| [Salary & Cost of Living](student_experience/salary_and_cost_of_living.md) | Evaluate your stipend against local cost of living; negotiate effectively |
-| [Wealth Building](student_experience/wealth_building.md) | Budgeting, emergency funds, retirement, and tax strategy on a grad stipend |
-| [Family Planning](student_experience/family_planning.md) | Parental leave, childcare, partner employment, and family-friendly policies |
-| [Health Insurance & Mental Health](student_experience/health_insurance.md) | Understand your coverage, find mental health support, and navigate crises |
-| [Career ROI, Contracts & Employment Prospects](student_experience/career_roi.md) | Assess the value of your PhD, review offer letters, and plan your job search |
+| [Salary & Cost of Living](student_experience/salary_and_cost_of_living.qmd) | Evaluate your stipend against local cost of living; negotiate effectively |
+| [Wealth Building](student_experience/wealth_building.qmd) | Budgeting, emergency funds, retirement, and tax strategy on a grad stipend |
+| [Family Planning](student_experience/family_planning.qmd) | Parental leave, childcare, partner employment, and family-friendly policies |
+| [Health Insurance & Mental Health](student_experience/health_insurance.qmd) | Understand your coverage, find mental health support, and navigate crises |
+| [Career ROI, Contracts & Employment Prospects](student_experience/career_roi.qmd) | Assess the value of your PhD, review offer letters, and plan your job search |
 
 ---
 
@@ -85,4 +87,4 @@ For clarifications on CRediT roles or project process, open an issue or contact 
 
 **References:**
 - [CRediT Taxonomy](https://credit.niso.org/)
-- [PhD Student Experience Resources](student_experience/README.md)
+- [PhD Student Experience Website](https://jacobkmcpherson.github.io/Graduate-School/)

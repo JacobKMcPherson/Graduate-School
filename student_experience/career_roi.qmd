@@ -1,6 +1,9 @@
-# Career ROI, Contracts & Employment Prospects for PhD Graduates
-
-## Overview
+---
+title: "Career ROI, Contracts & Employment Prospects"
+subtitle: "Evaluating the value of your PhD and planning your career"
+description: "Opportunity-cost calculator, PhD salary premium by sector, full offer-letter review checklist, negotiation strategy, and postdoc evaluation framework."
+order: 5
+---
 
 A PhD is a significant investment of time and opportunity cost. This guide helps you evaluate the financial and professional return on that investment, review employment contracts critically, and plan a strategic job search across academia, industry, government, and nonprofit sectors.
 
@@ -37,6 +40,7 @@ A PhD in the US takes an average of **5–7 years** to complete. During that tim
 > **Key insight:** A postdoc extending 3–5 years post-PhD significantly delays break-even. Evaluate whether a postdoc is necessary for your career goals or if you can transition directly into your target role.
 
 **Tools:**
+
 - [NSF Survey of Doctorate Recipients](https://www.nsf.gov/statistics/srvydoctoratework/) — salary data by field, sector, and degree year
 - [ACS Salary Survey (chemistry)](https://www.acs.org/jobs/salary-survey.html)
 - [FASEB Workforce Data (biology, biomedical)](https://www.faseb.org/workforce-data)
@@ -157,6 +161,7 @@ Negotiation is expected — especially for industry positions. Most offers have 
 | **Resume** | Industry, government, nonprofit | 1–2 pages maximum | Relevant skills, selected accomplishments, quantified impact |
 
 **Common mistakes:**
+
 - Using a CV when a resume is expected (too long; wrong format)
 - Failing to quantify accomplishments on a resume (*"Led project"* vs. *"Led 3-person team to deliver X, reducing Y by 30%"*)
 - Not tailoring documents to each specific job description

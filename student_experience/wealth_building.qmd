@@ -1,6 +1,9 @@
-# Wealth Building for PhD Students
-
-## Overview
+---
+title: "Wealth Building"
+subtitle: "Financial planning for PhD students on a graduate stipend"
+description: "Budgeting templates, retirement account options, student loan management, and credit-building strategies — all calibrated for a graduate school income."
+order: 2
+---
 
 Building financial security on a graduate stipend is challenging but possible. The key is starting early — even small, consistent contributions to an emergency fund and retirement account compound significantly over a 5–7 year PhD program. This guide covers budgeting, saving, investing, and managing debt on a grad-school income.
 
@@ -60,6 +63,7 @@ Customize the percentages for your situation. The "50/30/20" framework is a usef
 | **Net Cash Flow (Income − Expenses)** | | |
 
 **Free budgeting tools:**
+
 - [YNAB (You Need A Budget)](https://www.ynab.com/) — free for students
 - [Mint / Credit Karma](https://www.creditkarma.com/)
 - [Personal Capital (Empower)](https://www.empower.com/)
@@ -91,6 +95,7 @@ If you carry undergraduate loans into graduate school:
 - **Public Service Loan Forgiveness (PSLF):** If you plan to work at a nonprofit or government employer after graduation, payments during grad school can count toward the 120 required for PSLF (if you are on an IDR plan and not in deferment). Contact your servicer to verify.
 
 **Tools:**
+
 - [Federal Student Aid Loan Simulator](https://studentaid.gov/loan-simulator/)
 - [PSLF Help Tool](https://studentaid.gov/pslf/)
 

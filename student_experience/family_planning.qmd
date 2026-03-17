@@ -1,6 +1,9 @@
-# Family Planning for PhD Students
-
-## Overview
+---
+title: "Family Planning"
+subtitle: "Parental leave, childcare, and family resources for PhD students"
+description: "FMLA and Title IX rights, institutional parental leave checklists, childcare cost benchmarks and subsidies, family budget planning, and partner career guidance."
+order: 3
+---
 
 Starting or growing a family during a PhD program presents unique logistical, financial, and professional challenges. This guide covers parental leave policies, childcare resources, financial planning for family growth, partner career considerations, and institutional accommodations. Planning ahead — and knowing your rights — makes an enormous difference.
 
@@ -13,7 +16,7 @@ Starting or growing a family during a PhD program presents unique logistical, fi
 - [ ] Can you take a **medical leave of absence** without penalty or loss of funding?
 - [ ] What are the **childcare options** near campus (university-subsidized, waitlist timelines)?
 - [ ] Does the university offer a **dependent care FSA (DCFSA)** for graduate student employees?
-- [ ] Does your **health insurance** cover prenatal care, delivery, and pediatric care? (See [Health Insurance guide](health_insurance.md))
+- [ ] Does your **health insurance** cover prenatal care, delivery, and pediatric care? (See [Health Insurance guide](health_insurance.qmd))
 - [ ] Is your advisor/program supportive of parenting students? (Ask current students — not just faculty.)
 - [ ] What is the policy on **remote work / flexible scheduling** during parenting responsibilities?
 
@@ -42,6 +45,7 @@ Parental leave varies dramatically by institution. Use this checklist when revie
 | Lactation room availability on campus | |
 
 **Resources:**
+
 - [NWLC Pregnancy & Parenting in Higher Education](https://nwlc.org/)
 - [Pregnant Scholar](https://www.pregnantscholar.org/) — legal rights database for students and postdocs by institution
 - [CoPI Family Leave Policy Database](https://copi.science/) — comparative policies across research institutions
@@ -78,7 +82,7 @@ Parental leave varies dramatically by institution. Use this checklist when revie
 
 | Expense | Estimated One-Time Cost | Notes |
 |---|---|---|
-| Prenatal care & delivery (with insurance) | $0 – $5,000 | Highly variable by insurance; see [health insurance guide](health_insurance.md) |
+| Prenatal care & delivery (with insurance) | $0 – $5,000 | Highly variable by insurance; see [health insurance guide](health_insurance.qmd) |
 | Delivery without insurance | $5,000 – $30,000+ | Avoid this scenario — ensure coverage before becoming pregnant |
 | Baby gear (crib, stroller, car seat, etc.) | $500 – $3,000 | Buy used or through Buy Nothing groups to reduce cost |
 | Hospital-grade breast pump | $0 – $300 | ACA requires insurance to cover a pump |
@@ -96,7 +100,7 @@ Parental leave varies dramatically by institution. Use this checklist when revie
 | Medical co-pays & prescriptions | $20 – $100 |
 | **Total** | **~$1,230 – $3,000** |
 
-> A new child adds roughly $15,000–$36,000/year in costs. Revisit your budget (see [Wealth Building guide](wealth_building.md)) and identify sources of additional support.
+> A new child adds roughly $15,000–$36,000/year in costs. Revisit your budget (see [Wealth Building guide](wealth_building.qmd)) and identify sources of additional support.
 
 ---
 

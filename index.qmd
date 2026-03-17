@@ -1,0 +1,91 @@
+---
+title: "PhD Graduate Student Experience"
+subtitle: "A comprehensive resource hub for navigating graduate school"
+description: "Practical guides covering salary, wealth building, family planning, health insurance, and career ROI for PhD students."
+page-layout: full
+toc: false
+---
+
+::: {.hero-banner}
+# Welcome
+
+This repository is a **comprehensive toolkit** for PhD students, combining academic-work templates with practical resources to improve every dimension of the graduate student experience — from fair compensation and financial wellness to family planning, healthcare, and career readiness.
+:::
+
+---
+
+## Resource Guides
+
+Navigate the guides using the sidebar, or jump directly to a topic below.
+
+::: {.grid}
+
+::: {.g-col-12 .g-col-md-6}
+### 💰 Compensation & Finances
+
+::: {.card .h-100}
+::: {.card-body}
+**[Salary & Cost of Living](student_experience/salary_and_cost_of_living.qmd)**  
+Evaluate your stipend against local cost of living, use city-by-city benchmarks, and learn evidence-based negotiation strategies.
+
+**[Wealth Building](student_experience/wealth_building.qmd)**  
+Monthly budgeting templates, Roth IRA and 403(b) guides, student loan management, and credit-building steps — all calibrated for a grad-school income.
+:::
+:::
+:::
+
+::: {.g-col-12 .g-col-md-6}
+### 🏥 Life & Wellbeing
+
+::: {.card .h-100}
+::: {.card-body}
+**[Family Planning](student_experience/family_planning.qmd)**  
+FMLA and Title IX rights, parental leave policy checklists, childcare cost benchmarks, subsidy programs, and partner career planning.
+
+**[Health Insurance & Mental Health](student_experience/health_insurance.qmd)**  
+Insurance glossary, coverage-gap solutions, mental health resource tiers, crisis hotlines, and advisor-relationship red flags.
+:::
+:::
+:::
+
+::: {.g-col-12 .g-col-md-12}
+### 🎓 Career
+
+::: {.card .h-100}
+::: {.card-body}
+**[Career ROI, Contracts & Employment Prospects](student_experience/career_roi.qmd)**  
+Opportunity-cost calculator, PhD salary premium by sector, full offer-letter review checklist (compensation, equity, IP assignment, non-compete), negotiation strategy, and postdoc evaluation framework.
+:::
+:::
+:::
+
+:::
+
+---
+
+## How to Use These Guides
+
+Each guide is structured around four components:
+
+| Component | What It Is |
+|---|---|
+| **Key questions to ask** | What you should know before signing or committing |
+| **Reference benchmarks** | Federal minimums, peer comparisons, and industry standards |
+| **Action checklists** | Concrete steps you can take today |
+| **External links** | Curated tools, calculators, and advocacy organizations |
+
+These documents are living templates — fork the repository, customize them for your institution and situation, and update them as policies change.
+
+---
+
+## Academic Templates
+
+This repository also includes LaTeX templates for academic work. See the [`manuscript/`](https://github.com/JacobKMcPherson/Graduate-School/tree/main/manuscript), [`grants/`](https://github.com/JacobKMcPherson/Graduate-School/tree/main/grants), [`presentations/`](https://github.com/JacobKMcPherson/Graduate-School/tree/main/presentations), and [`protocols/`](https://github.com/JacobKMcPherson/Graduate-School/tree/main/protocols) directories.
+
+This project uses [CRediT (Contributor Roles Taxonomy)](https://credit.niso.org/) to clearly specify the roles and contributions of each individual participant.
+
+---
+
+## Contributing
+
+If you have an update, correction, or additional resource to suggest, please [open an issue](https://github.com/JacobKMcPherson/Graduate-School/issues) or submit a pull request. Improving this repository helps every student who uses it.
