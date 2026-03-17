@@ -9,6 +9,241 @@ A PhD is a significant investment of time and opportunity cost. This guide helps
 
 ---
 
+## 💰 Interactive PhD ROI Calculator {#sec-roi-calculator}
+
+> **💾 Cross-page linked.** Stipend and PhD duration are loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd).
+
+```{ojs}
+//| echo: false
+roi_sector_data = [
+  {sector: "Industry — Biotech/Pharma",    phd: 130000, bs: 90000},
+  {sector: "Industry — Tech/Data Science", phd: 155000, bs: 120000},
+  {sector: "Government / National Lab",    phd: 100000, bs:  80000},
+  {sector: "Nonprofit / NGO",              phd:  75000, bs:  65000},
+  {sector: "Academia (Asst. Professor)",   phd: 100000, bs:  80000},
+  {sector: "Teaching Faculty / Lecturer",  phd:  65000, bs:  60000},
+  {sector: "Postdoc (transitional)",       phd:  63000, bs:  80000}
+]
+```
+
+```{ojs}
+//| echo: false
+roi_stipend_init  = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
+roi_duration_init = parseFloat(localStorage.getItem('phd_duration')        || '6')
+
+viewof roi_stipend = {
+  const el = Inputs.range([15000, 60000], {
+    label: "Annual Stipend (pre-tax, $)",
+    step: 500,
+    value: isFinite(roi_stipend_init) ? roi_stipend_init : 30000
+  });
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof roi_duration = {
+  const el = Inputs.range([3, 9], {
+    label: "PhD Duration (years)",
+    step: 0.5,
+    value: isFinite(roi_duration_init) ? roi_duration_init : 6
+  });
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof roi_alt_salary = {
+  const saved = parseFloat(localStorage.getItem('phd_alt_salary') || '70000');
+  const el = Inputs.range([40000, 150000], {
+    label: "Alternative Career Salary (BS/MS entry-level, pre-tax, $) — what you'd earn without a PhD",
+    step: 1000,
+    value: isFinite(saved) ? saved : 70000
+  });
+  el.addEventListener('input', () => localStorage.setItem('phd_alt_salary', String(el.value)));
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof roi_target_sector = Inputs.select(roi_sector_data, {
+  label: "Target Career Sector (post-PhD)",
+  format: s => s.sector,
+  value: roi_sector_data[0]
+})
+```
+
+```{ojs}
+//| echo: false
+viewof roi_postdoc_years = Inputs.range([0, 5], {
+  label: "Postdoc Years (if planning a postdoc; 0 = none)",
+  step: 0.5,
+  value: 0
+})
+```
+
+```{ojs}
+//| echo: false
+roi_total_opp_cost     = Math.round((roi_alt_salary - roi_stipend) * roi_duration)
+roi_annual_premium     = roi_target_sector.phd - roi_alt_salary
+// $63,000 = NIH NRSA postdoc minimum stipend (FY2024); used as postdoc salary floor
+roi_postdoc_extra_cost = Math.round(Math.max(0, roi_alt_salary - 63000) * roi_postdoc_years)
+roi_total_with_postdoc = roi_total_opp_cost + roi_postdoc_extra_cost
+roi_breakeven_yrs      = roi_annual_premium > 0
+  ? (Math.round((roi_total_with_postdoc / roi_annual_premium) * 10) / 10)
+  : null
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Total Opp. Cost</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e74c3c;">$${roi_total_opp_cost.toLocaleString()}</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Annual Salary Premium</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:${roi_annual_premium >= 0 ? '#27ae60' : '#e74c3c'};">${roi_annual_premium >= 0 ? '+' : ''}$${roi_annual_premium.toLocaleString()}</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Break-Even (yrs post-PhD)</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:${roi_breakeven_yrs !== null && roi_breakeven_yrs < 20 ? '#f39c12' : '#e74c3c'};">${roi_breakeven_yrs !== null ? roi_breakeven_yrs + ' yrs' : 'Never'}</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Postdoc Add'l Cost</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e67e22;">$${roi_postdoc_extra_cost.toLocaleString()}</div>
+  </div>
+</div>`
+```
+
+::: {.panel-tabset}
+
+### 📈 Break-Even Timeline
+
+```{ojs}
+//| echo: false
+roi_plot_years = Array.from({length: 26}, (_, y) => y)
+
+roi_breakeven_tidy = roi_plot_years.flatMap(y => [
+  {year: y, value: -roi_total_opp_cost      + (y * roi_annual_premium), series: "No Postdoc"},
+  {year: y, value: -roi_total_with_postdoc  + (y * roi_annual_premium), series: roi_postdoc_years > 0 ? "With " + roi_postdoc_years + "-yr Postdoc" : null}
+]).filter(d => d.series !== null)
+
+Plot.plot({
+  title: "Cumulative Financial Value of PhD vs. Alternative Career",
+  subtitle: "Year 0 = PhD completion. Shows net financial gain (or loss) compared to not doing a PhD.",
+  width: 620,
+  height: 340,
+  x: {label: "Years After PhD Completion →"},
+  y: {
+    label: "Cumulative Net Value ($) →",
+    tickFormat: d => `$${(d/1000).toFixed(0)}k`
+  },
+  color: {
+    domain: ["No Postdoc", "With " + roi_postdoc_years + "-yr Postdoc"].filter((v, i, a) => a.indexOf(v) === i),
+    range: ["#3498db", "#9b59b6"],
+    legend: true
+  },
+  marks: [
+    Plot.areaY(
+      roi_breakeven_tidy.filter(d => d.series === "No Postdoc"),
+      {x: "year", y1: 0, y2: "value", fill: "#3498db", fillOpacity: 0.12}
+    ),
+    Plot.line(roi_breakeven_tidy, {
+      x: "year", y: "value", stroke: "series",
+      strokeWidth: 2.5, tip: true
+    }),
+    Plot.ruleY([0], {stroke: "#27ae60", strokeWidth: 2, strokeDash: [5, 3]}),
+    Plot.dot(
+      roi_breakeven_yrs !== null ? [{year: roi_breakeven_yrs, value: 0}] : [],
+      {x: "year", y: "value", fill: "#f39c12", r: 9,
+       title: () => `Break-even at year ${roi_breakeven_yrs}`}
+    )
+  ]
+})
+```
+
+### 🏭 PhD Salary Premium by Sector
+
+```{ojs}
+//| echo: false
+roi_sector_sorted = roi_sector_data.slice().sort((a, b) => b.phd - a.phd)
+
+Plot.plot({
+  title: "PhD vs. BS/MS Salary by Career Sector (STEM, 2024 approx.)",
+  subtitle: "Gray = BS/MS baseline. Blue extension = PhD salary premium (red = PhD disadvantage).",
+  width: 660,
+  height: 360,
+  marginLeft: 220,
+  x: {
+    label: "Annual Salary ($) →",
+    tickFormat: d => `$${(d/1000).toFixed(0)}k`
+  },
+  marks: [
+    Plot.barX(roi_sector_sorted, {
+      x: "bs",  y: "sector",
+      fill: "#bdc3c7", rx: 3,
+      tip: true, title: d => `BS/MS baseline: $${d.bs.toLocaleString()}`
+    }),
+    Plot.barX(roi_sector_sorted.filter(d => d.phd >= d.bs), {
+      x1: "bs", x2: "phd", y: "sector",
+      fill: "#3498db", rx: 3,
+      tip: true, title: d => `PhD premium: +$${(d.phd - d.bs).toLocaleString()}`
+    }),
+    Plot.barX(roi_sector_sorted.filter(d => d.phd < d.bs), {
+      x1: "phd", x2: "bs", y: "sector",
+      fill: "#e74c3c", rx: 3,
+      tip: true, title: d => `PhD disadvantage: $${(d.bs - d.phd).toLocaleString()}`
+    }),
+    Plot.ruleX([roi_alt_salary], {
+      stroke: "#f39c12", strokeWidth: 2, strokeDash: [5, 3]
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+### 💸 Opportunity Cost Over PhD
+
+```{ojs}
+//| echo: false
+phd_yr_range  = Array.from({length: Math.ceil(roi_duration) + 1}, (_, y) => y)
+
+opp_cost_tidy = phd_yr_range.flatMap(y => [
+  {year: y, value: Math.round(roi_stipend    * y * 0.88),  series: "Stipend Earned (post-tax)"},
+  {year: y, value: Math.round(roi_alt_salary * y * 0.75),  series: "Alt. Career Earnings (post-tax)"}
+])
+
+Plot.plot({
+  title: `Earnings Comparison Over ${Math.ceil(roi_duration)}-Year PhD`,
+  subtitle: "The gap between lines is your annual opportunity cost of pursuing the PhD.",
+  width: 600,
+  height: 320,
+  x: {label: "Year of PhD →"},
+  y: {label: "Cumulative Earnings ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {
+    domain: ["Stipend Earned (post-tax)", "Alt. Career Earnings (post-tax)"],
+    range: ["#f39c12", "#e74c3c"],
+    legend: true
+  },
+  marks: [
+    Plot.areaY(opp_cost_tidy, {
+      x: "year", y: "value",
+      fill: "series", fillOpacity: 0.25, z: "series"
+    }),
+    Plot.line(opp_cost_tidy, {
+      x: "year", y: "value",
+      stroke: "series", strokeWidth: 2.5, tip: true
+    }),
+    Plot.ruleY([0])
+  ]
+})
+```
+
+:::
+
+---
+
 ## 1. Calculating the ROI of a PhD
 
 ### Time and Opportunity Cost

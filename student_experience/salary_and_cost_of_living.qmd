@@ -80,6 +80,227 @@ To compare stipends across cities, use the **Cost of Living Index (COLI)**. The 
 
 ---
 
+## 🔢 Interactive Stipend Calculator {#sec-stipend-calculator}
+
+> **💾 Cross-page linked.** Stipend, city, and PhD duration set here are automatically shared with the [Wealth Building](wealth_building.qmd), [Family Planning](family_planning.qmd), and [Career ROI](career_roi.qmd) calculators on other pages.
+
+```{ojs}
+//| echo: false
+cities_data = [
+  {name: "Rural Midwest",      coli: 85,  living_wage: 30000},
+  {name: "Raleigh, NC",        coli: 94,  living_wage: 37500},
+  {name: "Columbus, OH",       coli: 95,  living_wage: 37000},
+  {name: "Austin, TX",         coli: 100, living_wage: 40000},
+  {name: "Chicago, IL",        coli: 107, living_wage: 43000},
+  {name: "Denver, CO",         coli: 108, living_wage: 44000},
+  {name: "Atlanta, GA",        coli: 103, living_wage: 41500},
+  {name: "Seattle, WA",        coli: 115, living_wage: 52000},
+  {name: "Washington, DC",     coli: 120, living_wage: 55000},
+  {name: "Los Angeles, CA",    coli: 122, living_wage: 56000},
+  {name: "Boston, MA",         coli: 125, living_wage: 58000},
+  {name: "New York City, NY",  coli: 145, living_wage: 68000},
+  {name: "San Francisco, CA",  coli: 155, living_wage: 72000}
+]
+```
+
+```{ojs}
+//| echo: false
+viewof annual_stipend = {
+  const saved = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000');
+  const el = Inputs.range([15000, 60000], {
+    label: "Annual Stipend (pre-tax, $)",
+    step: 500,
+    value: isFinite(saved) ? saved : 30000
+  });
+  el.addEventListener('input', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof selected_city = {
+  const savedName = localStorage.getItem('phd_city') || 'Austin, TX';
+  const match = cities_data.find(c => c.name === savedName) || cities_data[3];
+  const el = Inputs.select(cities_data, {
+    label: "University City",
+    format: c => c.name,
+    value: match
+  });
+  const persist = () => {
+    localStorage.setItem('phd_city', el.value.name);
+    localStorage.setItem('phd_city_coli', String(el.value.coli));
+    localStorage.setItem('phd_city_living_wage', String(el.value.living_wage));
+  };
+  el.addEventListener('change', persist);
+  persist();
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof phd_duration_sal = {
+  const saved = parseFloat(localStorage.getItem('phd_duration') || '6');
+  const el = Inputs.range([3, 9], {
+    label: "Expected PhD Duration (years)",
+    step: 0.5,
+    value: isFinite(saved) ? saved : 6
+  });
+  el.addEventListener('input', () => localStorage.setItem('phd_duration', String(el.value)));
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+monthly_gross = annual_stipend / 12
+monthly_net   = Math.round(monthly_gross * 0.88)
+adjusted_pp   = Math.round(annual_stipend * (100 / selected_city.coli))
+
+{
+  localStorage.setItem('phd_annual_stipend', String(annual_stipend));
+  localStorage.setItem('phd_adjusted_pp',    String(adjusted_pp));
+}
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Monthly Gross</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${monthly_gross.toFixed(0)}</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Est. Take-Home/mo</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${monthly_net}</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Adj. Purchasing Power</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${adjusted_pp.toLocaleString()}/yr</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">COLI Index</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">${selected_city.coli}</div>
+  </div>
+</div>`
+```
+
+::: {.panel-tabset}
+
+### 📊 Benchmark Comparison
+
+```{ojs}
+//| echo: false
+benchmark_data = [
+  {label: "Federal Poverty Line",           value: 15060,                       cat: "Reference"},
+  {label: "NIH NRSA Predoc (F31, 2024)",    value: 28224,                       cat: "Federal Benchmark"},
+  {label: "Median PhD Stipend (STEM)",       value: 30000,                       cat: "Federal Benchmark"},
+  {label: "NSF Graduate Fellowship (2024)",  value: 37000,                       cat: "Federal Benchmark"},
+  {label: "MIT Living Wage — " + selected_city.name, value: selected_city.living_wage, cat: "Living Wage"},
+  {label: "Your Adj. Purchasing Power",      value: adjusted_pp,                 cat: "You"},
+  {label: "Your Annual Stipend",             value: annual_stipend,              cat: "You"}
+]
+
+Plot.plot({
+  title: "Your Stipend vs. Key Benchmarks",
+  width: 640,
+  height: 310,
+  marginLeft: 245,
+  x: {label: "Annual $ →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {
+    domain: ["Reference", "Federal Benchmark", "Living Wage", "You"],
+    range: ["#e74c3c", "#3498db", "#27ae60", "#f39c12"],
+    legend: true
+  },
+  marks: [
+    Plot.barX(benchmark_data, {
+      x: "value", y: "label", fill: "cat",
+      sort: {y: "x"}, rx: 3, tip: true
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+### 🌎 City Purchasing Power
+
+```{ojs}
+//| echo: false
+city_comparison_data = cities_data.map(c => ({
+  city: c.name,
+  adjusted: Math.round(annual_stipend * (100 / c.coli)),
+  living_wage: c.living_wage,
+  sufficient: Math.round(annual_stipend * (100 / c.coli)) >= c.living_wage
+}))
+
+Plot.plot({
+  title: `How $${annual_stipend.toLocaleString()}/yr Stretches Across University Cities`,
+  subtitle: "Tick mark (|) shows each city's MIT living wage. Green = meets living wage.",
+  width: 660,
+  height: 380,
+  marginLeft: 165,
+  x: {label: "Adjusted Annual Value ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {
+    domain: [true, false],
+    range: ["#27ae60", "#e74c3c"],
+    legend: true,
+    tickFormat: d => d ? "≥ Living Wage ✓" : "< Living Wage ✗"
+  },
+  marks: [
+    Plot.barX(city_comparison_data, {
+      x: "adjusted", y: "city", fill: "sufficient",
+      sort: {y: "x"}, rx: 3, tip: true
+    }),
+    Plot.tickX(city_comparison_data, {
+      x: "living_wage", y: "city",
+      stroke: "#1a1a1a", strokeWidth: 2.5
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+### 📆 PhD Stipend vs. Living Wage Over Time
+
+```{ojs}
+//| echo: false
+phd_years_range = Array.from({length: Math.round(phd_duration_sal) + 1}, (_, i) => i)
+
+stipend_timeline = phd_years_range.flatMap(y => [
+  // 2% annual raise = approximate average academic stipend COLA (below CPI, but common in practice)
+  {year: y, value: Math.round(annual_stipend * Math.pow(1.02, y)),       series: "Your Stipend (2% annual raise)"},
+  {year: y, value: selected_city.living_wage,                             series: "MIT Living Wage (" + selected_city.name + ")"},
+  // NIH NRSA 2024 base = $28,224; also projected at 2% to show policy trajectory
+  {year: y, value: Math.round(28224 * Math.pow(1.02, y)),                series: "NIH NRSA Benchmark"}
+])
+
+Plot.plot({
+  title: "Stipend Trajectory Over Your PhD Duration",
+  width: 600,
+  height: 300,
+  x: {label: "Year of PhD", tickFormat: d => `Yr ${d}`},
+  y: {label: "Annual Amount ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {
+    domain: ["Your Stipend (2% annual raise)", "MIT Living Wage (" + selected_city.name + ")", "NIH NRSA Benchmark"],
+    range: ["#f39c12", "#27ae60", "#3498db"],
+    legend: true
+  },
+  marks: [
+    Plot.line(stipend_timeline, {
+      x: "year", y: "value", stroke: "series",
+      strokeWidth: d => d.series.startsWith("Your") ? 3 : 1.8,
+      strokeDash: d => d.series.startsWith("MIT") ? [5, 3] : [],
+      tip: true
+    }),
+    Plot.dot(stipend_timeline.filter(d => d.series.startsWith("Your")), {
+      x: "year", y: "value", fill: "#f39c12", r: 4
+    })
+  ]
+})
+```
+
+:::
+
+---
+
 ## 4. Negotiating Your Stipend
 
 Most PhD students don't realize stipends are negotiable — especially at offer time. Here are evidence-based strategies:

@@ -70,6 +70,206 @@ Customize the percentages for your situation. The "50/30/20" framework is a usef
 
 ---
 
+## 📊 Interactive Budget & Retirement Planner {#sec-budget-planner}
+
+> **💾 Cross-page linked.** Stipend is loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). Adjust below to override for this session.
+
+```{ojs}
+//| echo: false
+wb_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
+
+viewof wb_stipend = {
+  const el = Inputs.range([15000, 60000], {
+    label: "Annual Stipend (pre-tax, $) — override if needed",
+    step: 500,
+    value: isFinite(wb_stipend_init) ? wb_stipend_init : 30000
+  });
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof wb_savings_pct = Inputs.range([5, 30], {
+  label: "Savings & Debt Repayment (% of take-home)",
+  step: 1,
+  value: 15
+})
+```
+
+```{ojs}
+//| echo: false
+viewof wb_ira_monthly = {
+  const saved = parseFloat(localStorage.getItem('phd_ira_monthly') || '100');
+  const el = Inputs.range([0, 583], {
+    label: "Monthly Roth IRA Contribution ($) — max $583/mo to hit $7,000/yr limit",
+    step: 10,
+    value: isFinite(saved) ? saved : 100
+  });
+  el.addEventListener('input', () => localStorage.setItem('phd_ira_monthly', String(el.value)));
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+// 0.88 ≈ 1 − 12% effective federal+state tax rate typical for grad-student income bracket
+wb_monthly_net  = Math.round((wb_stipend / 12) * 0.88)
+// Needs floor = 45% (minimum viable budget); 80 − savings_pct keeps needs + wants = 100 − savings
+wb_needs_pct    = Math.max(45, 80 - wb_savings_pct)
+wb_wants_pct    = 100 - wb_savings_pct - wb_needs_pct
+wb_needs_amt    = Math.round(wb_monthly_net * wb_needs_pct  / 100)
+wb_wants_amt    = Math.round(wb_monthly_net * wb_wants_pct  / 100)
+wb_savings_amt  = Math.round(wb_monthly_net * wb_savings_pct / 100)
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Take-Home/mo</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${wb_monthly_net}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #e74c3c;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Needs (${wb_needs_pct}%)</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e74c3c;">$${wb_needs_amt}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #3498db;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Wants (${wb_wants_pct}%)</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#3498db;">$${wb_wants_amt}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #27ae60;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Savings (${wb_savings_pct}%)</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#27ae60;">$${wb_savings_amt}</div>
+  </div>
+</div>`
+```
+
+::: {.panel-tabset}
+
+### 💰 Monthly Budget Breakdown
+
+```{ojs}
+//| echo: false
+budget_categories = [
+  {category: "Rent & Housing",        amount: Math.round(wb_needs_amt * 0.52), type: "Needs"},
+  {category: "Groceries",             amount: Math.round(wb_needs_amt * 0.17), type: "Needs"},
+  {category: "Utilities & Phone",     amount: Math.round(wb_needs_amt * 0.12), type: "Needs"},
+  {category: "Transportation",        amount: Math.round(wb_needs_amt * 0.11), type: "Needs"},
+  {category: "Health Insurance",      amount: Math.round(wb_needs_amt * 0.08), type: "Needs"},
+  {category: "Dining & Coffee",       amount: Math.round(wb_wants_amt * 0.40), type: "Wants"},
+  {category: "Entertainment & Subs.", amount: Math.round(wb_wants_amt * 0.32), type: "Wants"},
+  {category: "Clothing & Personal",   amount: Math.round(wb_wants_amt * 0.28), type: "Wants"},
+  {category: "Emergency Fund",        amount: Math.round(wb_savings_amt * 0.35), type: "Savings"},
+  {category: "Roth IRA",              amount: Math.min(wb_ira_monthly, Math.round(wb_savings_amt * 0.50)), type: "Savings"},
+  {category: "Debt Repayment",        amount: Math.round(wb_savings_amt * 0.15), type: "Savings"}
+]
+
+Plot.plot({
+  title: "Monthly Budget Breakdown (50/30/20 framework)",
+  width: 580,
+  height: 360,
+  marginLeft: 200,
+  x: {label: "Monthly $ →"},
+  color: {
+    domain: ["Needs", "Wants", "Savings"],
+    range: ["#e74c3c", "#3498db", "#27ae60"],
+    legend: true
+  },
+  marks: [
+    Plot.barX(budget_categories, {
+      x: "amount", y: "category", fill: "type",
+      sort: {y: "x", reverse: true}, rx: 3, tip: true
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+### 📈 Roth IRA Growth Projection
+
+```{ojs}
+//| echo: false
+ret_years = Array.from({length: 36}, (_, i) => i)
+contrib_levels = [50, 100, wb_ira_monthly, 200, 300]
+  .filter((v, i, a) => a.indexOf(v) === i)
+  .sort((a, b) => a - b)
+
+// 7% = long-run average annual real return of a diversified index-fund portfolio (historical US stock market)
+compound_data = contrib_levels.flatMap(monthly =>
+  ret_years.map(year => ({
+    year,
+    monthly,
+    value: Math.round(monthly * ((Math.pow(1 + 0.07/12, year * 12) - 1) / (0.07/12))),
+    label: `$${monthly}/mo`
+  }))
+)
+
+Plot.plot({
+  title: "Roth IRA Growth at 7% Average Annual Return",
+  subtitle: "Assumes consistent monthly contributions; your selected amount highlighted.",
+  width: 600,
+  height: 320,
+  x: {label: "Years of Contributions →"},
+  y: {label: "Portfolio Value ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {
+    domain: contrib_levels.map(m => `$${m}/mo`),
+    legend: true
+  },
+  marks: [
+    Plot.line(compound_data, {
+      x: "year", y: "value",
+      stroke: d => `$${d.monthly}/mo`,
+      strokeWidth: d => d.monthly === wb_ira_monthly ? 3.5 : 1.5,
+      strokeOpacity: d => d.monthly === wb_ira_monthly ? 1 : 0.5,
+      tip: true
+    }),
+    Plot.dot(
+      compound_data.filter(d => d.monthly === wb_ira_monthly && d.year % 5 === 0),
+      {x: "year", y: "value", fill: "#f39c12", r: 5, tip: true}
+    )
+  ]
+})
+```
+
+### 🎯 Savings Milestones
+
+```{ojs}
+//| echo: false
+milestone_months = Array.from({length: 61}, (_, i) => i)
+
+milestones_data = milestone_months.map(m => ({
+  month: m,
+  emergency_1k:  Math.min(wb_savings_amt * 0.35 * m, 1000),
+  emergency_3mo: Math.min(wb_savings_amt * 0.35 * m, wb_monthly_net * 3),
+  emergency_6mo: Math.min(wb_savings_amt * 0.35 * m, wb_monthly_net * 6)
+}))
+
+milestones_tidy = milestones_data.flatMap(d => [
+  {month: d.month, value: d.emergency_1k,  series: "$1,000 Starter Fund"},
+  {month: d.month, value: d.emergency_3mo, series: "3-Month Emergency Fund ($" + (wb_monthly_net*3).toLocaleString() + ")"},
+  {month: d.month, value: d.emergency_6mo, series: "6-Month Emergency Fund ($" + (wb_monthly_net*6).toLocaleString() + ")"}
+])
+
+Plot.plot({
+  title: "Emergency Fund Build-Up Over Time",
+  subtitle: "Saving " + wb_savings_pct + "% of take-home each month toward emergency fund.",
+  width: 600,
+  height: 300,
+  x: {label: "Months →"},
+  y: {label: "Emergency Fund Balance ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {legend: true},
+  marks: [
+    Plot.line(milestones_tidy, {
+      x: "month", y: "value", stroke: "series",
+      strokeWidth: 2, tip: true
+    }),
+    Plot.ruleY([0])
+  ]
+})
+```
+
+:::
+
+---
+
 ## 3. Retirement Accounts Available to Graduate Students
 
 Even contributing $50–$100/month to a Roth IRA in graduate school can grow to $30,000–$50,000 by retirement (assuming 7% average annual return over 35 years).
