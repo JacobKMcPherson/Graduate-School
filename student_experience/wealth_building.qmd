@@ -1,0 +1,338 @@
+---
+title: "Wealth Building"
+subtitle: "Financial planning for PhD students on a graduate stipend"
+description: "Budgeting templates, retirement account options, student loan management, and credit-building strategies — all calibrated for a graduate school income."
+order: 2
+---
+
+Building financial security on a graduate stipend is challenging but possible. The key is starting early — even small, consistent contributions to an emergency fund and retirement account compound significantly over a 5–7 year PhD program. This guide covers budgeting, saving, investing, and managing debt on a grad-school income.
+
+---
+
+## 1. Key Financial Milestones for Graduate Students
+
+Work through these roughly in order:
+
+1. **Build a $1,000 starter emergency fund** — protects against unexpected car repairs, medical bills, etc.
+2. **Maximize employer retirement match** — if your university offers any match on a 403(b) or 457(b), contribute at least enough to capture the full match (free money).
+3. **Pay off high-interest debt** (>7% APR) — credit cards and private student loans.
+4. **Build a 3–6 month emergency fund** — equivalent to 3–6 months of essential expenses.
+5. **Contribute to a Roth IRA** — up to $7,000/year (2024 limit) if you have earned income (TA/RA W-2). Fellowship income may also qualify — confirm with a tax advisor.
+6. **Reduce or refinance moderate-interest debt** (undergraduate loans, if applicable).
+7. **Increase retirement contributions** in a 403(b) / 457(b) if available.
+
+---
+
+## 2. Monthly Budget Template
+
+Customize the percentages for your situation. The "50/30/20" framework is a useful starting point:
+
+| Category | Target % of Take-Home | Your Target ($/mo) | Actual ($/mo) |
+|---|---|---|---|
+| **Needs** (housing, utilities, groceries, transport, insurance) | 50% | | |
+| **Wants** (dining out, entertainment, subscriptions, hobbies) | 30% | | |
+| **Savings & Debt Repayment** (emergency fund, retirement, loan payments) | 20% | | |
+
+> On a tight stipend, the 50/30/20 split may not be achievable. Prioritize covering needs first, then savings, then wants. Even $50/month to an emergency fund is better than nothing.
+
+### Monthly Budget Detail
+
+| Line Item | Budget ($/mo) | Actual ($/mo) |
+|---|---|---|
+| **INCOME** | | |
+| Net stipend (after taxes) | | |
+| Side income (tutoring, consulting, etc.) | | |
+| **EXPENSES — Needs** | | |
+| Rent | | |
+| Utilities | | |
+| Groceries | | |
+| Transportation | | |
+| Health insurance premium | | |
+| Phone | | |
+| Minimum loan payments | | |
+| **EXPENSES — Wants** | | |
+| Dining out & coffee | | |
+| Entertainment & streaming | | |
+| Clothing & personal care | | |
+| Hobbies | | |
+| **SAVINGS & INVESTMENTS** | | |
+| Emergency fund contribution | | |
+| Roth IRA contribution | | |
+| 403(b) / 457(b) contribution | | |
+| Extra debt repayment | | |
+| **Net Cash Flow (Income − Expenses)** | | |
+
+**Free budgeting tools:**
+
+- [YNAB (You Need A Budget)](https://www.ynab.com/) — free for students
+- [Mint / Credit Karma](https://www.creditkarma.com/)
+- [Personal Capital (Empower)](https://www.empower.com/)
+
+---
+
+## 📊 Interactive Budget & Retirement Planner {#sec-budget-planner}
+
+> **💾 Cross-page linked.** Stipend is loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). Adjust below to override for this session.
+
+```{ojs}
+//| echo: false
+wb_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
+
+viewof wb_stipend = {
+  const el = Inputs.range([15000, 60000], {
+    label: "Annual Stipend (pre-tax, $) — override if needed",
+    step: 500,
+    value: isFinite(wb_stipend_init) ? wb_stipend_init : 30000
+  });
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof wb_savings_pct = Inputs.range([5, 30], {
+  label: "Savings & Debt Repayment (% of take-home)",
+  step: 1,
+  value: 15
+})
+```
+
+```{ojs}
+//| echo: false
+viewof wb_ira_monthly = {
+  const saved = parseFloat(localStorage.getItem('phd_ira_monthly') || '100');
+  const el = Inputs.range([0, 583], {
+    label: "Monthly Roth IRA Contribution ($) — max $583/mo to hit $7,000/yr limit",
+    step: 10,
+    value: isFinite(saved) ? saved : 100
+  });
+  el.addEventListener('input', () => localStorage.setItem('phd_ira_monthly', String(el.value)));
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+// 0.88 ≈ 1 − 12% effective federal+state tax rate typical for grad-student income bracket
+wb_monthly_net  = Math.round((wb_stipend / 12) * 0.88)
+// Needs floor = 45% (minimum viable budget); 80 − savings_pct keeps needs + wants = 100 − savings
+wb_needs_pct    = Math.max(45, 80 - wb_savings_pct)
+wb_wants_pct    = 100 - wb_savings_pct - wb_needs_pct
+wb_needs_amt    = Math.round(wb_monthly_net * wb_needs_pct  / 100)
+wb_wants_amt    = Math.round(wb_monthly_net * wb_wants_pct  / 100)
+wb_savings_amt  = Math.round(wb_monthly_net * wb_savings_pct / 100)
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Take-Home/mo</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${wb_monthly_net}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #e74c3c;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Needs (${wb_needs_pct}%)</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e74c3c;">$${wb_needs_amt}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #3498db;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Wants (${wb_wants_pct}%)</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#3498db;">$${wb_wants_amt}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #27ae60;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Savings (${wb_savings_pct}%)</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#27ae60;">$${wb_savings_amt}</div>
+  </div>
+</div>`
+```
+
+::: {.panel-tabset}
+
+### 💰 Monthly Budget Breakdown
+
+```{ojs}
+//| echo: false
+budget_categories = [
+  {category: "Rent & Housing",        amount: Math.round(wb_needs_amt * 0.52), type: "Needs"},
+  {category: "Groceries",             amount: Math.round(wb_needs_amt * 0.17), type: "Needs"},
+  {category: "Utilities & Phone",     amount: Math.round(wb_needs_amt * 0.12), type: "Needs"},
+  {category: "Transportation",        amount: Math.round(wb_needs_amt * 0.11), type: "Needs"},
+  {category: "Health Insurance",      amount: Math.round(wb_needs_amt * 0.08), type: "Needs"},
+  {category: "Dining & Coffee",       amount: Math.round(wb_wants_amt * 0.40), type: "Wants"},
+  {category: "Entertainment & Subs.", amount: Math.round(wb_wants_amt * 0.32), type: "Wants"},
+  {category: "Clothing & Personal",   amount: Math.round(wb_wants_amt * 0.28), type: "Wants"},
+  {category: "Emergency Fund",        amount: Math.round(wb_savings_amt * 0.35), type: "Savings"},
+  {category: "Roth IRA",              amount: Math.min(wb_ira_monthly, Math.round(wb_savings_amt * 0.50)), type: "Savings"},
+  {category: "Debt Repayment",        amount: Math.round(wb_savings_amt * 0.15), type: "Savings"}
+]
+
+Plot.plot({
+  title: "Monthly Budget Breakdown (50/30/20 framework)",
+  width: 580,
+  height: 360,
+  marginLeft: 200,
+  x: {label: "Monthly $ →"},
+  color: {
+    domain: ["Needs", "Wants", "Savings"],
+    range: ["#e74c3c", "#3498db", "#27ae60"],
+    legend: true
+  },
+  marks: [
+    Plot.barX(budget_categories, {
+      x: "amount", y: "category", fill: "type",
+      sort: {y: "x", reverse: true}, rx: 3, tip: true
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+### 📈 Roth IRA Growth Projection
+
+```{ojs}
+//| echo: false
+ret_years = Array.from({length: 36}, (_, i) => i)
+contrib_levels = [50, 100, wb_ira_monthly, 200, 300]
+  .filter((v, i, a) => a.indexOf(v) === i)
+  .sort((a, b) => a - b)
+
+// 7% = long-run average annual real return of a diversified index-fund portfolio (historical US stock market)
+compound_data = contrib_levels.flatMap(monthly =>
+  ret_years.map(year => ({
+    year,
+    monthly,
+    value: Math.round(monthly * ((Math.pow(1 + 0.07/12, year * 12) - 1) / (0.07/12))),
+    label: `$${monthly}/mo`
+  }))
+)
+
+Plot.plot({
+  title: "Roth IRA Growth at 7% Average Annual Return",
+  subtitle: "Assumes consistent monthly contributions; your selected amount highlighted.",
+  width: 600,
+  height: 320,
+  x: {label: "Years of Contributions →"},
+  y: {label: "Portfolio Value ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {
+    domain: contrib_levels.map(m => `$${m}/mo`),
+    legend: true
+  },
+  marks: [
+    Plot.line(compound_data, {
+      x: "year", y: "value",
+      stroke: d => `$${d.monthly}/mo`,
+      strokeWidth: d => d.monthly === wb_ira_monthly ? 3.5 : 1.5,
+      strokeOpacity: d => d.monthly === wb_ira_monthly ? 1 : 0.5,
+      tip: true
+    }),
+    Plot.dot(
+      compound_data.filter(d => d.monthly === wb_ira_monthly && d.year % 5 === 0),
+      {x: "year", y: "value", fill: "#f39c12", r: 5, tip: true}
+    )
+  ]
+})
+```
+
+### 🎯 Savings Milestones
+
+```{ojs}
+//| echo: false
+milestone_months = Array.from({length: 61}, (_, i) => i)
+
+milestones_data = milestone_months.map(m => ({
+  month: m,
+  emergency_1k:  Math.min(wb_savings_amt * 0.35 * m, 1000),
+  emergency_3mo: Math.min(wb_savings_amt * 0.35 * m, wb_monthly_net * 3),
+  emergency_6mo: Math.min(wb_savings_amt * 0.35 * m, wb_monthly_net * 6)
+}))
+
+milestones_tidy = milestones_data.flatMap(d => [
+  {month: d.month, value: d.emergency_1k,  series: "$1,000 Starter Fund"},
+  {month: d.month, value: d.emergency_3mo, series: "3-Month Emergency Fund ($" + (wb_monthly_net*3).toLocaleString() + ")"},
+  {month: d.month, value: d.emergency_6mo, series: "6-Month Emergency Fund ($" + (wb_monthly_net*6).toLocaleString() + ")"}
+])
+
+Plot.plot({
+  title: "Emergency Fund Build-Up Over Time",
+  subtitle: "Saving " + wb_savings_pct + "% of take-home each month toward emergency fund.",
+  width: 600,
+  height: 300,
+  x: {label: "Months →"},
+  y: {label: "Emergency Fund Balance ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {legend: true},
+  marks: [
+    Plot.line(milestones_tidy, {
+      x: "month", y: "value", stroke: "series",
+      strokeWidth: 2, tip: true
+    }),
+    Plot.ruleY([0])
+  ]
+})
+```
+
+:::
+
+---
+
+## 3. Retirement Accounts Available to Graduate Students
+
+Even contributing $50–$100/month to a Roth IRA in graduate school can grow to $30,000–$50,000 by retirement (assuming 7% average annual return over 35 years).
+
+| Account Type | Who Can Contribute | 2024 Limit | Tax Treatment | Notes |
+|---|---|---|---|---|
+| **Roth IRA** | Anyone with earned income (W-2 or qualifying fellowship income) under income limits | $7,000/yr ($8,000 if 50+) | Contributions post-tax; growth & withdrawals tax-free | Best option for most grad students (low tax bracket now) |
+| **Traditional IRA** | Anyone with earned income | $7,000/yr | Contributions may be deductible; withdrawals taxed | Less advantageous than Roth at low income |
+| **403(b)** | University employees (TA/RA) | $23,000/yr (2024) | Pre-tax contributions; taxed on withdrawal | Only if your university offers enrollment |
+| **457(b)** | Some university employees | $23,000/yr | Pre-tax; no early withdrawal penalty | Rare but valuable if available |
+
+> **Fellowship students:** IRS guidance on whether fellowship income qualifies as "earned income" for IRA purposes has evolved. As of 2023, qualified stipends can count. Consult [IRS Publication 590-A](https://www.irs.gov/publications/p590a) or a tax professional.
+
+---
+
+## 4. Managing Student Loan Debt
+
+If you carry undergraduate loans into graduate school:
+
+- **Federal loans are typically deferred** during enrollment (in-school deferment), but interest may continue accruing on unsubsidized loans.
+- Consider **paying interest only** during graduate school to prevent capitalization.
+- Research **income-driven repayment (IDR)** plans: SAVE, PAYE, IBR. These cap payments at a percentage of discretionary income, which can be very low (or $0) on a grad stipend.
+- **Public Service Loan Forgiveness (PSLF):** If you plan to work at a nonprofit or government employer after graduation, payments during grad school can count toward the 120 required for PSLF (if you are on an IDR plan and not in deferment). Contact your servicer to verify.
+
+**Tools:**
+
+- [Federal Student Aid Loan Simulator](https://studentaid.gov/loan-simulator/)
+- [PSLF Help Tool](https://studentaid.gov/pslf/)
+
+---
+
+## 5. Tax Strategy for Graduate Students
+
+| Strategy | Benefit | Notes |
+|---|---|---|
+| Claim the **Lifetime Learning Credit** | Up to $2,000 credit on tuition & fees | Phases out at higher incomes; cannot be combined with some exclusions |
+| Deduct **student loan interest** | Up to $2,500 deduction | Income limits apply |
+| Contribute to **Roth IRA** | Tax-free growth | Requires earned income; standard Roth contributions do not require Form 8606 (that form is for nondeductible traditional IRA contributions and Roth conversions) |
+| Track **unreimbursed business expenses** (conferences, supplies) | May be deductible as Schedule C expenses if self-employed (fellowship) | Keep receipts |
+| File **quarterly estimated taxes** (fellowships) | Avoid underpayment penalty | Use IRS Form 1040-ES |
+
+---
+
+## 6. Building Credit During Graduate School
+
+Good credit saves money on car loans, mortgages, and insurance premiums post-PhD.
+
+- [ ] Open a **no-annual-fee credit card** (e.g., a student card or secured card).
+- [ ] Charge a small recurring expense (e.g., streaming subscription) and pay it in full each month.
+- [ ] Keep **credit utilization below 30%** of your credit limit.
+- [ ] Do **not** close old accounts — length of credit history matters.
+- [ ] Check your **free credit reports** annually at [AnnualCreditReport.com](https://www.annualcreditreport.com/).
+
+---
+
+## 7. Additional Resources
+
+- [r/GradSchool (Reddit)](https://www.reddit.com/r/GradSchool/) — community discussions
+- [The PhD Student's Guide to Personal Finance (NerdWallet)](https://www.nerdwallet.com/)
+- [Bogleheads Wiki: Getting Started](https://www.bogleheads.org/wiki/Getting_started) — low-cost index fund investing
+- [Personal Finance for PhDs (blog)](https://pfforphds.com/) — tax and finance advice specifically for graduate students
+- [IRS Free File](https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free) — free federal tax filing
+
+---
+
+*Last reviewed: 2024. Contribution limits and tax rules change annually — verify current figures at [IRS.gov](https://www.irs.gov/).*

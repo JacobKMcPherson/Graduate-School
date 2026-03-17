@@ -1,0 +1,174 @@
+---
+title: "Health Insurance & Mental Health"
+subtitle: "Navigating coverage, mental health support, and wellbeing as a PhD student"
+description: "Insurance glossary, coverage-gap solutions, mental health resource tiers, US crisis hotlines, and advisor-relationship red flags for PhD students."
+order: 4
+---
+
+Access to affordable, comprehensive health insurance and mental health support is a critical — and often underdiscussed — dimension of graduate student well-being. This guide covers understanding your university health plan, supplementing coverage gaps, navigating mental health resources, and recognizing and responding to crisis situations.
+
+---
+
+## 1. Health Insurance: Key Questions
+
+- [ ] Is health insurance **provided** by the university or do I need to enroll separately?
+- [ ] What is the **annual premium** and what portion (if any) do I pay?
+- [ ] What is the **deductible** (amount I pay before insurance kicks in)?
+- [ ] What is the **out-of-pocket maximum** (the most I could ever pay in a year)?
+- [ ] Is my primary care physician (PCP) and any existing specialists **in-network**?
+- [ ] Does the plan cover **mental health and substance use treatment** at the same level as physical health? (Required by the Mental Health Parity Act.)
+- [ ] What are the **dental and vision** benefits? Are they included or purchased separately?
+- [ ] Does the plan cover **preventive care** (annual physicals, vaccines, screenings) at 100%?
+- [ ] Does the plan cover **reproductive health** (contraception, prenatal care, fertility, abortion services)?
+- [ ] Is there **24/7 telehealth access** included?
+
+---
+
+## 2. Understanding Your Health Plan
+
+### Key Terms Glossary
+
+| Term | Definition |
+|---|---|
+| **Premium** | The monthly cost of the plan, regardless of whether you use healthcare |
+| **Deductible** | Amount you pay out-of-pocket before insurance begins paying for covered services |
+| **Copay** | A fixed fee you pay at each visit (e.g., $20 for a PCP visit) |
+| **Coinsurance** | The percentage you pay after meeting your deductible (e.g., 20%) |
+| **Out-of-Pocket Maximum** | The most you will pay in a plan year; after this, insurance pays 100% |
+| **In-Network** | Providers who have a contract with your insurer (lower cost to you) |
+| **Out-of-Network** | Providers without a contract (much higher cost, often not covered) |
+| **FSA** | Flexible Spending Account — pre-tax money for medical expenses (use it or lose it) |
+| **HSA** | Health Savings Account — pre-tax savings for medical expenses; rolls over year to year (requires a High Deductible Health Plan) |
+| **EOB** | Explanation of Benefits — a statement from your insurer showing what was billed, paid, and owed |
+
+### Annual Health Insurance Checklist
+
+- [ ] Review the **Summary of Benefits and Coverage (SBC)** — a standardized 2-page summary required by law.
+- [ ] Confirm your **enrollment window** — graduate student plans often renew each August/September.
+- [ ] If you are under 26, compare the cost of staying on a **parent's plan** vs. the university plan.
+- [ ] If you are married/partnered, compare **individual vs. family plan** costs.
+- [ ] Check whether the plan includes **dental and vision**, or whether you need to enroll separately.
+- [ ] Set up an **HSA or FSA** if eligible — reduces taxable income.
+
+---
+
+## 3. Common Coverage Gaps and How to Address Them
+
+| Gap | Solution |
+|---|---|
+| High deductible (>$1,500/individual) | Enroll in an HSA; contribute the maximum to offset risk |
+| Dental coverage missing or weak | Look into standalone dental insurance (e.g., Delta Dental individual plans, ~$20–$40/mo) or a dental school clinic for low-cost care |
+| Vision coverage missing | VSP individual plans start at ~$13/mo; many optometrists accept direct-pay patients at $50–$100 for an exam |
+| Mental health visits limited or high copay | Use university counseling center (often free); ask HR about mental health parity complaint process |
+| Prescription costs high | Use [GoodRx](https://www.goodrx.com/) for discounts; ask your doctor for generic equivalents |
+| Reproductive health not covered | Contact your Title IX office; [Planned Parenthood](https://www.plannedparenthood.org/) offers sliding-scale services |
+| Telehealth not included | [MDLive](https://www.mdlive.com/), [Teladoc](https://www.teladoc.com/), and similar services offer low-cost per-visit access |
+
+---
+
+## 4. Mental Health Resources
+
+### Why Graduate Students Are at High Risk
+
+Research consistently shows PhD students experience depression and anxiety at rates 6 times higher than the general population (Evans et al., *Nature Biotechnology*, 2018). Stressors include:
+
+- Funding uncertainty
+- Isolation and lack of social support
+- Advisor relationship difficulties
+- Imposter syndrome
+- Career uncertainty
+- Long work hours with poor work-life boundaries
+
+### Recognizing When to Seek Help
+
+It is appropriate to seek support if you experience, for more than two weeks:
+
+- [ ] Persistent sadness, emptiness, or hopelessness
+- [ ] Loss of interest in research or activities you previously enjoyed
+- [ ] Significant changes in sleep, appetite, or weight
+- [ ] Difficulty concentrating or making decisions
+- [ ] Feelings of worthlessness or excessive guilt
+- [ ] Thoughts of death or suicide *(if present, seek help immediately)*
+
+### Levels of Mental Health Support
+
+| Level | What It Is | How to Access |
+|---|---|---|
+| **Self-help / peer support** | Apps, journaling, graduate student mental health groups | Free; see apps below |
+| **University counseling center** | Free individual and group therapy for enrolled students | Campus counseling center website; typically limited to 6–12 sessions |
+| **University psychiatry** | Medication management and psychiatric evaluation | Referral from counseling center |
+| **Community mental health** | Sliding-scale therapy in the community | [Psychology Today therapist finder](https://www.psychologytoday.com/us/therapists) |
+| **In-network therapist (via insurance)** | Covered (partially) by health plan | Check insurer's provider directory |
+| **Crisis services** | Immediate help for safety crises | See Crisis Resources below |
+
+### Crisis Resources (US)
+
+| Resource | Contact | Notes |
+|---|---|---|
+| **988 Suicide & Crisis Lifeline** | Call or text **988** | 24/7; free; confidential |
+| **Crisis Text Line** | Text **HOME** to **741741** | 24/7; text-based |
+| **SAMHSA National Helpline** | 1-800-662-4357 | 24/7; substance use and mental health |
+| **Trans Lifeline** | 877-565-8860 | By and for trans people |
+| **Trevor Project (LGBTQ+ youth)** | 1-866-488-7386 or text START to 678-678 | 24/7 |
+| **Campus Emergency / Security** | Your campus emergency number | Physical safety crises |
+
+> **If you are in immediate danger, call 911 or go to your nearest emergency room.**
+
+---
+
+## 5. Mental Health Apps and Self-Help Tools
+
+| App / Resource | Focus | Cost |
+|---|---|---|
+| [Headspace](https://www.headspace.com/) | Meditation, stress reduction | Free trial; many universities offer free access |
+| [Calm](https://www.calm.com/) | Mindfulness, sleep | Free trial; discounts available |
+| [Woebot](https://woebothealth.com/) | CBT-based mental health chatbot | Free |
+| [Sanvello](https://www.sanvello.com/) | Anxiety, depression self-management | Free basic; covered by some insurance |
+| [7 Cups](https://www.7cups.com/) | Peer support chat | Free |
+| [MindShift CBT](https://www.anxietycanada.com/resources/mindshift-cbt/) | Anxiety management | Free |
+
+---
+
+## 6. Advisor Relationship and Mental Health
+
+The advisor relationship is one of the strongest predictors of graduate student mental health. Signs of an unhealthy advising relationship include:
+
+- Unpredictable or volatile emotional reactions
+- Unrealistic demands on time (including nights, weekends, holidays)
+- Dismissiveness about mental health or personal circumstances
+- Taking credit for student work or withholding authorship
+- Isolation from other mentors or collaborators
+
+**If you are experiencing difficulties:**
+
+1. Consult your program's **graduate student ombudsperson** or **Dean of Graduate Studies** — these conversations are typically confidential.
+2. Reach out to a **committee member** or secondary mentor.
+3. Document interactions in writing where possible.
+4. Know that **changing advisors is possible** at most institutions, even if it feels difficult.
+
+---
+
+## 7. Physical Health and Wellness
+
+Don't overlook the basics — they significantly affect mental health:
+
+- [ ] Schedule an **annual physical** and use your preventive care benefits.
+- [ ] Use the **campus recreation center** (typically free or very low-cost for students).
+- [ ] Prioritize **7–9 hours of sleep** — chronic sleep deprivation impairs cognition, emotional regulation, and immune function.
+- [ ] Set **boundaries around work hours** — research shows diminishing returns beyond 50 hours/week.
+- [ ] Maintain **social connections** outside your lab; isolation is a major risk factor for depression.
+
+---
+
+## 8. Additional Resources
+
+- [Graduate Mental Health Toolkit (NAGPS)](https://nagps.org/)
+- [Active Minds](https://www.activeminds.org/) — mental health advocacy in higher education
+- [JED Foundation](https://jedfoundation.org/) — emotional health and suicide prevention in teens/young adults
+- [NAMI (National Alliance on Mental Illness)](https://www.nami.org/) — helpline: 1-800-950-6264
+- [SAMHSA Treatment Locator](https://findtreatment.gov/)
+- Evans, T.M. et al. (2018). Evidence for a mental health crisis in graduate education. *Nature Biotechnology*, 36, 282–284. [https://doi.org/10.1038/nbt.4089](https://doi.org/10.1038/nbt.4089)
+
+---
+
+*Last reviewed: 2024. Mental health resources, hotline numbers, and insurance requirements can change. Verify current resources at your institution's counseling center website.*

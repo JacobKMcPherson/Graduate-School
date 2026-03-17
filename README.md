@@ -1,6 +1,30 @@
-# Project Title
+# PhD Graduate Student Template Repository
 
-Welcome to our Science Project Repository!
+Welcome to our Graduate Student Template Repository!
+
+This repository is a **comprehensive toolkit** for PhD students, combining academic-work templates (manuscripts, grants, presentations, protocols) with practical resources to improve every dimension of the graduate student experience — from fair compensation and financial wellness to family planning, healthcare, and career readiness.
+
+> Jump to: [Academic Templates](#academic-templates) · [PhD Student Experience Resources](#phd-student-experience-resources)
+
+---
+
+## PhD Student Experience Resources
+
+These guides are rendered as an interactive [Quarto](https://quarto.org/) website via GitHub Actions and deployed to GitHub Pages. The source files live in the [`student_experience/`](student_experience/) directory.
+
+> 🌐 **[View the live website](https://jacobkmcpherson.github.io/Graduate-School/)**
+
+| Resource | Description |
+|---|---|
+| [Salary & Cost of Living](student_experience/salary_and_cost_of_living.qmd) | Evaluate your stipend against local cost of living; negotiate effectively |
+| [Wealth Building](student_experience/wealth_building.qmd) | Budgeting, emergency funds, retirement, and tax strategy on a grad stipend |
+| [Family Planning](student_experience/family_planning.qmd) | Parental leave, childcare, partner employment, and family-friendly policies |
+| [Health Insurance & Mental Health](student_experience/health_insurance.qmd) | Understand your coverage, find mental health support, and navigate crises |
+| [Career ROI, Contracts & Employment Prospects](student_experience/career_roi.qmd) | Assess the value of your PhD, review offer letters, and plan your job search |
+
+---
+
+## Academic Templates
 
 This project uses [CRediT (Contributor Roles Taxonomy)](https://credit.niso.org/) to clearly specify the roles and contributions of each individual participant from the outset. CRediT enables transparency and recognition for the diverse contributions to scholarly work.
 
@@ -63,3 +87,4 @@ For clarifications on CRediT roles or project process, open an issue or contact 
 
 **References:**
 - [CRediT Taxonomy](https://credit.niso.org/)
+- [PhD Student Experience Website](https://jacobkmcpherson.github.io/Graduate-School/)

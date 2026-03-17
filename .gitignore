@@ -3,5 +3,11 @@
 .RData
 .Ruserdata
 
+# Quarto build artifacts
+/_site/
+/.quarto/
+*_cache/
+*_files/
+
 manuscript/data/raw/Clostridioides difficile pathogen database (2025-10-28).csv
 manuscript/data/raw/Clostridioides difficile pathogen database (2025-10-28).csv.gz

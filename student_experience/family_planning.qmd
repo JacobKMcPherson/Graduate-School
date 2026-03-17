@@ -1,0 +1,361 @@
+---
+title: "Family Planning"
+subtitle: "Parental leave, childcare, and family resources for PhD students"
+description: "FMLA and Title IX rights, institutional parental leave checklists, childcare cost benchmarks and subsidies, family budget planning, and partner career guidance."
+order: 3
+---
+
+Starting or growing a family during a PhD program presents unique logistical, financial, and professional challenges. This guide covers parental leave policies, childcare resources, financial planning for family growth, partner career considerations, and institutional accommodations. Planning ahead — and knowing your rights — makes an enormous difference.
+
+---
+
+## 1. Key Questions to Ask Before or During Your Program
+
+- [ ] What is the program's **parental leave policy** for graduate students (paid vs. unpaid, duration)?
+- [ ] Does parental leave **extend your funding** or merely pause requirements?
+- [ ] Can you take a **medical leave of absence** without penalty or loss of funding?
+- [ ] What are the **childcare options** near campus (university-subsidized, waitlist timelines)?
+- [ ] Does the university offer a **dependent care FSA (DCFSA)** for graduate student employees?
+- [ ] Does your **health insurance** cover prenatal care, delivery, and pediatric care? (See [Health Insurance guide](health_insurance.qmd))
+- [ ] Is your advisor/program supportive of parenting students? (Ask current students — not just faculty.)
+- [ ] What is the policy on **remote work / flexible scheduling** during parenting responsibilities?
+
+---
+
+## 2. Parental Leave: What to Know
+
+### Federal Protections
+
+- **FMLA (Family and Medical Leave Act):** Provides up to 12 weeks of **unpaid, job-protected** leave for the birth or adoption of a child. Applies to employees who have worked 12 months and 1,250 hours — may apply to TA/RA employees, but fellowship recipients may not qualify. Confirm with your HR office.
+- **Title IX:** Prohibits sex discrimination, which includes discrimination based on pregnancy and parenting status. Universities receiving federal funding must provide reasonable accommodations.
+- **The PUMP Act (2022):** Requires employers to provide break time and private space for nursing employees.
+
+### Institutional Leave Policies
+
+Parental leave varies dramatically by institution. Use this checklist when reviewing your program's policy:
+
+| Question | Your Institution's Policy |
+|---|---|
+| Weeks of paid parental leave for primary caregiver | |
+| Weeks of paid parental leave for non-primary caregiver / partner | |
+| Leave available to fellowship-funded students (not just employees) | |
+| Whether leave **extends** funding timeline (e.g., adds 1 semester to guarantee) | |
+| Whether TA/RA duties are waived during leave | |
+| Policy for adoption or foster placement | |
+| Lactation room availability on campus | |
+
+**Resources:**
+
+- [NWLC Pregnancy & Parenting in Higher Education](https://nwlc.org/)
+- [Pregnant Scholar](https://www.pregnantscholar.org/) — legal rights database for students and postdocs by institution
+- [CoPI Family Leave Policy Database](https://copi.science/) — comparative policies across research institutions
+
+---
+
+## 3. Childcare Planning
+
+### Cost Benchmarks
+
+| Childcare Type | Approximate Annual Cost (US, 2024) |
+|---|---|
+| Infant full-time daycare center | $15,000 – $30,000 |
+| Toddler full-time daycare center | $12,000 – $25,000 |
+| Family home daycare | $10,000 – $20,000 |
+| Au pair (full-time live-in) | $20,000 – $35,000 + room/board |
+| Part-time babysitter / nanny share | $8,000 – $18,000 |
+
+> Childcare in major university cities (Boston, NYC, San Francisco) often exceeds the higher end of these ranges.
+
+### Reducing Childcare Costs
+
+- [ ] **Apply to university-run childcare centers** as early as possible — waitlists can be 1–2 years.
+- [ ] Ask whether your program offers **childcare subsidies** or emergency childcare funds (many graduate schools have these; they are underutilized).
+- [ ] Investigate **CCAP (Child Care and Development Fund)** state subsidies — income limits often cover graduate stipends.
+- [ ] Use a **Dependent Care FSA (DCFSA)** to pay up to $5,000/year in childcare costs pre-tax (if offered by your university as an employee benefit).
+- [ ] Claim the **Child and Dependent Care Tax Credit** (Form 2441) — up to 35% of $3,000 in qualified expenses for one child.
+- [ ] Explore **graduate student emergency childcare funds** through your graduate school or student government.
+- [ ] Look into **campus childcare co-ops** — some universities have informal cooperative care networks.
+
+---
+
+## 👶 Interactive Family Cost Calculator {#sec-family-calculator}
+
+> **💾 Cross-page linked.** Stipend is loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd).
+
+```{ojs}
+//| echo: false
+fp_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
+
+viewof fp_stipend = {
+  const el = Inputs.range([15000, 60000], {
+    label: "Annual Stipend (pre-tax, $) — override if needed (updates other pages)",
+    step: 500,
+    value: isFinite(fp_stipend_init) ? fp_stipend_init : 30000
+  });
+  el.addEventListener('input', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof fp_num_children = Inputs.range([0, 3], {
+  label: "Number of Young Children (ages 0–5)",
+  step: 1,
+  value: 1
+})
+```
+
+```{ojs}
+//| echo: false
+fp_childcare_options = [
+  {type: "Daycare Center (full-time)",   annual_cost: 20000},
+  {type: "Family Home Daycare",          annual_cost: 15000},
+  {type: "Nanny Share",                  annual_cost: 14000},
+  {type: "University Subsidized Care",   annual_cost:  8000},
+  {type: "Au Pair",                      annual_cost: 26000},
+  {type: "Relative / Unpaid Care",       annual_cost:     0}
+]
+
+viewof fp_childcare_type = Inputs.select(fp_childcare_options, {
+  label: "Primary Childcare Arrangement",
+  format: c => c.type,
+  value: fp_childcare_options[0]
+})
+```
+
+```{ojs}
+//| echo: false
+// 0.88 ≈ 1 − 12% effective tax rate for grad-student income bracket
+fp_monthly_net       = Math.round((fp_stipend / 12) * 0.88)
+fp_childcare_monthly = Math.round((fp_childcare_type.annual_cost * fp_num_children) / 12)
+// ~$300/child/mo covers diapers, formula/food, clothing, and basic supplies (ages 0–5)
+fp_other_child_mo    = Math.round(fp_num_children * 300)
+fp_remaining         = fp_monthly_net - fp_childcare_monthly - fp_other_child_mo
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Take-Home/mo</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${fp_monthly_net}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #e74c3c;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Childcare/mo</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e74c3c;">$${fp_childcare_monthly}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #e67e22;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Other Child Costs/mo</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e67e22;">$${fp_other_child_mo}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid ${fp_remaining >= 0 ? '#27ae60' : '#e74c3c'};border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Remaining/mo</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:${fp_remaining >= 0 ? '#27ae60' : '#e74c3c'};">$${fp_remaining}</div>
+  </div>
+</div>`
+```
+
+::: {.panel-tabset}
+
+### 💰 Monthly Budget Impact
+
+```{ojs}
+//| echo: false
+fp_needs_before = Math.round(fp_monthly_net * 0.50)
+fp_wants_before = Math.round(fp_monthly_net * 0.30)
+fp_save_before  = Math.round(fp_monthly_net * 0.20)
+
+fp_needs_after  = fp_needs_before
+fp_surplus_after = Math.max(0, fp_monthly_net - fp_needs_after - fp_childcare_monthly - fp_other_child_mo)
+fp_deficit_after = Math.max(0, -(fp_monthly_net - fp_needs_after - fp_childcare_monthly - fp_other_child_mo))
+
+fp_budget_tidy = [
+  {scenario: "Before Children", category: "Needs (Housing etc.)", amount: fp_needs_before},
+  {scenario: "Before Children", category: "Wants",                amount: fp_wants_before},
+  {scenario: "Before Children", category: "Savings",              amount: fp_save_before},
+  {scenario: "After Children",  category: "Needs (Housing etc.)", amount: fp_needs_after},
+  {scenario: "After Children",  category: "Childcare",            amount: fp_childcare_monthly},
+  {scenario: "After Children",  category: "Other Child Costs",    amount: fp_other_child_mo},
+  {scenario: "After Children",  category: "Remaining",            amount: fp_surplus_after},
+  {scenario: "After Children",  category: "Deficit (shortfall)",  amount: fp_deficit_after}
+]
+
+Plot.plot({
+  title: "Monthly Budget: Before vs. After Children",
+  subtitle: "Yellow dashed line = your monthly take-home income.",
+  width: 600,
+  height: 260,
+  x: {label: "Monthly $ →"},
+  y: {label: null},
+  color: {
+    domain: ["Needs (Housing etc.)", "Wants", "Savings", "Childcare", "Other Child Costs", "Remaining", "Deficit (shortfall)"],
+    range: ["#3498db", "#9b59b6", "#27ae60", "#e74c3c", "#e67e22", "#95a5a6", "#c0392b"],
+    legend: true
+  },
+  marks: [
+    Plot.barX(fp_budget_tidy, {
+      x: "amount", y: "scenario", fill: "category",
+      rx: 3, tip: true
+    }),
+    Plot.ruleX([fp_monthly_net], {stroke: "#f39c12", strokeWidth: 2.5, strokeDash: [5, 3]}),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+### 🏫 Childcare Cost vs. Subsidies
+
+```{ojs}
+//| echo: false
+fp_subsidy_scenarios = fp_childcare_options.map(ct => {
+  const gross        = ct.annual_cost;
+  const dcfsa_saving = Math.min(gross, 5000) * 0.22;
+  const ccap_subsidy = gross > 8000 ? Math.round(gross * 0.35) : 0;
+  const tax_credit   = Math.min(Math.round(gross * 0.20), 600);
+  const net_all      = Math.max(0, gross - dcfsa_saving - ccap_subsidy - tax_credit);
+  return {
+    type:           ct.type,
+    "Gross Annual Cost":            gross,
+    "After DCFSA (tax benefit)":    Math.round(gross - dcfsa_saving),
+    "After CCAP Subsidy":           Math.round(gross - dcfsa_saving - ccap_subsidy),
+    "After All Benefits":           Math.round(net_all)
+  };
+})
+
+fp_subsidy_stages = ["Gross Annual Cost", "After DCFSA (tax benefit)", "After CCAP Subsidy", "After All Benefits"]
+
+fp_subsidy_tidy = fp_subsidy_scenarios.flatMap(s =>
+  fp_subsidy_stages.map(stage => ({type: s.type, stage, value: s[stage]}))
+)
+
+Plot.plot({
+  title: "Annual Childcare Cost: Gross vs. Net After Subsidies (per child)",
+  subtitle: "DCFSA = Dependent Care FSA; CCAP = Child Care & Development Fund.",
+  width: 640,
+  height: 340,
+  marginLeft: 200,
+  fx: {label: null, tickFormat: d => d.replace(" ", "\n")},
+  x: {label: "Annual Cost ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {domain: fp_subsidy_stages, legend: true},
+  marks: [
+    Plot.barX(fp_subsidy_tidy, {
+      x: "value", y: "type", fill: "stage",
+      sort: {y: "-x", reduce: "first"},
+      rx: 3, tip: true,
+      fx: "stage"
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+### 📅 Long-Term Family Financial Outlook
+
+```{ojs}
+//| echo: false
+fp_outlook_years = Array.from({length: Math.ceil(fp_num_children > 0 ? 18 : 5) + 1}, (_, i) => i)
+
+fp_childcare_end_year = fp_num_children > 0 ? 5 : 0  // formal daycare typically ends at kindergarten (~age 5)
+
+fp_outlook_data = fp_outlook_years.map(y => {
+  // After kindergarten (~yr 5): afterschool care ~$3k/yr; after middle school (~yr 13): minimal ~$1k/yr
+  const childcare_annual = y < fp_childcare_end_year
+    ? fp_childcare_type.annual_cost * fp_num_children
+    : (y < 13 ? fp_num_children * 3000 : fp_num_children * 1000);
+  const annual_net = (fp_stipend * 0.88) - childcare_annual - (fp_num_children * 3600);
+  return {year: y, "Annual Net Income After Child Costs": annual_net, "Annual Childcare Cost": childcare_annual};
+})
+
+fp_outlook_tidy = fp_outlook_data.flatMap(d => [
+  {year: d.year, value: d["Annual Net Income After Child Costs"], series: "Annual Net Income After Child Costs"},
+  {year: d.year, value: d["Annual Childcare Cost"],               series: "Annual Childcare Cost"}
+])
+
+Plot.plot({
+  title: "Annual Net Income vs. Childcare Cost Over Time",
+  subtitle: "Childcare peaks in early years (ages 0–5), then drops as children enter school.",
+  width: 600,
+  height: 300,
+  x: {label: "Year →"},
+  y: {label: "Annual $ →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  color: {
+    domain: ["Annual Net Income After Child Costs", "Annual Childcare Cost"],
+    range: ["#27ae60", "#e74c3c"],
+    legend: true
+  },
+  marks: [
+    Plot.areaY(fp_outlook_tidy, {x: "year", y: "value", fill: "series", fillOpacity: 0.25, z: "series"}),
+    Plot.line(fp_outlook_tidy,  {x: "year", y: "value", stroke: "series", strokeWidth: 2.5, tip: true}),
+    Plot.ruleY([0])
+  ]
+})
+```
+
+:::
+
+---
+
+## 4. Financial Planning for Family Growth
+
+| Expense | Estimated One-Time Cost | Notes |
+|---|---|---|
+| Prenatal care & delivery (with insurance) | $0 – $5,000 | Highly variable by insurance; see [health insurance guide](health_insurance.qmd) |
+| Delivery without insurance | $5,000 – $30,000+ | Avoid this scenario — ensure coverage before becoming pregnant |
+| Baby gear (crib, stroller, car seat, etc.) | $500 – $3,000 | Buy used or through Buy Nothing groups to reduce cost |
+| Hospital-grade breast pump | $0 – $300 | ACA requires insurance to cover a pump |
+| Formula (if not breastfeeding) | $100 – $200/mo | WIC program may cover formula costs |
+| First year pediatric care (co-pays, vaccines) | $200 – $800 | Most vaccines covered under preventive care |
+
+### Monthly Ongoing Costs for a Child
+
+| Item | Estimated Monthly Cost |
+|---|---|
+| Diapers & wipes | $80 – $120 |
+| Formula (if applicable) | $100 – $200 |
+| Childcare | $1,000 – $2,500 |
+| Clothing | $30 – $80 |
+| Medical co-pays & prescriptions | $20 – $100 |
+| **Total** | **~$1,230 – $3,000** |
+
+> A new child adds roughly $15,000–$36,000/year in costs. Revisit your budget (see [Wealth Building guide](wealth_building.qmd)) and identify sources of additional support.
+
+---
+
+## 5. Partner Career Considerations
+
+The "two-body problem" is a well-known challenge in academia. Plan early:
+
+- [ ] Is your partner's career location-flexible (remote, transferable license/skills)?
+- [ ] Does your target university city have a strong job market for your partner's field?
+- [ ] Does the university have a **dual-career hiring program** that assists partners in finding employment?
+- [ ] Is your partner eligible for **university employee benefits** (health insurance, library access, gym)?
+- [ ] If your partner is not employed, factor in **loss of a second income** in your financial plan.
+- [ ] If you plan to move for a postdoc or faculty position, research job prospects for your partner in potential locations early.
+
+---
+
+## 6. Institutional Accommodations
+
+You are entitled to ask for and receive reasonable accommodations. Document all requests and responses in writing.
+
+| Accommodation | Who to Contact |
+|---|---|
+| Extension of funding / academic timeline | Graduate program director, Dean of Graduate Studies |
+| Waiver of TA/RA duties during leave | Advisor, Department Chair |
+| Lactation room access | Title IX office, facilities management |
+| Reduced course load without academic penalty | Graduate school registrar |
+| Disability accommodation (pregnancy-related complications) | Disability services office |
+| Emergency childcare funds | Graduate school, student emergency fund |
+
+---
+
+## 7. Additional Resources
+
+- [Pregnant Scholar](https://www.pregnantscholar.org/) — institution-specific rights lookup
+- [National Women's Law Center](https://nwlc.org/) — legal advocacy resources
+- [Child Care Aware of America](https://www.childcareaware.org/) — childcare subsidy finder
+- [WIC (Women, Infants & Children)](https://www.fns.usda.gov/wic) — nutrition and formula assistance
+- [Parent in Science](https://parentinscience.com/) — advocacy and community for scientist parents
+- [IRS Form 2441 (Child and Dependent Care Expenses)](https://www.irs.gov/forms-pubs/about-form-2441)
+
+---
+
+*Last reviewed: 2024. Parental leave policies and childcare subsidy programs change frequently — verify current policies with your graduate school and HR office.*
