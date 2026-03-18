@@ -155,6 +155,68 @@ html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px
 </div>`
 ```
 
+> **🏠 Shared home goal.** The target, current savings, and APY below stay synced with [Wealth Building](wealth_building.qmd); the timeline in this section recomputes based on the room left after childcare and other family costs.
+
+```{ojs}
+//| echo: false
+viewof fp_home_share = Inputs.select([25, 50, 75, 100], {
+  label: "Share of remaining monthly room directed to the shared home fund",
+  format: d => `${d}%`,
+  value: 75
+})
+```
+
+```{ojs}
+//| echo: false
+viewof fp_home_target = {
+  const options = [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 75000, 100000, 125000];
+  const saved = parseFloat(localStorage.getItem('phd_home_goal_target') || '30000');
+  const initVal = isFinite(saved) ? saved : 30000;
+  const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 30000);
+  const el = Inputs.select(options, {
+    label: "Shared home down payment target ($)",
+    format: d => `$${d.toLocaleString()}`,
+    value: nearest
+  });
+  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_target', String(el.value)));
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof fp_home_rate = {
+  const options = [0, 1, 2, 3, 4, 4.5, 5, 5.5];
+  const saved = parseFloat(localStorage.getItem('phd_home_goal_rate') || '4.5');
+  const initVal = isFinite(saved) ? saved : 4.5;
+  const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 4.5);
+  const el = Inputs.select(options, {
+    label: "Shared home-fund APY (%)",
+    format: d => `${d}%`,
+    value: nearest
+  });
+  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_rate', String(el.value)));
+  return el;
+}
+```
+
+```{ojs}
+//| echo: false
+viewof fp_home_existing = {
+  const options = [0, 1000, 2500, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000];
+  const saved = parseFloat(localStorage.getItem('phd_home_goal_existing') || '0');
+  const initVal = isFinite(saved) ? saved : 0;
+  const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 0);
+  const el = Inputs.select(options, {
+    label: "Existing home savings ($)",
+    format: d => `$${d.toLocaleString()}`,
+    value: nearest
+  });
+  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_existing', String(el.value)));
+  return el;
+}
+```
+
 ::: {.panel-tabset}
 
 ### 💰 Monthly Budget Impact
@@ -288,6 +350,103 @@ Plot.plot({
     Plot.line(fp_outlook_tidy,  {x: "year", y: "value", stroke: "series", strokeWidth: 2.5, tip: true}),
     Plot.ruleY([0])
   ]
+})
+```
+
+### 🏠 Shared Home Savings Timeline
+
+```{ojs}
+//| echo: false
+fp_home_monthly = Math.round(Math.max(0, fp_surplus_after) * fp_home_share / 100)
+fp_home_leftover = Math.max(0, fp_surplus_after - fp_home_monthly)
+fp_home_monthly_rate = fp_home_rate / 100 / 12
+
+fp_home_months_needed = (() => {
+  if (fp_home_existing >= fp_home_target) return 0;
+  if (fp_home_monthly <= 0 && fp_home_monthly_rate <= 0) return null;
+  let balance = fp_home_existing;
+  for (let m = 1; m <= 600; m++) {
+    balance = balance * (1 + fp_home_monthly_rate) + fp_home_monthly;
+    if (balance >= fp_home_target) return m;
+  }
+  return null;
+})()
+
+fp_home_projection = Array.from({length: Math.min((fp_home_months_needed ?? 120) + 1, 361)}, (_, m) => {
+  const growthFactor = Math.pow(1 + fp_home_monthly_rate, m);
+  const principal = fp_home_existing + fp_home_monthly * m;
+  const balance = fp_home_existing * growthFactor
+    + (fp_home_monthly_rate > 0 ? fp_home_monthly * (growthFactor - 1) / fp_home_monthly_rate : fp_home_monthly * m);
+  const interest = Math.round(Math.max(0, balance - principal));
+  return {month: m, balance: Math.round(balance), principal: Math.round(principal), interest};
+})
+
+fp_home_months_text = fp_home_existing >= fp_home_target
+  ? "Already funded"
+  : fp_home_months_needed
+    ? `${fp_home_months_needed} months (${(fp_home_months_needed / 12).toFixed(1)} years)`
+    : "No family-budget room yet — reduce costs or lower the home allocation share"
+
+fp_home_interest_earned = fp_home_projection[fp_home_projection.length - 1]?.interest ?? 0
+fp_home_target_line = [{month: 0, balance: fp_home_target}, {month: fp_home_projection[fp_home_projection.length - 1].month, balance: fp_home_target}]
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0;">
+  <div style="padding:12px 8px;border:2px solid #f39c12;border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Home Goal</div>
+    <div style="font-size:1.3rem;font-weight:700;color:#f39c12;margin-top:3px;">$${fp_home_target.toLocaleString()}</div>
+    <div style="font-size:.72rem;opacity:.65;">Shared with Wealth Building</div>
+  </div>
+  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Home Savings / Month</div>
+    <div style="font-size:1.3rem;font-weight:700;margin-top:3px;">$${fp_home_monthly}/mo</div>
+    <div style="font-size:.72rem;opacity:.65;">${fp_home_share}% of the post-childcare room in your budget</div>
+  </div>
+  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Other Remaining Room</div>
+    <div style="font-size:1.3rem;font-weight:700;margin-top:3px;">$${fp_home_leftover}/mo</div>
+    <div style="font-size:.72rem;opacity:.65;">Available for other family priorities</div>
+  </div>
+  <div style="padding:12px 8px;border:2px solid ${fp_home_months_needed !== null ? '#27ae60' : '#e74c3c'};border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Time to Down Payment</div>
+    <div style="font-size:${fp_home_months_needed !== null ? '1.1' : '.85'}rem;font-weight:700;color:${fp_home_months_needed !== null ? '#27ae60' : '#e74c3c'};margin-top:3px;">${fp_home_months_text}</div>
+  </div>
+  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Interest Earned</div>
+    <div style="font-size:1.3rem;font-weight:700;color:#27ae60;margin-top:3px;">$${fp_home_interest_earned.toLocaleString()}</div>
+  </div>
+</div>`
+
+Plot.plot({
+  title: "Shared Home Down Payment Projection",
+  subtitle: `$${fp_home_monthly}/mo at ${fp_home_rate}% APY, starting with $${fp_home_existing.toLocaleString()} saved`,
+  width: 600,
+  height: 300,
+  x: {label: "Month →"},
+  y: {label: "Balance ($) →", tickFormat: d => `$${(d / 1000).toFixed(0)}k`},
+  marks: [
+    Plot.areaY(fp_home_projection, {
+      x: "month", y: "balance",
+      fill: "#3498db", fillOpacity: 0.14
+    }),
+    Plot.line(fp_home_projection, {
+      x: "month", y: "balance",
+      stroke: "#3498db", strokeWidth: 2.5, tip: true,
+      title: d => `Month ${d.month}: $${d.balance.toLocaleString()}`
+    }),
+    Plot.line(fp_home_target_line, {
+      x: "month", y: "balance",
+      stroke: "#f39c12", strokeWidth: 2, strokeDash: [6, 3]
+    }),
+    Plot.text([{month: fp_home_projection[Math.floor(fp_home_projection.length / 2)].month, balance: fp_home_target}], {
+      x: "month", y: "balance", text: d => `🏠 Goal: $${fp_home_target.toLocaleString()}`,
+      dy: -12, fill: "#f39c12", fontWeight: "bold", fontSize: 12
+    }),
+    fp_home_months_needed !== null ? Plot.dot(
+      fp_home_projection.filter(d => d.month === fp_home_months_needed),
+      {x: "month", y: "balance", fill: "#27ae60", r: 7, tip: true,
+       title: d => `🏠 Goal reached at month ${d.month}!\nBalance: $${d.balance.toLocaleString()}`}
+    ) : null
+  ].filter(Boolean)
 })
 ```
 

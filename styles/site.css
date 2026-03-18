@@ -20,9 +20,22 @@
   width: 100%;
 }
 
+hr {
+  border: 0;
+  height: 0;
+  margin: 1rem 0;
+}
+
+#quarto-sidebar,
+#quarto-margin-sidebar,
+.sidebar,
+.margin-sidebar {
+  border: 0 !important;
+}
+
 @media (min-width: 1200px) {
   .page-columns.page-layout-full {
-    grid-template-columns: [screen-start] 1rem [screen-start-inset page-start] 15rem [page-start-inset] 1rem [body-start-outset] 0 [body-start] 0 [body-content-start] minmax(0, 1fr) [body-content-end] 1rem [body-end] 0 [body-end-outset] 1rem [page-end-inset] 12rem [page-end] 0 [screen-end-inset] 1rem [screen-end] !important;
+    grid-template-columns: [screen-start] 1rem [screen-start-inset page-start] minmax(0, 3fr) [page-start-inset] 1rem [body-start-outset] 0 [body-start] 0 [body-content-start] minmax(0, 14fr) [body-content-end] 1rem [body-end] 0 [body-end-outset] 1rem [page-end-inset] minmax(0, 3fr) [page-end] 0 [screen-end-inset] 1rem [screen-end] !important;
   }
 }
 
