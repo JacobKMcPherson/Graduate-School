@@ -110,9 +110,11 @@ viewof phi_habits = {
     button.textContent = habit.emoji
     button.title = habit.label
     button.setAttribute('aria-label', habit.label)
+    button.setAttribute('aria-pressed', String(habit.active))
     button.style.cssText = `width:48px;height:48px;border-radius:999px;border:2px solid ${habit.color};background:${habit.active ? habit.color : 'transparent'};color:${habit.active ? '#fff' : habit.color};font-size:1.25rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:${habit.active ? '0 8px 18px rgba(0,0,0,.12)' : 'none'};`
     button.addEventListener('click', () => {
       habit.active = !habit.active
+      button.setAttribute('aria-pressed', String(habit.active))
       button.style.background = habit.active ? habit.color : 'transparent'
       button.style.color = habit.active ? '#fff' : habit.color
       button.style.boxShadow = habit.active ? '0 8px 18px rgba(0,0,0,.12)' : 'none'

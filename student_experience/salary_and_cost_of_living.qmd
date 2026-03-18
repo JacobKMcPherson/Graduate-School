@@ -348,6 +348,7 @@ cities_data = city_presets
   .map(([name, living_wage]) => ({
     name,
     living_wage,
+    // Living-wage-derived relative cost index anchored to Austin, TX = 100
     coli: Math.max(80, Math.min(160, Math.round(living_wage / 360)))
   }))
   .sort((a, b) => a.name.localeCompare(b.name))
@@ -410,31 +411,57 @@ viewof selected_city = {
 
   const customGrid = document.createElement('div')
   customGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;'
-  customGrid.innerHTML = `
-    <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-      <span>University City</span>
-      <input type="text" name="custom_city_name" value="${presetMatch ? '' : savedName}" placeholder="e.g. Madison, WI" style="padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;">
-    </label>
-    <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-      <span>City COLI</span>
-      <input type="number" name="custom_city_coli" min="60" max="220" step="1" value="${Number.isFinite(savedColi) ? savedColi : 100}" style="padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;">
-    </label>
-    <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-      <span>MIT Living Wage ($/yr)</span>
-      <input type="number" name="custom_city_lw" min="10000" max="200000" step="500" value="${Number.isFinite(savedLivingWage) ? savedLivingWage : fallbackPreset.living_wage}" style="padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;">
-    </label>
-  `
+  const fieldStyle = 'padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;'
+  const makeField = (labelText, input) => {
+    const label = document.createElement('label')
+    label.style.cssText = 'display:flex;flex-direction:column;gap:6px;font-weight:600;'
+    const span = document.createElement('span')
+    span.textContent = labelText
+    label.append(span, input)
+    return label
+  }
+
+  const customNameInput = document.createElement('input')
+  customNameInput.type = 'text'
+  customNameInput.name = 'custom_city_name'
+  customNameInput.placeholder = 'e.g. Madison, WI'
+  customNameInput.value = presetMatch ? '' : savedName
+  customNameInput.style.cssText = fieldStyle
+
+  const customColiInput = document.createElement('input')
+  customColiInput.type = 'number'
+  customColiInput.name = 'custom_city_coli'
+  customColiInput.min = '60'
+  customColiInput.max = '220'
+  customColiInput.step = '1'
+  customColiInput.value = String(Number.isFinite(savedColi) ? savedColi : 100)
+  customColiInput.style.cssText = fieldStyle
+
+  const customLivingWageInput = document.createElement('input')
+  customLivingWageInput.type = 'number'
+  customLivingWageInput.name = 'custom_city_lw'
+  customLivingWageInput.min = '10000'
+  customLivingWageInput.max = '200000'
+  customLivingWageInput.step = '500'
+  customLivingWageInput.value = String(Number.isFinite(savedLivingWage) ? savedLivingWage : fallbackPreset.living_wage)
+  customLivingWageInput.style.cssText = fieldStyle
+
+  customGrid.append(
+    makeField('University City', customNameInput),
+    makeField('City Cost Index', customColiInput),
+    makeField('MIT Living Wage ($/yr)', customLivingWageInput)
+  )
 
   const helper = document.createElement('div')
   helper.style.cssText = 'font-size:.78rem;opacity:.75;'
-  helper.textContent = 'University presets cover major U.S. graduate-school cities; switch to custom mode any time if your city is missing or you want to enter your own COLI and living-wage values.'
+  helper.textContent = 'University presets cover major U.S. graduate-school cities; switch to custom mode any time if your city is missing or you want to enter your own living-wage-based cost index and MIT living-wage values.'
 
   container.append(modeWrap, presetWrap, customGrid, helper)
 
   const modeInputs = Array.from(modeWrap.querySelectorAll('input[name="city_mode"]'))
-  const customName = customGrid.querySelector('input[name="custom_city_name"]')
-  const customColi = customGrid.querySelector('input[name="custom_city_coli"]')
-  const customLivingWage = customGrid.querySelector('input[name="custom_city_lw"]')
+  const customName = customNameInput
+  const customColi = customColiInput
+  const customLivingWage = customLivingWageInput
 
   const clamp = (value, min, max, fallback) => {
     const parsed = Number(value)
@@ -519,7 +546,7 @@ html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px
     <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${adjusted_pp.toLocaleString()}/yr</div>
   </div>
   <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">COLI Index</div>
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Cost Index</div>
     <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">${selected_city.coli}</div>
   </div>
 </div>`
@@ -646,17 +673,17 @@ Plot.plot({
 
 ## 2. Cost-of-Living Assessment Worksheet {#sec-col-worksheet}
 
-Use the interactive worksheet below to estimate your monthly budget. Typical expense ranges automatically adjust based on your selected city's cost-of-living index.
+Use the interactive worksheet below to estimate your monthly budget. Typical expense ranges automatically adjust based on your selected city's living-wage-based cost index.
 
 ```{ojs}
 //| echo: false
-// City-aware expense estimates — typical ranges scale with COLI
+// City-aware expense estimates — typical ranges scale with the relative cost index
 // These reactively follow the Interactive Stipend Calculator inputs above
 col_monthly_net  = Math.round(annual_stipend / 12 * 0.88)
 col_coli         = selected_city.coli
 col_city_name    = selected_city.name
 
-// Baseline expenses at COLI=100 (Austin, TX)
+// Baseline expenses at cost index 100 (Austin, TX)
 col_expenses_base = [
   {item: "Rent (1BR or shared room)",            base: 1050, notes: "Zillow / Apartments.com; on-campus may be cheaper"},
   {item: "Utilities (electric, gas, water, internet)", base: 150, notes: "Typically $100–$200/mo"},
@@ -680,7 +707,7 @@ col_surplus = col_monthly_net - col_total_expenses
 
 html`
 <div style="background:var(--bs-light,#f8f9fa);border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;padding:16px;margin-bottom:16px;">
-  <div style="font-size:.85rem;opacity:.7;margin-bottom:8px;">📍 City: <strong>${col_city_name}</strong> &nbsp;|&nbsp; COLI: <strong>${col_coli}</strong> &nbsp;|&nbsp; Est. Monthly Take-Home: <strong>$${col_monthly_net.toLocaleString()}</strong><br>
+  <div style="font-size:.85rem;opacity:.7;margin-bottom:8px;">📍 City: <strong>${col_city_name}</strong> &nbsp;|&nbsp; Cost Index: <strong>${col_coli}</strong> &nbsp;|&nbsp; Est. Monthly Take-Home: <strong>$${col_monthly_net.toLocaleString()}</strong><br>
   <em style="font-size:.78rem;">City and stipend are set in the <a href="#sec-stipend-calculator">Interactive Stipend Calculator</a> above — changes automatically update this worksheet in real time.</em></div>
   <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
     <thead>
@@ -732,19 +759,21 @@ html`
 
 ## 3. Adjusting for City Cost of Living
 
-To compare stipends across cities, use the **Cost of Living Index (COLI)**. The table below gives approximate COLI values (US average = 100).
+To compare stipends across cities, this guide uses a **living-wage-based cost index** rather than a published COLI series. The index is anchored to **Austin, TX = 100** using each city's MIT Living Wage value, so it stays internally consistent with the calculator and worksheet above.
 
-| City | Approx. COLI | Implication for a $30,000 stipend |
+| City | Approx. Cost Index (Austin = 100) | Implication for a $30,000 stipend |
 |---|---|---|
-| Rural Midwest | 85 | Equivalent to ~$35,300 purchasing power |
+| Ames, IA | 80 | Equivalent to ~$37,500 purchasing power |
 | Austin, TX | 100 | Face value |
-| Seattle, WA | 115 | Equivalent to ~$26,100 purchasing power |
-| Boston, MA | 125 | Equivalent to ~$24,000 purchasing power |
-| New York City, NY | 145 | Equivalent to ~$20,700 purchasing power |
-| San Francisco, CA | 155 | Equivalent to ~$19,400 purchasing power |
+| Boston, MA | 122 | Equivalent to ~$24,600 purchasing power |
+| Seattle, WA | 133 | Equivalent to ~$22,600 purchasing power |
+| San Francisco, CA | 153 | Equivalent to ~$19,600 purchasing power |
+| New York City, NY | 160 | Equivalent to ~$18,800 purchasing power |
 
 **Formula:**  
-`Adjusted Purchasing Power = Stipend × (100 / Local COLI)`
+`Adjusted Purchasing Power = Stipend × (100 / Local Cost Index)`
+
+> **Note:** This is a practical proxy for relative city costs, not an externally published COLI benchmark. If you need a formal cost-of-living index for a specific negotiation or policy document, use a source such as NerdWallet or another published COL calculator alongside the MIT living-wage data.
 
 **Tools:**
 
