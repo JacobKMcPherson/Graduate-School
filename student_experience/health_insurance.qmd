@@ -160,6 +160,151 @@ Don't overlook the basics — they significantly affect mental health:
 
 ---
 
+## 💊 Preventive Health Value Estimator {#sec-health-value}
+
+> Estimates the cumulative financial value (avoided future healthcare costs) of starting preventive health habits now. Based on published research; individual results vary.
+
+```{ojs}
+//| echo: false
+viewof phi_age = Inputs.select(
+  [22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40],
+  { label: "Current Age", value: 26 }
+)
+```
+
+```{ojs}
+//| echo: false
+viewof phi_horizon = Inputs.select([10, 20, 30, 40], {
+  label: "Years to Project",
+  format: d => `${d} years`,
+  value: 30
+})
+```
+
+```{ojs}
+//| echo: false
+viewof phi_exercise = Inputs.toggle({
+  label: "🏃 Regular Exercise (≥150 min/week moderate activity)",
+  value: true
+})
+```
+
+```{ojs}
+//| echo: false
+viewof phi_diet = Inputs.toggle({
+  label: "🥗 Healthy Diet (Mediterranean / whole-food plant-based)",
+  value: true
+})
+```
+
+```{ojs}
+//| echo: false
+viewof phi_screenings = Inputs.toggle({
+  label: "🩺 Annual Preventive Screenings (per USPSTF guidelines)",
+  value: true
+})
+```
+
+```{ojs}
+//| echo: false
+// Annual avoided-cost baselines at age 25 (research-backed):
+// Exercise: ~$1,400/yr (Carlson et al. 2015, RAND Corp; sedentary vs. active adults)
+// Healthy diet: ~$2,000/yr (Springmann et al. 2021, PLOS Medicine; CVD/diabetes/cancer risk)
+// Preventive screenings: ~$600/yr (CDC; USPSTF screenings yield 5-10x ROI)
+// Values grow +3%/yr after age 30 (rising disease risk) and 3.5%/yr healthcare inflation.
+phi_annual = {
+  const base = { exercise: 1400, diet: 2000, screen: 600 }
+  return Array.from({ length: phi_horizon }, (_, i) => {
+    const y    = i + 1
+    const age  = phi_age + y
+    const agef = 1 + Math.max(0, age - 30) * 0.03
+    const infl = Math.pow(1.035, y)
+    return {
+      year: y,
+      exercise:   phi_exercise   ? Math.round(base.exercise * agef * infl) : 0,
+      diet:       phi_diet       ? Math.round(base.diet     * agef * infl) : 0,
+      screenings: phi_screenings ? Math.round(base.screen   * agef * infl) : 0
+    }
+  })
+}
+```
+
+```{ojs}
+//| echo: false
+phi_cumul = {
+  let cE = 0, cD = 0, cS = 0
+  return phi_annual.map(d => {
+    cE += d.exercise; cD += d.diet; cS += d.screenings
+    return { year: d.year, Exercise: cE, Diet: cD, Screenings: cS }
+  })
+}
+```
+
+```{ojs}
+//| echo: false
+phi_tidy = phi_cumul.flatMap(d => [
+  { year: d.year, category: "Exercise",   value: d.Exercise   },
+  { year: d.year, category: "Diet",       value: d.Diet       },
+  { year: d.year, category: "Screenings", value: d.Screenings }
+]).filter(d => d.value > 0)
+```
+
+```{ojs}
+//| echo: false
+{
+  const last  = phi_cumul[phi_cumul.length - 1] ?? { Exercise: 0, Diet: 0, Screenings: 0 }
+  const total = last.Exercise + last.Diet + last.Screenings
+  return html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px;">
+  <div style="padding:14px 10px;border:2px solid #27ae60;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;">Total Estimated Value</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#27ae60;">$${total.toLocaleString()}</div>
+    <div style="font-size:.7rem;opacity:.55;margin-top:2px;">over ${phi_horizon} years</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid #dee2e6;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;">🏃 Exercise</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#27ae60;">$${last.Exercise.toLocaleString()}</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid #dee2e6;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;">🥗 Healthy Diet</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#3498db;">$${last.Diet.toLocaleString()}</div>
+  </div>
+  <div style="padding:14px 10px;border:1px solid #dee2e6;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;">🩺 Screenings</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e67e22;">$${last.Screenings.toLocaleString()}</div>
+  </div>
+</div>`
+}
+```
+
+```{ojs}
+//| echo: false
+phi_tidy.length > 0
+  ? Plot.plot({
+      title: "Estimated Cumulative Healthcare Cost Savings",
+      subtitle: "Stacked avoided costs from each habit, adjusted for age risk and 3.5%/yr healthcare inflation.",
+      width: 640,
+      height: 320,
+      x: { label: "Years from Now →" },
+      y: { label: "Cumulative Avoided Costs ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k` },
+      color: {
+        domain: ["Exercise", "Diet", "Screenings"],
+        range:  ["#27ae60", "#3498db", "#e67e22"],
+        legend: true
+      },
+      marks: [
+        Plot.areaY(phi_tidy, Plot.stackY({
+          x: "year", y: "value", fill: "category", fillOpacity: 0.75, tip: true
+        })),
+        Plot.ruleY([0])
+      ]
+    })
+  : html`<p style="color:#6c757d;font-size:13px;padding:12px 0;">Enable at least one habit above to see the projection.</p>`
+```
+
+> **Methodology:** Exercise avoided costs ~$1,400/yr (Carlson et al., *RAND* 2015); healthy diet ~$2,000/yr (Springmann et al., *PLOS Medicine* 2021); preventive screenings ~$600/yr (CDC, 5–10× ROI on USPSTF-recommended care). Values increase +3%/yr after age 30 (rising disease risk) and 3.5%/yr healthcare cost inflation. This is an educational estimate — actual savings vary by individual.
+
+---
+
 ## 8. Additional Resources
 
 - [Graduate Mental Health Toolkit (NAGPS)](https://nagps.org/)
