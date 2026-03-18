@@ -283,7 +283,7 @@ col_surplus = col_monthly_net - col_total_expenses
 html`
 <div style="background:var(--bs-light,#f8f9fa);border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;padding:16px;margin-bottom:16px;">
   <div style="font-size:.85rem;opacity:.7;margin-bottom:8px;">📍 City: <strong>${col_city_name}</strong> &nbsp;|&nbsp; COLI: <strong>${col_coli}</strong> &nbsp;|&nbsp; Est. Monthly Take-Home: <strong>$${col_monthly_net.toLocaleString()}</strong><br>
-  <em style="font-size:.78rem;">City and stipend are set in the <a href="#sec-stipend-calculator">Interactive Stipend Calculator</a> above — changes update this worksheet reactively.</em></div>
+  <em style="font-size:.78rem;">City and stipend are set in the <a href="#sec-stipend-calculator">Interactive Stipend Calculator</a> above — changes automatically update this worksheet in real time.</em></div>
   <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
     <thead>
       <tr style="border-bottom:2px solid var(--bs-border-color,#dee2e6);">
