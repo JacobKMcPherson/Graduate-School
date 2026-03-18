@@ -49,12 +49,12 @@ col_expenses_base = [
   {item: "Phone",                                 base: 60,   notes: "Budget carriers from ~$25/mo"},
   {item: "Personal care & clothing",              base: 80,   notes: ""},
   {item: "Entertainment & dining out",            base: 120,  notes: ""},
-  {item: "Emergency savings (target ~10%)",       base: col_monthly_net * 0.10, notes: "Build to 3–6 month fund"}
+  {item: "Emergency savings (target ~10%)",       base: 220, notes: "Build to 3–6 month fund"}
 ]
 
 col_expenses = col_expenses_base.map(e => ({
   ...e,
-  estimated: Math.round(e.item.startsWith("Emergency") ? e.base : e.base * (col_coli / 100))
+  estimated: Math.round(e.base * (col_coli / 100))
 }))
 
 col_total_expenses = col_expenses.reduce((s, e) => s + e.estimated, 0)

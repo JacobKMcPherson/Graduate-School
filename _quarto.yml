@@ -19,26 +19,19 @@ website:
     style: docked
     search: true
     contents:
-      - section: "Overview"
-        contents:
-          - index.qmd
-      - section: "Compensation & Finances"
-        contents:
-          - student_experience/salary_and_cost_of_living.qmd
-          - student_experience/wealth_building.qmd
-      - section: "Life & Wellbeing"
-        contents:
-          - student_experience/family_planning.qmd
-          - student_experience/health_insurance.qmd
-      - section: "Career"
-        contents:
-          - student_experience/career_roi.qmd
+      - index.qmd
+      - student_experience/salary_and_cost_of_living.qmd
+      - student_experience/wealth_building.qmd
+      - student_experience/family_planning.qmd
+      - student_experience/health_insurance.qmd
+      - student_experience/career_roi.qmd
 
 format:
   html:
     theme:
       light: cosmo
       dark: darkly
+    page-layout: full
     toc: true
     toc-depth: 3
     toc-title: "On this page"
