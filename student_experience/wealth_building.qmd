@@ -23,44 +23,174 @@ Work through these roughly in order:
 
 ---
 
-## 2. Monthly Budget Template
+## 2. Monthly Budget Template {#sec-budget-template}
 
-Customize the percentages for your situation. The "50/30/20" framework is a useful starting point:
+> **💾 Cross-page linked.** City and stipend are loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). Select a city and adjust your stipend there to populate city-specific estimates here.
 
-| Category | Target % of Take-Home | Your Target ($/mo) | Actual ($/mo) |
-|---|---|---|---|
-| **Needs** (housing, utilities, groceries, transport, insurance) | 50% | | |
-| **Wants** (dining out, entertainment, subscriptions, hobbies) | 30% | | |
-| **Savings & Debt Repayment** (emergency fund, retirement, loan payments) | 20% | | |
+Use the interactive budget below. **Check or uncheck line items** to include or exclude them from your budget. City-specific estimates automatically adjust based on the cost-of-living index for your selected city.
 
-> On a tight stipend, the 50/30/20 split may not be achievable. Prioritize covering needs first, then savings, then wants. Even $50/month to an emergency fund is better than nothing.
+```{ojs}
+//| echo: false
+// Load shared state from localStorage
+bud_city_name = localStorage.getItem('phd_city') || 'Austin, TX'
+bud_coli_raw  = parseFloat(localStorage.getItem('phd_city_coli') || '100')
+bud_coli      = isFinite(bud_coli_raw) ? bud_coli_raw : 100
+bud_stipend_raw = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
+bud_stipend   = isFinite(bud_stipend_raw) ? bud_stipend_raw : 30000
+bud_monthly_net = Math.round((bud_stipend / 12) * 0.88)
 
-### Monthly Budget Detail
+// City-scaled budget line items
+// Base amounts are for COLI=100 (Austin, TX); rent/transport/groceries scale with COLI
+bud_lines_def = [
+  // INCOME
+  {id:"stipend",   label:"Net Stipend (after taxes)",              type:"income",  base: bud_monthly_net, scale:false, checked:true,  notes:"≈ stipend ÷ 12 × 0.88"},
+  {id:"side",      label:"Side Income (tutoring, consulting…)",    type:"income",  base: 0,               scale:false, checked:false, notes:"Enter if applicable"},
+  // NEEDS
+  {id:"rent",      label:"Rent",                                   type:"needs",   base: 1050,            scale:true,  checked:true,  notes:"1BR; on-campus may be cheaper"},
+  {id:"util",      label:"Utilities (electric, gas, internet)",    type:"needs",   base: 150,             scale:true,  checked:true,  notes:"Avg. $100–$200"},
+  {id:"grocery",   label:"Groceries",                              type:"needs",   base: 380,             scale:true,  checked:true,  notes:"USDA moderate-cost plan"},
+  {id:"transport", label:"Transportation",                         type:"needs",   base: 120,             scale:true,  checked:true,  notes:"Transit pass or car"},
+  {id:"insurance", label:"Health Insurance Premium",               type:"needs",   base: 80,              scale:false, checked:true,  notes:"If not fully covered"},
+  {id:"phone",     label:"Phone",                                  type:"needs",   base: 60,              scale:false, checked:true,  notes:"Budget carriers from ~$25"},
+  {id:"loans",     label:"Minimum Loan Payments",                  type:"needs",   base: 0,               scale:false, checked:false, notes:"Undergrad debt if applicable"},
+  // WANTS
+  {id:"dining",    label:"Dining Out & Coffee",                    type:"wants",   base: 120,             scale:true,  checked:true,  notes:""},
+  {id:"entertain", label:"Entertainment & Streaming",              type:"wants",   base: 60,              scale:false, checked:true,  notes:"Netflix, Spotify, etc."},
+  {id:"clothing",  label:"Clothing & Personal Care",               type:"wants",   base: 60,              scale:true,  checked:true,  notes:""},
+  {id:"hobbies",   label:"Hobbies",                                type:"wants",   base: 40,              scale:false, checked:true,  notes:""},
+  // SAVINGS
+  {id:"emerg",     label:"Emergency Fund Contribution",            type:"savings", base: 100,             scale:false, checked:true,  notes:"Target 3–6 months expenses"},
+  {id:"ira",       label:"Roth IRA Contribution",                  type:"savings", base: 100,             scale:false, checked:true,  notes:"Max $583/mo ($7k/yr)"},
+  {id:"ret403",    label:"403(b) / 457(b) Contribution",           type:"savings", base: 0,               scale:false, checked:false, notes:"If your university offers it"},
+  {id:"debt_ex",   label:"Extra Debt Repayment",                   type:"savings", base: 0,               scale:false, checked:false, notes:"Above minimum payments"},
+]
+```
 
-| Line Item | Budget ($/mo) | Actual ($/mo) |
-|---|---|---|
-| **INCOME** | | |
-| Net stipend (after taxes) | | |
-| Side income (tutoring, consulting, etc.) | | |
-| **EXPENSES — Needs** | | |
-| Rent | | |
-| Utilities | | |
-| Groceries | | |
-| Transportation | | |
-| Health insurance premium | | |
-| Phone | | |
-| Minimum loan payments | | |
-| **EXPENSES — Wants** | | |
-| Dining out & coffee | | |
-| Entertainment & streaming | | |
-| Clothing & personal care | | |
-| Hobbies | | |
-| **SAVINGS & INVESTMENTS** | | |
-| Emergency fund contribution | | |
-| Roth IRA contribution | | |
-| 403(b) / 457(b) contribution | | |
-| Extra debt repayment | | |
-| **Net Cash Flow (Income − Expenses)** | | |
+```{ojs}
+//| echo: false
+// Build checkbox table — HTML form; OJS reactive on checked IDs
+viewof bud_checked = {
+  const typeColors = {income:"#27ae60", needs:"#e74c3c", wants:"#3498db", savings:"#8e44ad"};
+  const typeBg     = {income:"rgba(39,174,96,.08)", needs:"rgba(231,76,60,.07)", wants:"rgba(52,152,219,.07)", savings:"rgba(142,68,173,.07)"};
+  const groups = ["income","needs","wants","savings"];
+  const groupLabels = {income:"💵 Income", needs:"🏠 Needs", wants:"🎉 Wants", savings:"💰 Savings & Investments"};
+
+  const checked = new Set(bud_lines_def.filter(l => l.checked).map(l => l.id));
+  const container = document.createElement('div');
+  container.style.cssText = 'font-family:inherit;';
+
+  for (const grp of groups) {
+    const lines = bud_lines_def.filter(l => l.type === grp);
+    const section = document.createElement('div');
+    section.style.cssText = `margin-bottom:8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;overflow:hidden;`;
+    section.innerHTML = `<div style="padding:8px 12px;font-weight:700;font-size:.88rem;background:${typeBg[grp]};color:${typeColors[grp]};border-bottom:1px solid var(--bs-border-color,#dee2e6);">${groupLabels[grp]}</div>`;
+    const table = document.createElement('table');
+    table.style.cssText = 'width:100%;border-collapse:collapse;font-size:.86rem;';
+    for (const l of lines) {
+      const scaled = l.scale ? Math.round(l.base * (bud_coli / 100)) : l.base;
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid var(--bs-border-color,#dee2e6)';
+      tr.innerHTML = `
+        <td style="padding:6px 10px;width:30px;">
+          <input type="checkbox" id="cb_${l.id}" ${checked.has(l.id) ? 'checked' : ''} style="cursor:pointer;">
+        </td>
+        <td style="padding:6px 4px;"><label for="cb_${l.id}" style="cursor:pointer;">${l.label}</label></td>
+        <td style="padding:6px 8px;text-align:right;font-weight:600;">$${scaled.toLocaleString()}</td>
+        <td style="padding:6px 10px;opacity:.6;font-size:.78rem;">${l.notes}</td>`;
+      const cb = tr.querySelector('input');
+      cb.addEventListener('change', () => {
+        if (cb.checked) checked.add(l.id); else checked.delete(l.id);
+        container.dispatchEvent(new Event('input'));
+      });
+      table.appendChild(tr);
+    }
+    section.appendChild(table);
+    container.appendChild(section);
+  }
+  container.value = checked;
+  container.dispatchEvent = (ev) => { HTMLElement.prototype.dispatchEvent.call(container, ev); };
+  return container;
+}
+```
+
+```{ojs}
+//| echo: false
+// Compute totals from checked items
+bud_active = bud_lines_def.map(l => ({
+  ...l,
+  amount: l.type === "income"
+    ? (l.id === "stipend" ? bud_monthly_net : (bud_checked.has ? (bud_checked.has(l.id) ? l.base : 0) : 0))
+    : (bud_checked.has ? (bud_checked.has(l.id) ? (l.scale ? Math.round(l.base * bud_coli / 100) : l.base) : 0) : 0),
+  included: bud_checked.has ? bud_checked.has(l.id) : l.checked
+}))
+
+bud_total_income  = bud_active.filter(l => l.type === "income"  && l.included).reduce((s,l) => s+l.amount, 0)
+bud_total_needs   = bud_active.filter(l => l.type === "needs"   && l.included).reduce((s,l) => s+l.amount, 0)
+bud_total_wants   = bud_active.filter(l => l.type === "wants"   && l.included).reduce((s,l) => s+l.amount, 0)
+bud_total_savings = bud_active.filter(l => l.type === "savings" && l.included).reduce((s,l) => s+l.amount, 0)
+bud_net_cashflow  = bud_total_income - bud_total_needs - bud_total_wants - bud_total_savings
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0;">
+  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">City</div>
+    <div style="font-size:.95rem;font-weight:700;margin-top:3px;">${bud_city_name}</div>
+    <div style="font-size:.72rem;opacity:.6;">COLI ${bud_coli}</div>
+  </div>
+  <div style="padding:12px 8px;border:2px solid #27ae60;border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Income</div>
+    <div style="font-size:1.4rem;font-weight:700;color:#27ae60;margin-top:3px;">$${bud_total_income.toLocaleString()}</div>
+  </div>
+  <div style="padding:12px 8px;border:2px solid #e74c3c;border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Needs</div>
+    <div style="font-size:1.4rem;font-weight:700;color:#e74c3c;margin-top:3px;">$${bud_total_needs.toLocaleString()}</div>
+  </div>
+  <div style="padding:12px 8px;border:2px solid #3498db;border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Wants</div>
+    <div style="font-size:1.4rem;font-weight:700;color:#3498db;margin-top:3px;">$${bud_total_wants.toLocaleString()}</div>
+  </div>
+  <div style="padding:12px 8px;border:2px solid #8e44ad;border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Savings</div>
+    <div style="font-size:1.4rem;font-weight:700;color:#8e44ad;margin-top:3px;">$${bud_total_savings.toLocaleString()}</div>
+  </div>
+  <div style="padding:12px 8px;border:2px solid ${bud_net_cashflow >= 0 ? '#27ae60' : '#e74c3c'};border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Net Cash Flow</div>
+    <div style="font-size:1.4rem;font-weight:700;color:${bud_net_cashflow >= 0 ? '#27ae60' : '#e74c3c'};margin-top:3px;">${bud_net_cashflow >= 0 ? '+' : ''}$${bud_net_cashflow.toLocaleString()}</div>
+  </div>
+</div>`
+```
+
+```{ojs}
+//| echo: false
+// Real-time stacked bar chart of budget allocation
+bud_chart_data = [
+  {category: "Needs",   amount: bud_total_needs,   pct: bud_total_income > 0 ? Math.round(bud_total_needs/bud_total_income*100) : 0},
+  {category: "Wants",   amount: bud_total_wants,   pct: bud_total_income > 0 ? Math.round(bud_total_wants/bud_total_income*100) : 0},
+  {category: "Savings", amount: bud_total_savings, pct: bud_total_income > 0 ? Math.round(bud_total_savings/bud_total_income*100) : 0},
+  {category: "Unallocated", amount: Math.max(0, bud_net_cashflow), pct: bud_total_income > 0 ? Math.max(0, Math.round(bud_net_cashflow/bud_total_income*100)) : 0}
+].filter(d => d.amount > 0)
+
+Plot.plot({
+  title: `Monthly Budget — ${bud_city_name} (COLI ${bud_coli})`,
+  subtitle: "50/30/20 target: Needs ≤50%, Wants ≤30%, Savings ≥20%",
+  width: 560,
+  height: 200,
+  marginLeft: 20,
+  x: {label: "Monthly $ →", tickFormat: d => `$${d.toLocaleString()}`},
+  color: {
+    domain: ["Needs", "Wants", "Savings", "Unallocated"],
+    range:  ["#e74c3c", "#3498db", "#8e44ad", "#bdc3c7"],
+    legend: true
+  },
+  marks: [
+    Plot.barX(bud_chart_data, {
+      x: "amount", fill: "category",
+      title: d => `${d.category}: $${d.amount.toLocaleString()} (${d.pct}%)`,
+      tip: true, rx: 4
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
 
 **Free budgeting tools:**
 
@@ -79,10 +209,12 @@ Customize the percentages for your situation. The "50/30/20" framework is a usef
 wb_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
 
 viewof wb_stipend = {
-  const el = Inputs.range([15000, 60000], {
+  const options = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
+  const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(wb_stipend_init)?wb_stipend_init:30000))<Math.abs(a-(isFinite(wb_stipend_init)?wb_stipend_init:30000))?b:a, 30000);
+  const el = Inputs.select(options, {
     label: "Annual Stipend (pre-tax, $) — override if needed",
-    step: 500,
-    value: isFinite(wb_stipend_init) ? wb_stipend_init : 30000
+    format: d => `$${d.toLocaleString()}`,
+    value: nearest
   });
   return el;
 }
@@ -90,9 +222,9 @@ viewof wb_stipend = {
 
 ```{ojs}
 //| echo: false
-viewof wb_savings_pct = Inputs.range([5, 30], {
+viewof wb_savings_pct = Inputs.select([5, 8, 10, 12, 15, 18, 20, 22, 25, 28, 30], {
   label: "Savings & Debt Repayment (% of take-home)",
-  step: 1,
+  format: d => `${d}%`,
   value: 15
 })
 ```
@@ -101,12 +233,14 @@ viewof wb_savings_pct = Inputs.range([5, 30], {
 //| echo: false
 viewof wb_ira_monthly = {
   const saved = parseFloat(localStorage.getItem('phd_ira_monthly') || '100');
-  const el = Inputs.range([0, 583], {
+  const options = [0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 350, 400, 450, 500, 550, 583];
+  const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(saved)?saved:100))<Math.abs(a-(isFinite(saved)?saved:100))?b:a, 100);
+  const el = Inputs.select(options, {
     label: "Monthly Roth IRA Contribution ($) — max $583/mo to hit $7,000/yr limit",
-    step: 10,
-    value: isFinite(saved) ? saved : 100
+    format: d => `$${d}/mo`,
+    value: nearest
   });
-  el.addEventListener('input', () => localStorage.setItem('phd_ira_monthly', String(el.value)));
+  el.addEventListener('change', () => localStorage.setItem('phd_ira_monthly', String(el.value)));
   return el;
 }
 ```
@@ -332,6 +466,156 @@ Good credit saves money on car loans, mortgages, and insurance premiums post-PhD
 - [Bogleheads Wiki: Getting Started](https://www.bogleheads.org/wiki/Getting_started) — low-cost index fund investing
 - [Personal Finance for PhDs (blog)](https://pfforphds.com/) — tax and finance advice specifically for graduate students
 - [IRS Free File](https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free) — free federal tax filing
+
+---
+
+## 8. Savings Goal Planner {#sec-savings-goal}
+
+Plan your savings journey toward a major purchase. See how long it will take based on your monthly contribution and savings rate.
+
+```{ojs}
+//| echo: false
+viewof sg_goal_type = Inputs.select(["🏠 House Down Payment", "🚗 Car Purchase", "✈️ Other Goal"], {
+  label: "Savings Goal",
+  value: "🏠 House Down Payment"
+})
+```
+
+```{ojs}
+//| echo: false
+sg_goal_defaults = {
+  "🏠 House Down Payment": {target: 30000, label: "Down payment (10–20% of home price)"},
+  "🚗 Car Purchase":       {target: 8000,  label: "Used car cash purchase or down payment"},
+  "✈️ Other Goal":         {target: 5000,  label: "Custom savings target"}
+}
+sg_goal_info = sg_goal_defaults[sg_goal_type]
+
+viewof sg_target = Inputs.select([2000, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 12000, 15000, 18000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 75000, 100000], {
+  label: `Target Amount ($) — ${sg_goal_info.label}`,
+  format: d => `$${d.toLocaleString()}`,
+  value: sg_goal_info.target
+})
+```
+
+```{ojs}
+//| echo: false
+viewof sg_monthly = Inputs.select([25, 50, 75, 100, 125, 150, 200, 250, 300, 350, 400, 500, 600, 750, 1000], {
+  label: "Monthly Savings Contribution ($)",
+  format: d => `$${d}/mo`,
+  value: 200
+})
+```
+
+```{ojs}
+//| echo: false
+viewof sg_rate = Inputs.select([0, 1, 2, 3, 4, 4.5, 5, 5.5], {
+  label: "Annual Interest / HYSA Rate (%)",
+  format: d => `${d}%`,
+  value: 4.5
+})
+```
+
+```{ojs}
+//| echo: false
+viewof sg_existing = Inputs.select([0, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000], {
+  label: "Existing Savings Toward This Goal ($)",
+  format: d => `$${d.toLocaleString()}`,
+  value: 0
+})
+```
+
+```{ojs}
+//| echo: false
+// Compound savings projection
+sg_monthly_rate = sg_rate / 100 / 12
+
+// Future value of existing savings + monthly contributions
+sg_months_needed = (() => {
+  if (sg_monthly <= 0) return null;
+  let balance = sg_existing;
+  for (let m = 1; m <= 600; m++) {
+    balance = balance * (1 + sg_monthly_rate) + sg_monthly;
+    if (balance >= sg_target) return m;
+  }
+  return null;
+})()
+
+sg_projection = Array.from({length: Math.min((sg_months_needed || 240) + 1, 361)}, (_, m) => {
+  const principal = sg_existing + sg_monthly * m;
+  const interest  = sg_monthly_rate > 0
+    ? sg_existing * (Math.pow(1 + sg_monthly_rate, m) - 1)
+      + (m > 0 ? sg_monthly * (Math.pow(1 + sg_monthly_rate, m) - 1) / sg_monthly_rate : 0)
+    : 0;
+  const balance = sg_existing * Math.pow(1 + sg_monthly_rate, m)
+    + (sg_monthly_rate > 0 ? sg_monthly * (Math.pow(1 + sg_monthly_rate, m) - 1) / sg_monthly_rate : sg_monthly * m);
+  return {month: m, balance: Math.round(balance), principal: Math.round(principal), interest: Math.round(Math.max(0, balance - principal))};
+})
+
+sg_months_text = sg_months_needed
+  ? `${sg_months_needed} months (${(sg_months_needed/12).toFixed(1)} years)`
+  : "More than 30 years — increase monthly contribution"
+
+sg_final_balance = sg_projection[sg_projection.length - 1]?.balance ?? 0
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0;">
+  <div style="padding:12px 8px;border:2px solid #f39c12;border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Goal</div>
+    <div style="font-size:1.3rem;font-weight:700;color:#f39c12;margin-top:3px;">$${sg_target.toLocaleString()}</div>
+    <div style="font-size:.72rem;opacity:.65;">${sg_goal_type}</div>
+  </div>
+  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Monthly Savings</div>
+    <div style="font-size:1.3rem;font-weight:700;margin-top:3px;">$${sg_monthly}/mo</div>
+  </div>
+  <div style="padding:12px 8px;border:2px solid ${sg_months_needed ? '#27ae60' : '#e74c3c'};border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Time to Goal</div>
+    <div style="font-size:${sg_months_needed ? '1.1' : '.85'}rem;font-weight:700;color:${sg_months_needed ? '#27ae60' : '#e74c3c'};margin-top:3px;">${sg_months_text}</div>
+  </div>
+  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Interest Earned</div>
+    <div style="font-size:1.3rem;font-weight:700;color:#27ae60;margin-top:3px;">$${(sg_final_balance - (sg_existing + sg_monthly*(sg_projection.length-1))).toLocaleString()}</div>
+  </div>
+</div>`
+```
+
+```{ojs}
+//| echo: false
+// Savings goal chart
+sg_target_line = [{month: 0, balance: sg_target}, {month: sg_projection[sg_projection.length-1].month, balance: sg_target}]
+
+Plot.plot({
+  title: `${sg_goal_type} — Savings Projection`,
+  subtitle: `$${sg_monthly}/mo at ${sg_rate}% APY, starting with $${sg_existing.toLocaleString()} saved`,
+  width: 600,
+  height: 300,
+  x: {label: "Month →"},
+  y: {label: "Balance ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  marks: [
+    Plot.areaY(sg_projection, {
+      x: "month", y: "balance",
+      fill: "#27ae60", fillOpacity: 0.12
+    }),
+    Plot.line(sg_projection, {
+      x: "month", y: "balance",
+      stroke: "#27ae60", strokeWidth: 2.5, tip: true,
+      title: d => `Month ${d.month}: $${d.balance.toLocaleString()}`
+    }),
+    Plot.line(sg_target_line, {
+      x: "month", y: "balance",
+      stroke: "#f39c12", strokeWidth: 2, strokeDash: [6, 3]
+    }),
+    Plot.text([{month: sg_projection[Math.floor(sg_projection.length/2)].month, balance: sg_target}], {
+      x: "month", y: "balance", text: d => `🎯 Goal: $${sg_target.toLocaleString()}`,
+      dy: -12, fill: "#f39c12", fontWeight: "bold", fontSize: 12
+    }),
+    sg_months_needed ? Plot.dot(
+      sg_projection.filter(d => d.month === sg_months_needed),
+      {x: "month", y: "balance", fill: "#27ae60", r: 7, tip: true,
+       title: d => `✅ Goal reached at month ${d.month}!\nBalance: $${d.balance.toLocaleString()}`}
+    ) : null
+  ].filter(Boolean)
+})
+```
 
 ---
 
