@@ -20,27 +20,83 @@ PhD stipends vary widely — from below $18,000 to over $45,000 per year — whi
 
 ---
 
-## 2. Cost-of-Living Assessment Worksheet
+## 2. Cost-of-Living Assessment Worksheet {#sec-col-worksheet}
 
-Use the table below to compare your stipend against your estimated monthly expenses. Fill in the **Estimated** column when evaluating an offer; fill in the **Actual** column after your first month.
+Use the interactive worksheet below to estimate your monthly budget. Typical expense ranges automatically adjust based on your selected city's cost-of-living index.
 
-| Expense Category | Estimated ($/mo) | Actual ($/mo) | Notes |
-|---|---|---|---|
-| Rent (1BR or shared room) | | | Check [Zillow](https://www.zillow.com/), [Apartments.com](https://www.apartments.com/), or local FB housing groups |
-| Utilities (electric, gas, water, internet) | | | Typically $100–$200/mo |
-| Groceries | | | USDA moderate-cost plan: ~$350–$450/mo |
-| Transportation (bus pass / car / bike) | | | Check if university offers discounted transit passes |
-| Health insurance premium (if not fully covered) | | | See [Health Insurance guide](health_insurance.qmd) |
-| Dental / vision (if not covered) | | | |
-| Phone | | | |
-| Childcare (if applicable) | | | See [Family Planning guide](family_planning.qmd) |
-| Loan repayment (undergraduate debt) | | | |
-| Personal care & clothing | | | |
-| Entertainment & dining | | | |
-| Emergency savings (target 10% of income) | | | |
-| **Total Monthly Expenses** | | | |
-| **Monthly Stipend (post-tax estimate)** | | | Gross ÷ 12, minus estimated income tax (no SE tax for fellowships — pay quarterly estimated taxes via Form 1040-ES) |
-| **Monthly Surplus / (Deficit)** | | | |
+```{ojs}
+//| echo: false
+// City-aware expense estimates — typical ranges scale with COLI
+col_city_init = (() => {
+  const savedName = localStorage.getItem('phd_city') || 'Austin, TX';
+  const savedColi = parseFloat(localStorage.getItem('phd_city_coli') || '100');
+  return {name: savedName, coli: isFinite(savedColi) ? savedColi : 100};
+})()
+
+col_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
+col_monthly_net  = Math.round((isFinite(col_stipend_init) ? col_stipend_init : 30000) / 12 * 0.88)
+col_coli         = col_city_init.coli
+col_city_name    = col_city_init.name
+
+// Baseline expenses at COLI=100 (Austin, TX)
+col_expenses_base = [
+  {item: "Rent (1BR or shared room)",            base: 1050, notes: "Zillow / Apartments.com; on-campus may be cheaper"},
+  {item: "Utilities (electric, gas, water, internet)", base: 150, notes: "Typically $100–$200/mo"},
+  {item: "Groceries",                             base: 380,  notes: "USDA moderate-cost plan"},
+  {item: "Transportation",                        base: 120,  notes: "Transit pass or car; check university discount"},
+  {item: "Health insurance premium",              base: 80,   notes: "If not fully covered; see Health Insurance guide"},
+  {item: "Dental / vision",                       base: 30,   notes: "If not covered by university plan"},
+  {item: "Phone",                                 base: 60,   notes: "Budget carriers from ~$25/mo"},
+  {item: "Personal care & clothing",              base: 80,   notes: ""},
+  {item: "Entertainment & dining out",            base: 120,  notes: ""},
+  {item: "Emergency savings (target ~10%)",       base: 220, notes: "Build to 3–6 month fund"}
+]
+
+col_expenses = col_expenses_base.map(e => ({
+  ...e,
+  estimated: Math.round(e.base * (col_coli / 100))
+}))
+
+col_total_expenses = col_expenses.reduce((s, e) => s + e.estimated, 0)
+col_surplus = col_monthly_net - col_total_expenses
+
+html`
+<div style="background:var(--bs-light,#f8f9fa);border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;padding:16px;margin-bottom:16px;">
+  <div style="font-size:.85rem;opacity:.7;margin-bottom:8px;">📍 City: <strong>${col_city_name}</strong> &nbsp;|&nbsp; COLI: <strong>${col_coli}</strong> &nbsp;|&nbsp; Est. Monthly Take-Home: <strong>$${col_monthly_net.toLocaleString()}</strong><br>
+  <em style="font-size:.78rem;">City and stipend are loaded from the calculator below. Update them in the <a href="#sec-stipend-calculator">Interactive Stipend Calculator</a> to refresh estimates here.</em></div>
+  <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+    <thead>
+      <tr style="border-bottom:2px solid var(--bs-border-color,#dee2e6);">
+        <th style="text-align:left;padding:6px 8px;">Expense Category</th>
+        <th style="text-align:right;padding:6px 8px;">City Est. ($/mo)</th>
+        <th style="text-align:left;padding:6px 8px;opacity:.7;">Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${col_expenses.map(e => html`<tr style="border-bottom:1px solid var(--bs-border-color,#dee2e6);">
+        <td style="padding:6px 8px;">${e.item}</td>
+        <td style="text-align:right;padding:6px 8px;font-weight:600;">$${e.estimated.toLocaleString()}</td>
+        <td style="padding:6px 8px;opacity:.65;font-size:.82rem;">${e.notes}</td>
+      </tr>`)}
+      <tr style="background:var(--bs-secondary-bg,#e9ecef);font-weight:700;">
+        <td style="padding:8px 8px;">Total Monthly Expenses</td>
+        <td style="text-align:right;padding:8px 8px;color:#e74c3c;">$${col_total_expenses.toLocaleString()}</td>
+        <td></td>
+      </tr>
+      <tr style="font-weight:700;">
+        <td style="padding:8px 8px;">Est. Monthly Take-Home</td>
+        <td style="text-align:right;padding:8px 8px;">$${col_monthly_net.toLocaleString()}</td>
+        <td style="padding:8px 8px;font-size:.8rem;opacity:.65;">Stipend ÷ 12 × 0.88 (approx. after tax)</td>
+      </tr>
+      <tr style="font-weight:700;font-size:1rem;">
+        <td style="padding:8px 8px;">Monthly Surplus / (Deficit)</td>
+        <td style="text-align:right;padding:8px 8px;color:${col_surplus >= 0 ? '#27ae60' : '#e74c3c'};">${col_surplus >= 0 ? '+' : ''}$${col_surplus.toLocaleString()}</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</div>`
+```
 
 ### Federal & Benchmark References
 
@@ -107,12 +163,14 @@ cities_data = [
 //| echo: false
 viewof annual_stipend = {
   const saved = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000');
-  const el = Inputs.range([15000, 60000], {
+  const options = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
+  const nearest = options.reduce((a,b) => Math.abs(b-saved)<Math.abs(a-saved)?b:a, 30000);
+  const el = Inputs.select(options, {
     label: "Annual Stipend (pre-tax, $)",
-    step: 500,
-    value: isFinite(saved) ? saved : 30000
+    format: d => `$${d.toLocaleString()}`,
+    value: nearest
   });
-  el.addEventListener('input', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
+  el.addEventListener('change', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
   return el;
 }
 ```
@@ -142,12 +200,14 @@ viewof selected_city = {
 //| echo: false
 viewof phd_duration_sal = {
   const saved = parseFloat(localStorage.getItem('phd_duration') || '6');
-  const el = Inputs.range([3, 9], {
+  const opts = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9];
+  const nearest = opts.reduce((a,b) => Math.abs(b-saved)<Math.abs(a-saved)?b:a, 6);
+  const el = Inputs.select(opts, {
     label: "Expected PhD Duration (years)",
-    step: 0.5,
-    value: isFinite(saved) ? saved : 6
+    format: d => `${d} years`,
+    value: nearest
   });
-  el.addEventListener('input', () => localStorage.setItem('phd_duration', String(el.value)));
+  el.addEventListener('change', () => localStorage.setItem('phd_duration', String(el.value)));
   return el;
 }
 ```
@@ -205,8 +265,8 @@ Plot.plot({
   marginLeft: 245,
   x: {label: "Annual $ →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
   color: {
-    domain: ["Reference", "Federal Benchmark", "Living Wage", "You"],
-    range: ["#e74c3c", "#3498db", "#27ae60", "#f39c12"],
+    domain: ["You", "Reference", "Federal Benchmark", "Living Wage"],
+    range: ["#f39c12", "#e74c3c", "#3498db", "#27ae60"],
     legend: true
   },
   marks: [
@@ -299,56 +359,6 @@ Plot.plot({
 ```
 
 :::
-
----
-
-## 4. Negotiating Your Stipend
-
-Most PhD students don't realize stipends are negotiable — especially at offer time. Here are evidence-based strategies:
-
-### Before negotiating
-- [ ] Research peer institutions' stipend levels (most are publicly posted).
-- [ ] Look up your city's MIT Living Wage and bring it to the conversation.
-- [ ] Check whether your program has recently received new training grant funding (T32, NRSA), which can increase what PIs and programs can offer.
-- [ ] Ask your potential advisor about supplemental RA funding, travel awards, and conference support.
-
-### At the negotiation
-- [ ] Frame the ask around cost of living, not personal need: *"I've researched that the living wage in [city] is $X, and I want to make sure I can focus fully on research."*
-- [ ] Ask about guaranteed annual increases: *"Is there a policy for annual stipend adjustments, and if so, what is the typical percentage?"*
-- [ ] If the stipend can't be raised, ask for alternatives: summer support, fee waivers, childcare subsidies, or professional development funds.
-
-### After accepting
-- [ ] Set a calendar reminder to revisit your stipend each year relative to inflation (CPI) and local cost-of-living changes.
-- [ ] Advocate collectively through your graduate student union or student government for program-wide increases.
-
----
-
-## 5. Taxes on Graduate Stipends
-
-Stipend taxation depends on how you are funded:
-
-| Funding Type | Federal Tax | FICA (Social Security + Medicare) |
-|---|---|---|
-| Fellowship / scholarship (F31, NSF GRF) | Yes — you must pay estimated quarterly taxes | Generally exempt |
-| TA / RA appointment (W-2) | Yes — withheld automatically | Generally exempt if enrolled half-time |
-| Industry-funded RA | Depends on contract terms | May apply |
-
-> **Action:** File Form 1040-ES quarterly to avoid underpayment penalties if you receive a fellowship. See IRS Publication 970.
-
-**Resources:**
-
-- [IRS Publication 970: Tax Benefits for Education](https://www.irs.gov/pub/irs-pdf/p970.pdf)
-- [GradTaxes.com](https://www.gradtaxes.com/) — tax guides specifically for graduate students
-- Your university's international student office (if applicable) for treaty exemptions
-
----
-
-## 6. Advocacy & External Resources
-
-- [National Science Policy Network (NSPN)](https://scipolnetwork.org/)
-- [UAW Graduate Student Union campaigns](https://uaw.org/)
-- [Future of Research — stipend tracking data](https://futureofresearch.org/)
-- [Council of Graduate Schools](https://cgsnet.org/)
 
 ---
 
@@ -635,6 +645,56 @@ Inputs.table(
   {rows: 20, sort: "Ratio", reverse: true}
 )
 ```
+
+---
+
+## 4. Negotiating Your Stipend
+
+Most PhD students don't realize stipends are negotiable — especially at offer time. Here are evidence-based strategies:
+
+### Before negotiating
+- [ ] Research peer institutions' stipend levels (most are publicly posted).
+- [ ] Look up your city's MIT Living Wage and bring it to the conversation.
+- [ ] Check whether your program has recently received new training grant funding (T32, NRSA), which can increase what PIs and programs can offer.
+- [ ] Ask your potential advisor about supplemental RA funding, travel awards, and conference support.
+
+### At the negotiation
+- [ ] Frame the ask around cost of living, not personal need: *"I've researched that the living wage in [city] is $X, and I want to make sure I can focus fully on research."*
+- [ ] Ask about guaranteed annual increases: *"Is there a policy for annual stipend adjustments, and if so, what is the typical percentage?"*
+- [ ] If the stipend can't be raised, ask for alternatives: summer support, fee waivers, childcare subsidies, or professional development funds.
+
+### After accepting
+- [ ] Set a calendar reminder to revisit your stipend each year relative to inflation (CPI) and local cost-of-living changes.
+- [ ] Advocate collectively through your graduate student union or student government for program-wide increases.
+
+---
+
+## 5. Taxes on Graduate Stipends
+
+Stipend taxation depends on how you are funded:
+
+| Funding Type | Federal Tax | FICA (Social Security + Medicare) |
+|---|---|---|
+| Fellowship / scholarship (F31, NSF GRF) | Yes — you must pay estimated quarterly taxes | Generally exempt |
+| TA / RA appointment (W-2) | Yes — withheld automatically | Generally exempt if enrolled half-time |
+| Industry-funded RA | Depends on contract terms | May apply |
+
+> **Action:** File Form 1040-ES quarterly to avoid underpayment penalties if you receive a fellowship. See IRS Publication 970.
+
+**Resources:**
+
+- [IRS Publication 970: Tax Benefits for Education](https://www.irs.gov/pub/irs-pdf/p970.pdf)
+- [GradTaxes.com](https://www.gradtaxes.com/) — tax guides specifically for graduate students
+- Your university's international student office (if applicable) for treaty exemptions
+
+---
+
+## 6. Advocacy & External Resources
+
+- [National Science Policy Network (NSPN)](https://scipolnetwork.org/)
+- [UAW Graduate Student Union campaigns](https://uaw.org/)
+- [Future of Research — stipend tracking data](https://futureofresearch.org/)
+- [Council of Graduate Schools](https://cgsnet.org/)
 
 ---
 

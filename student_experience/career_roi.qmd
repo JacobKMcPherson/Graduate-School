@@ -32,12 +32,14 @@ roi_stipend_init  = parseFloat(localStorage.getItem('phd_annual_stipend') || '30
 roi_duration_init = parseFloat(localStorage.getItem('phd_duration')        || '6')
 
 viewof roi_stipend = {
-  const el = Inputs.range([15000, 60000], {
+  const options = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
+  const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(roi_stipend_init)?roi_stipend_init:30000))<Math.abs(a-(isFinite(roi_stipend_init)?roi_stipend_init:30000))?b:a, 30000);
+  const el = Inputs.select(options, {
     label: "Annual Stipend (pre-tax, $) — override updates other pages",
-    step: 500,
-    value: isFinite(roi_stipend_init) ? roi_stipend_init : 30000
+    format: d => `$${d.toLocaleString()}`,
+    value: nearest
   });
-  el.addEventListener('input', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
+  el.addEventListener('change', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
   return el;
 }
 ```
@@ -45,12 +47,14 @@ viewof roi_stipend = {
 ```{ojs}
 //| echo: false
 viewof roi_duration = {
-  const el = Inputs.range([3, 9], {
+  const opts = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9];
+  const nearest = opts.reduce((a,b) => Math.abs(b-(isFinite(roi_duration_init)?roi_duration_init:6))<Math.abs(a-(isFinite(roi_duration_init)?roi_duration_init:6))?b:a, 6);
+  const el = Inputs.select(opts, {
     label: "PhD Duration (years) — override updates other pages",
-    step: 0.5,
-    value: isFinite(roi_duration_init) ? roi_duration_init : 6
+    format: d => `${d} years`,
+    value: nearest
   });
-  el.addEventListener('input', () => localStorage.setItem('phd_duration', String(el.value)));
+  el.addEventListener('change', () => localStorage.setItem('phd_duration', String(el.value)));
   return el;
 }
 ```
@@ -59,12 +63,14 @@ viewof roi_duration = {
 //| echo: false
 viewof roi_alt_salary = {
   const saved = parseFloat(localStorage.getItem('phd_alt_salary') || '70000');
-  const el = Inputs.range([40000, 150000], {
+  const options = [40000,45000,50000,55000,60000,65000,70000,75000,80000,85000,90000,95000,100000,110000,120000,130000,140000,150000];
+  const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(saved)?saved:70000))<Math.abs(a-(isFinite(saved)?saved:70000))?b:a, 70000);
+  const el = Inputs.select(options, {
     label: "Alternative Career Salary (BS/MS entry-level, pre-tax, $) — what you'd earn without a PhD",
-    step: 1000,
-    value: isFinite(saved) ? saved : 70000
+    format: d => `$${d.toLocaleString()}`,
+    value: nearest
   });
-  el.addEventListener('input', () => localStorage.setItem('phd_alt_salary', String(el.value)));
+  el.addEventListener('change', () => localStorage.setItem('phd_alt_salary', String(el.value)));
   return el;
 }
 ```
@@ -80,9 +86,9 @@ viewof roi_target_sector = Inputs.select(roi_sector_data, {
 
 ```{ojs}
 //| echo: false
-viewof roi_postdoc_years = Inputs.range([0, 5], {
+viewof roi_postdoc_years = Inputs.select([0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5], {
   label: "Postdoc Years (if planning a postdoc; 0 = none)",
-  step: 0.5,
+  format: d => d === 0 ? "None" : `${d} years`,
   value: 0
 })
 ```
