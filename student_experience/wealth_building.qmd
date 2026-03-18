@@ -1,29 +1,28 @@
 ---
 title: "Wealth Building"
-subtitle: "Financial planning for PhD students on a graduate stipend"
-description: "Budgeting templates, retirement account options, student loan management, and credit-building strategies — all calibrated for a graduate school income."
+subtitle: "Budget and wealth-building planners for PhD students on a graduate stipend"
+description: "Monthly budget and wealth-building planners, student loan management, and Roth IRA / 403(b) / HSA / 529 guidance — all calibrated for a graduate school income."
 order: 2
 ---
 
 Building financial security on a graduate stipend is challenging but possible. The key is starting early — even small, consistent contributions to an emergency fund and retirement account compound significantly over a 5–7 year PhD program. This guide covers budgeting, saving, investing, and managing debt on a grad-school income.
 
----
 
-## 1. Key Financial Milestones for Graduate Students
+### Key Financial Milestones for Graduate Students
 
 Work through these roughly in order:
 
 1. **Build a $1,000 starter emergency fund** — protects against unexpected car repairs, medical bills, etc.
-2. **Maximize employer retirement match** — if your university offers any match on a 403(b) or 457(b), contribute at least enough to capture the full match (free money).
+2. **Maximize employer retirement match** — if your university offers any match on a 403(b), contribute at least enough to capture the full match (free money).
 3. **Pay off high-interest debt** (>7% APR) — credit cards and private student loans.
 4. **Build a 3–6 month emergency fund** — equivalent to 3–6 months of essential expenses.
 5. **Contribute to a Roth IRA** — up to $7,000/year (2024 limit) if you have earned income (TA/RA W-2). Fellowship income may also qualify — confirm with a tax advisor.
 6. **Reduce or refinance moderate-interest debt** (undergraduate loans, if applicable).
-7. **Increase retirement contributions** in a 403(b) / 457(b) if available.
+7. **Increase 403(b) contributions or direct extra savings to an HSA / 529 plan** if those accounts fit your situation.
 
 ---
 
-## 2. Monthly Budget Template {#sec-budget-template}
+## 1. Monthly Budget Planner {#sec-budget-template}
 
 > **💾 Cross-page linked.** City and stipend are loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). Select a city and adjust your stipend there to populate city-specific estimates here.
 
@@ -61,7 +60,7 @@ bud_lines_def = [
   // SAVINGS
   {id:"emerg",     label:"Emergency Fund Contribution",            type:"savings", base: 100,             scale:false, checked:true,  notes:"Target 3–6 months expenses"},
   {id:"ira",       label:"Roth IRA Contribution",                  type:"savings", base: 100,             scale:false, checked:true,  notes:"Max $583/mo ($7k/yr)"},
-  {id:"ret403",    label:"403(b) / 457(b) Contribution",           type:"savings", base: 0,               scale:false, checked:false, notes:"If your university offers it"},
+  {id:"addl_savings", label:"403(b) / HSA / 529 Contribution",        type:"savings", base: 0,               scale:false, checked:false, notes:"If your university offers these options"},
   {id:"debt_ex",   label:"Extra Debt Repayment",                   type:"savings", base: 0,               scale:false, checked:false, notes:"Above minimum payments"},
 ]
 ```
@@ -202,9 +201,11 @@ Plot.plot({
 
 ---
 
-## 📊 Wealth Building & Savings Goal Planner {#sec-budget-planner}
+## 2. Wealth Building & Savings Goal Planner {#sec-budget-planner}
 
-> **💾 Cross-page linked.** Stipend is loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). Adjust below to override for this session.
+> **💾 Cross-page linked.** Stipend is loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). The monthly budget planner above sets the realistic ceiling; this planner turns that monthly cash flow into a debt, retirement, and savings-goal strategy.
+
+Use this section to connect your **take-home pay, savings rate, Roth IRA contribution, student-loan strategy, and major savings goal** in one place.
 
 ```{ojs}
 //| echo: false
@@ -226,7 +227,7 @@ viewof wb_stipend = {
 ```{ojs}
 //| echo: false
 viewof wb_savings_pct = Inputs.select([5, 8, 10, 12, 15, 18, 20, 22, 25, 28, 30], {
-  label: "Savings & Debt Repayment (% of take-home)",
+  label: "Savings, debt payoff & goal allocation (% of take-home)",
   format: d => `${d}%`,
   value: 15
 })
@@ -251,38 +252,145 @@ viewof wb_ira_monthly = {
 
 ```{ojs}
 //| echo: false
+viewof wb_extra_loan_payment = Inputs.select([0, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500], {
+  label: "Extra student-loan payment ($/mo)",
+  format: d => d === 0 ? 'None' : `$${d}/mo`,
+  value: 100
+})
+```
+
+```{ojs}
+//| echo: false
+viewof wb_goal_share = Inputs.select([25, 40, 50, 60, 75, 100], {
+  label: "Share of remaining savings directed to your current goal",
+  format: d => `${d}%`,
+  value: 60
+})
+```
+
+```{ojs}
+//| echo: false
+viewof wb_other_account = Inputs.select(["403(b)", "HSA", "529 plan", "Cash buffer"], {
+  label: "Direct any remaining savings to",
+  value: "HSA"
+})
+```
+
+```{ojs}
+//| echo: false
+viewof sg_goal_type = Inputs.select(["🏠 House Down Payment", "🚗 Car Purchase", "👶 Family / Childcare", "✈️ Other Goal"], {
+  label: "Current savings goal",
+  value: "🏠 House Down Payment"
+})
+```
+
+```{ojs}
+//| echo: false
+sg_goal_defaults = ({
+  "🏠 House Down Payment": {target: 30000, label: "Down payment (10–20% of home price)"},
+  "🚗 Car Purchase":       {target: 8000,  label: "Used car cash purchase or down payment"},
+  "👶 Family / Childcare": {target: 12000, label: "Birth, leave, or childcare buffer"},
+  "✈️ Other Goal":         {target: 5000,  label: "Custom savings target"}
+})
+```
+
+```{ojs}
+//| echo: false
+sg_goal_info = sg_goal_defaults[sg_goal_type]
+```
+
+```{ojs}
+//| echo: false
+viewof sg_target = Inputs.select([2000, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 12000, 15000, 18000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 75000, 100000], {
+  label: `Target Amount ($) — ${sg_goal_info.label}`,
+  format: d => `$${d.toLocaleString()}`,
+  value: sg_goal_info.target
+})
+```
+
+```{ojs}
+//| echo: false
+viewof sg_rate = Inputs.select([0, 1, 2, 3, 4, 4.5, 5, 5.5], {
+  label: "Annual Interest / HYSA Rate (%)",
+  format: d => `${d}%`,
+  value: 4.5
+})
+```
+
+```{ojs}
+//| echo: false
+viewof sg_existing = Inputs.select([0, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 7500, 10000], {
+  label: "Existing savings toward this goal ($)",
+  format: d => `$${d.toLocaleString()}`,
+  value: 0
+})
+```
+
+```{ojs}
+//| echo: false
 // 0.88 ≈ 1 − 12% effective federal+state tax rate typical for grad-student income bracket
 wb_monthly_net  = Math.round((wb_stipend / 12) * 0.88)
-// Needs floor = 45% (minimum viable budget); 80 − savings_pct keeps needs + wants = 100 − savings
 wb_needs_pct    = Math.max(45, 80 - wb_savings_pct)
 wb_wants_pct    = 100 - wb_savings_pct - wb_needs_pct
 wb_needs_amt    = Math.round(wb_monthly_net * wb_needs_pct  / 100)
 wb_wants_amt    = Math.round(wb_monthly_net * wb_wants_pct  / 100)
 wb_savings_amt  = Math.round(wb_monthly_net * wb_savings_pct / 100)
 
+// Pull savings + surplus from the Monthly Budget Planner above so this section stays connected to those selections.
+wb_budget_capacity = bud_total_savings + Math.max(0, bud_net_cashflow)
+wb_alignment_gap   = wb_budget_capacity - wb_savings_amt
+
+wb_emergency_monthly = Math.round(wb_savings_amt * 0.35)
+wb_ira_effective     = Math.min(wb_ira_monthly, Math.max(0, Math.round(wb_savings_amt * 0.5)))
+wb_after_core        = Math.max(0, wb_savings_amt - wb_emergency_monthly - wb_ira_effective)
+wb_debt_monthly      = Math.min(wb_extra_loan_payment, wb_after_core)
+wb_after_debt        = Math.max(0, wb_after_core - wb_debt_monthly)
+wb_goal_monthly      = Math.round(wb_after_debt * wb_goal_share / 100)
+wb_other_monthly     = Math.max(0, wb_after_debt - wb_goal_monthly)
+
 html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
   <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
     <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Take-Home/mo</div>
     <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${wb_monthly_net}</div>
   </div>
-  <div style="padding:14px 10px;border:2px solid #e74c3c;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Needs (${wb_needs_pct}%)</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e74c3c;">$${wb_needs_amt}</div>
-  </div>
-  <div style="padding:14px 10px;border:2px solid #3498db;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Wants (${wb_wants_pct}%)</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#3498db;">$${wb_wants_amt}</div>
+  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Budget Planner Capacity</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${wb_budget_capacity.toLocaleString()}</div>
+    <div style="font-size:.72rem;opacity:.65;">Savings selected + surplus above</div>
   </div>
   <div style="padding:14px 10px;border:2px solid #27ae60;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Savings (${wb_savings_pct}%)</div>
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Wealth Plan Target</div>
     <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#27ae60;">$${wb_savings_amt}</div>
+    <div style="font-size:.72rem;opacity:.65;">${wb_savings_pct}% of take-home</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #8e44ad;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Roth IRA</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#8e44ad;">$${wb_ira_effective}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #e67e22;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Extra Loan Payment</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e67e22;">$${wb_debt_monthly}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #f39c12;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Goal Savings</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#f39c12;">$${wb_goal_monthly}</div>
+    <div style="font-size:.72rem;opacity:.65;">${sg_goal_type}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid #3498db;border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">${wb_other_account}</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#3498db;">$${wb_other_monthly}</div>
+  </div>
+  <div style="padding:14px 10px;border:2px solid ${wb_alignment_gap >= 0 ? '#27ae60' : '#e74c3c'};border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Planner Alignment</div>
+    <div style="font-size:1.1rem;font-weight:700;margin-top:4px;color:${wb_alignment_gap >= 0 ? '#27ae60' : '#e74c3c'};">${wb_alignment_gap >= 0 ? 'Within budget' : 'Needs more room'}</div>
+    <div style="font-size:.72rem;opacity:.65;">${wb_alignment_gap >= 0 ? `$${wb_alignment_gap.toLocaleString()}/mo left over` : `$${Math.abs(wb_alignment_gap).toLocaleString()}/mo short`}</div>
   </div>
 </div>`
 ```
 
 ::: {.panel-tabset}
 
-### 💰 Monthly Budget Breakdown
+### 💰 Budget Breakdown
 
 ```{ojs}
 //| echo: false
@@ -295,15 +403,17 @@ budget_categories = [
   {category: "Dining & Coffee",       amount: Math.round(wb_wants_amt * 0.40), type: "Wants"},
   {category: "Entertainment & Subs.", amount: Math.round(wb_wants_amt * 0.32), type: "Wants"},
   {category: "Clothing & Personal",   amount: Math.round(wb_wants_amt * 0.28), type: "Wants"},
-  {category: "Emergency Fund",        amount: Math.round(wb_savings_amt * 0.35), type: "Savings"},
-  {category: "Roth IRA",              amount: Math.min(wb_ira_monthly, Math.round(wb_savings_amt * 0.50)), type: "Savings"},
-  {category: "Debt Repayment",        amount: Math.round(wb_savings_amt * 0.15), type: "Savings"}
-]
+  {category: "Emergency Fund",        amount: wb_emergency_monthly, type: "Savings"},
+  {category: "Roth IRA",              amount: wb_ira_effective, type: "Savings"},
+  {category: "Debt Repayment",        amount: wb_debt_monthly, type: "Savings"},
+  {category: "Goal Savings",          amount: wb_goal_monthly, type: "Savings"},
+  {category: wb_other_account,          amount: wb_other_monthly, type: "Savings"}
+].filter(d => d.amount > 0)
 
 Plot.plot({
-  title: "Monthly Budget Breakdown (50/30/20 framework)",
+  title: "Monthly Budget Breakdown (needs, wants, and wealth plan)",
   width: 580,
-  height: 360,
+  height: 380,
   marginLeft: 200,
   x: {label: "Monthly $ →"},
   color: {
@@ -326,11 +436,10 @@ Plot.plot({
 ```{ojs}
 //| echo: false
 ret_years = Array.from({length: 36}, (_, i) => i)
-contrib_levels = [50, 100, wb_ira_monthly, 200, 300]
+contrib_levels = [50, 100, wb_ira_effective, 200, 300]
   .filter((v, i, a) => a.indexOf(v) === i)
   .sort((a, b) => a - b)
 
-// 7% = long-run average annual real return of a diversified index-fund portfolio (historical US stock market)
 compound_data = contrib_levels.flatMap(monthly =>
   ret_years.map(year => ({
     year,
@@ -355,19 +464,19 @@ Plot.plot({
     Plot.line(compound_data, {
       x: "year", y: "value",
       stroke: d => `$${d.monthly}/mo`,
-      strokeWidth: d => d.monthly === wb_ira_monthly ? 3.5 : 1.5,
-      strokeOpacity: d => d.monthly === wb_ira_monthly ? 1 : 0.5,
+      strokeWidth: d => d.monthly === wb_ira_effective ? 3.5 : 1.5,
+      strokeOpacity: d => d.monthly === wb_ira_effective ? 1 : 0.5,
       tip: true
     }),
     Plot.dot(
-      compound_data.filter(d => d.monthly === wb_ira_monthly && d.year % 5 === 0),
+      compound_data.filter(d => d.monthly === wb_ira_effective && d.year % 5 === 0),
       {x: "year", y: "value", fill: "#f39c12", r: 5, tip: true}
     )
   ]
 })
 ```
 
-### 🎯 Savings Milestones
+### 🎯 Goal Timeline & Emergency Fund
 
 ```{ojs}
 //| echo: false
@@ -375,9 +484,9 @@ milestone_months = Array.from({length: 61}, (_, i) => i)
 
 milestones_data = milestone_months.map(m => ({
   month: m,
-  emergency_1k:  Math.min(wb_savings_amt * 0.35 * m, 1000),
-  emergency_3mo: Math.min(wb_savings_amt * 0.35 * m, wb_monthly_net * 3),
-  emergency_6mo: Math.min(wb_savings_amt * 0.35 * m, wb_monthly_net * 6)
+  emergency_1k:  Math.min(wb_emergency_monthly * m, 1000),
+  emergency_3mo: Math.min(wb_emergency_monthly * m, wb_monthly_net * 3),
+  emergency_6mo: Math.min(wb_emergency_monthly * m, wb_monthly_net * 6)
 }))
 
 milestones_tidy = milestones_data.flatMap(d => [
@@ -386,11 +495,64 @@ milestones_tidy = milestones_data.flatMap(d => [
   {month: d.month, value: d.emergency_6mo, series: "6-Month Emergency Fund ($" + (wb_monthly_net*6).toLocaleString() + ")"}
 ])
 
+sg_monthly = wb_goal_monthly
+sg_monthly_rate = sg_rate / 100 / 12
+
+sg_months_needed = (() => {
+  if (sg_existing >= sg_target) return 0;
+  if (sg_monthly <= 0 && sg_monthly_rate <= 0) return null;
+  let balance = sg_existing;
+  for (let m = 1; m <= 600; m++) {
+    balance = balance * (1 + sg_monthly_rate) + sg_monthly;
+    if (balance >= sg_target) return m;
+  }
+  return null;
+})()
+
+sg_projection = Array.from({length: Math.min((sg_months_needed ?? 120) + 1, 361)}, (_, m) => {
+  const growthFactor = Math.pow(1 + sg_monthly_rate, m);
+  const principal = sg_existing + sg_monthly * m;
+  const balance = sg_existing * growthFactor
+    + (sg_monthly_rate > 0 ? sg_monthly * (growthFactor - 1) / sg_monthly_rate : sg_monthly * m);
+  const interest = Math.round(Math.max(0, balance - principal));
+  return {month: m, balance: Math.round(balance), principal: Math.round(principal), interest};
+})
+
+sg_months_text = sg_existing >= sg_target
+  ? "Already funded"
+  : sg_months_needed
+    ? `${sg_months_needed} months (${(sg_months_needed/12).toFixed(1)} years)`
+    : "Not yet funded — increase savings or lower debt allocation"
+
+sg_final_balance = sg_projection[sg_projection.length - 1]?.balance ?? 0
+sg_interest_earned = sg_projection[sg_projection.length - 1]?.interest ?? 0
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0;">
+  <div style="padding:12px 8px;border:2px solid #f39c12;border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Goal</div>
+    <div style="font-size:1.3rem;font-weight:700;color:#f39c12;margin-top:3px;">$${sg_target.toLocaleString()}</div>
+    <div style="font-size:.72rem;opacity:.65;">${sg_goal_type}</div>
+  </div>
+  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Monthly Goal Allocation</div>
+    <div style="font-size:1.3rem;font-weight:700;margin-top:3px;">$${sg_monthly}/mo</div>
+    <div style="font-size:.72rem;opacity:.65;">Derived from your wealth plan above</div>
+  </div>
+  <div style="padding:12px 8px;border:2px solid ${sg_months_needed !== null ? '#27ae60' : '#e74c3c'};border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Time to Goal</div>
+    <div style="font-size:${sg_months_needed !== null ? '1.1' : '.85'}rem;font-weight:700;color:${sg_months_needed !== null ? '#27ae60' : '#e74c3c'};margin-top:3px;">${sg_months_text}</div>
+  </div>
+  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Interest Earned</div>
+    <div style="font-size:1.3rem;font-weight:700;color:#27ae60;margin-top:3px;">$${sg_interest_earned.toLocaleString()}</div>
+  </div>
+</div>`
+
 Plot.plot({
   title: "Emergency Fund Build-Up Over Time",
-  subtitle: "Saving " + wb_savings_pct + "% of take-home each month toward emergency fund.",
+  subtitle: `Saving $${wb_emergency_monthly.toLocaleString()}/mo toward emergency reserves.`,
   width: 600,
-  height: 300,
+  height: 280,
   x: {label: "Months →"},
   y: {label: "Emergency Fund Balance ($) →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
   color: {legend: true},
@@ -404,192 +566,8 @@ Plot.plot({
 })
 ```
 
-:::
-
----
-
-## 3. Retirement Accounts Available to Graduate Students
-
-Even contributing $50–$100/month to a Roth IRA in graduate school can grow to $30,000–$50,000 by retirement (assuming 7% average annual return over 35 years).
-
-| Account Type | Who Can Contribute | 2024 Limit | Tax Treatment | Notes |
-|---|---|---|---|---|
-| **Roth IRA** | Anyone with earned income (W-2 or qualifying fellowship income) under income limits | $7,000/yr ($8,000 if 50+) | Contributions post-tax; growth & withdrawals tax-free | Best option for most grad students (low tax bracket now) |
-| **Traditional IRA** | Anyone with earned income | $7,000/yr | Contributions may be deductible; withdrawals taxed | Less advantageous than Roth at low income |
-| **403(b)** | University employees (TA/RA) | $23,000/yr (2024) | Pre-tax contributions; taxed on withdrawal | Only if your university offers enrollment |
-| **457(b)** | Some university employees | $23,000/yr | Pre-tax; no early withdrawal penalty | Rare but valuable if available |
-
-> **Fellowship students:** IRS guidance on whether fellowship income qualifies as "earned income" for IRA purposes has evolved. As of 2023, qualified stipends can count. Consult [IRS Publication 590-A](https://www.irs.gov/publications/p590a) or a tax professional.
-
----
-
-## 4. Managing Student Loan Debt
-
-If you carry undergraduate loans into graduate school:
-
-- **Federal loans are typically deferred** during enrollment (in-school deferment), but interest may continue accruing on unsubsidized loans.
-- Consider **paying interest only** during graduate school to prevent capitalization.
-- Research **income-driven repayment (IDR)** plans: SAVE, PAYE, IBR. These cap payments at a percentage of discretionary income, which can be very low (or $0) on a grad stipend.
-- **Public Service Loan Forgiveness (PSLF):** If you plan to work at a nonprofit or government employer after graduation, payments during grad school can count toward the 120 required for PSLF (if you are on an IDR plan and not in deferment). Contact your servicer to verify.
-
-**Tools:**
-
-- [Federal Student Aid Loan Simulator](https://studentaid.gov/loan-simulator/)
-- [PSLF Help Tool](https://studentaid.gov/pslf/)
-
----
-
-## 5. Tax Strategy for Graduate Students
-
-| Strategy | Benefit | Notes |
-|---|---|---|
-| Claim the **Lifetime Learning Credit** | Up to $2,000 credit on tuition & fees | Phases out at higher incomes; cannot be combined with some exclusions |
-| Deduct **student loan interest** | Up to $2,500 deduction | Income limits apply |
-| Contribute to **Roth IRA** | Tax-free growth | Requires earned income; standard Roth contributions do not require Form 8606 (that form is for nondeductible traditional IRA contributions and Roth conversions) |
-| Track **unreimbursed business expenses** (conferences, supplies) | May be deductible as Schedule C expenses if self-employed (fellowship) | Keep receipts |
-| File **quarterly estimated taxes** (fellowships) | Avoid underpayment penalty | Use IRS Form 1040-ES |
-
----
-
-## 6. Building Credit During Graduate School
-
-Good credit saves money on car loans, mortgages, and insurance premiums post-PhD.
-
-- [ ] Open a **no-annual-fee credit card** (e.g., a student card or secured card).
-- [ ] Charge a small recurring expense (e.g., streaming subscription) and pay it in full each month.
-- [ ] Keep **credit utilization below 30%** of your credit limit.
-- [ ] Do **not** close old accounts — length of credit history matters.
-- [ ] Check your **free credit reports** annually at [AnnualCreditReport.com](https://www.annualcreditreport.com/).
-
----
-
-## 7. Additional Resources
-
-- [r/GradSchool (Reddit)](https://www.reddit.com/r/GradSchool/) — community discussions
-- [The PhD Student's Guide to Personal Finance (NerdWallet)](https://www.nerdwallet.com/)
-- [Bogleheads Wiki: Getting Started](https://www.bogleheads.org/wiki/Getting_started) — low-cost index fund investing
-- [Personal Finance for PhDs (blog)](https://pfforphds.com/) — tax and finance advice specifically for graduate students
-- [IRS Free File](https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free) — free federal tax filing
-
----
-
-## 8. Savings Goal Planner {#sec-savings-goal}
-
-Plan your savings journey toward a major purchase. See how long it will take based on your monthly contribution and savings rate.
-
 ```{ojs}
 //| echo: false
-viewof sg_goal_type = Inputs.select(["🏠 House Down Payment", "🚗 Car Purchase", "✈️ Other Goal"], {
-  label: "Savings Goal",
-  value: "🏠 House Down Payment"
-})
-```
-
-```{ojs}
-//| echo: false
-sg_goal_defaults = ({
-  "🏠 House Down Payment": {target: 30000, label: "Down payment (10–20% of home price)"},
-  "🚗 Car Purchase":       {target: 8000,  label: "Used car cash purchase or down payment"},
-  "✈️ Other Goal":         {target: 5000,  label: "Custom savings target"}
-})
-```
-
-```{ojs}
-//| echo: false
-sg_goal_info = sg_goal_defaults[sg_goal_type]
-```
-
-```{ojs}
-//| echo: false
-viewof sg_target = Inputs.select([2000, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 12000, 15000, 18000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 75000, 100000], {
-  label: `Target Amount ($) — ${sg_goal_info.label}`,
-  format: d => `$${d.toLocaleString()}`,
-  value: sg_goal_info.target
-})
-```
-
-```{ojs}
-//| echo: false
-viewof sg_monthly = Inputs.select([25, 50, 75, 100, 125, 150, 200, 250, 300, 350, 400, 500, 600, 750, 1000], {
-  label: "Monthly Savings Contribution ($)",
-  format: d => `$${d}/mo`,
-  value: 200
-})
-```
-
-```{ojs}
-//| echo: false
-viewof sg_rate = Inputs.select([0, 1, 2, 3, 4, 4.5, 5, 5.5], {
-  label: "Annual Interest / HYSA Rate (%)",
-  format: d => `${d}%`,
-  value: 4.5
-})
-```
-
-```{ojs}
-//| echo: false
-viewof sg_existing = Inputs.select([0, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000], {
-  label: "Existing Savings Toward This Goal ($)",
-  format: d => `$${d.toLocaleString()}`,
-  value: 0
-})
-```
-
-```{ojs}
-//| echo: false
-// Compound savings projection
-sg_monthly_rate = sg_rate / 100 / 12
-
-// Future value of existing savings + monthly contributions
-sg_months_needed = (() => {
-  if (sg_monthly <= 0) return null;
-  let balance = sg_existing;
-  for (let m = 1; m <= 600; m++) {
-    balance = balance * (1 + sg_monthly_rate) + sg_monthly;
-    if (balance >= sg_target) return m;
-  }
-  return null;
-})()
-
-sg_projection = Array.from({length: Math.min((sg_months_needed || 240) + 1, 361)}, (_, m) => {
-  const growthFactor = Math.pow(1 + sg_monthly_rate, m);
-  const principal = sg_existing + sg_monthly * m;
-  const balance = sg_existing * growthFactor
-    + (sg_monthly_rate > 0 ? sg_monthly * (growthFactor - 1) / sg_monthly_rate : sg_monthly * m);
-  const interest = Math.round(Math.max(0, balance - principal));
-  return {month: m, balance: Math.round(balance), principal: Math.round(principal), interest};
-})
-
-sg_months_text = sg_months_needed
-  ? `${sg_months_needed} months (${(sg_months_needed/12).toFixed(1)} years)`
-  : "More than 30 years — increase monthly contribution"
-
-sg_final_balance = sg_projection[sg_projection.length - 1]?.balance ?? 0
-
-html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0;">
-  <div style="padding:12px 8px;border:2px solid #f39c12;border-radius:8px;text-align:center;">
-    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Goal</div>
-    <div style="font-size:1.3rem;font-weight:700;color:#f39c12;margin-top:3px;">$${sg_target.toLocaleString()}</div>
-    <div style="font-size:.72rem;opacity:.65;">${sg_goal_type}</div>
-  </div>
-  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Monthly Savings</div>
-    <div style="font-size:1.3rem;font-weight:700;margin-top:3px;">$${sg_monthly}/mo</div>
-  </div>
-  <div style="padding:12px 8px;border:2px solid ${sg_months_needed ? '#27ae60' : '#e74c3c'};border-radius:8px;text-align:center;">
-    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Time to Goal</div>
-    <div style="font-size:${sg_months_needed ? '1.1' : '.85'}rem;font-weight:700;color:${sg_months_needed ? '#27ae60' : '#e74c3c'};margin-top:3px;">${sg_months_text}</div>
-  </div>
-  <div style="padding:12px 8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Interest Earned</div>
-    <div style="font-size:1.3rem;font-weight:700;color:#27ae60;margin-top:3px;">$${(sg_final_balance - (sg_existing + sg_monthly*(sg_projection.length-1))).toLocaleString()}</div>
-  </div>
-</div>`
-```
-
-```{ojs}
-//| echo: false
-// Savings goal chart
 sg_target_line = [{month: 0, balance: sg_target}, {month: sg_projection[sg_projection.length-1].month, balance: sg_target}]
 
 Plot.plot({
@@ -617,7 +595,7 @@ Plot.plot({
       x: "month", y: "balance", text: d => `🎯 Goal: $${sg_target.toLocaleString()}`,
       dy: -12, fill: "#f39c12", fontWeight: "bold", fontSize: 12
     }),
-    sg_months_needed ? Plot.dot(
+    sg_months_needed !== null ? Plot.dot(
       sg_projection.filter(d => d.month === sg_months_needed),
       {x: "month", y: "balance", fill: "#27ae60", r: 7, tip: true,
        title: d => `✅ Goal reached at month ${d.month}!\nBalance: $${d.balance.toLocaleString()}`}
@@ -625,6 +603,63 @@ Plot.plot({
   ].filter(Boolean)
 })
 ```
+
+### 🧾 Account Options & Debt Strategy
+
+Use the controls above to decide how much of your monthly savings bucket goes to **Roth IRA contributions, accelerated loan payoff, goal savings, and a secondary account** like an HSA, 529 plan, or 403(b).
+
+| Account Type | Who Can Contribute | 2024 Limit | Tax Treatment | Notes |
+|---|---|---|---|---|
+| **Roth IRA** | Anyone with earned income (W-2 or qualifying fellowship income) under income limits | $7,000/yr ($8,000 if 50+) | Contributions post-tax; growth & withdrawals tax-free | Best option for most grad students in a low tax bracket |
+| **403(b)** | University employees (TA/RA) | $23,000/yr | Pre-tax contributions; taxed on withdrawal | Prioritize if your university offers a match |
+| **HSA** | Students enrolled in a qualifying high-deductible health plan | $4,150 individual / $8,300 family | Pre-tax contributions; tax-free growth and qualified medical withdrawals | Great bridge account if your campus plan is HSA-eligible |
+| **529 plan** | Anyone saving for education expenses | No federal annual contribution cap (gift-tax rules apply) | Growth is tax-free when used for qualified education expenses | Most relevant for students with children or long-term education goals |
+
+> **Fellowship students:** IRS guidance on whether fellowship income qualifies as "earned income" for IRA purposes has evolved. As of 2023, qualified stipends can count. Consult [IRS Publication 590-A](https://www.irs.gov/publications/p590a) or a tax professional.
+
+If you carry undergraduate loans into graduate school:
+
+- **Federal loans are typically deferred** during enrollment (in-school deferment), but interest may continue accruing on unsubsidized loans.
+- Consider **paying interest only** during graduate school to prevent capitalization.
+- Use the **extra student-loan payment** control above to compare faster debt payoff against goal savings or HSA / 529 contributions.
+- Research **income-driven repayment (IDR)** plans: SAVE, PAYE, IBR. These cap payments at a percentage of discretionary income, which can be very low (or $0) on a grad stipend.
+- **Public Service Loan Forgiveness (PSLF):** If you plan to work at a nonprofit or government employer after graduation, payments during grad school can count toward the 120 required for PSLF (if you are on an IDR plan and not in deferment). Contact your servicer to verify.
+
+**Tools:**
+
+- [Federal Student Aid Loan Simulator](https://studentaid.gov/loan-simulator/)
+- [PSLF Help Tool](https://studentaid.gov/pslf/)
+
+:::
+
+### Tax Strategy for Graduate Students
+
+| Strategy | Benefit | Notes |
+|---|---|---|
+| Claim the **Lifetime Learning Credit** | Up to $2,000 credit on tuition & fees | Phases out at higher incomes; cannot be combined with some exclusions |
+| Deduct **student loan interest** | Up to $2,500 deduction | Income limits apply |
+| Contribute to **Roth IRA** | Tax-free growth | Requires earned income; standard Roth contributions do not require Form 8606 (that form is for nondeductible traditional IRA contributions and Roth conversions) |
+| Contribute to an **HSA** | Triple tax advantage for medical costs | Requires enrollment in a qualifying HDHP |
+| Track **unreimbursed business expenses** (conferences, supplies) | May be deductible as Schedule C expenses if self-employed (fellowship) | Keep receipts |
+| File **quarterly estimated taxes** (fellowships) | Avoid underpayment penalty | Use IRS Form 1040-ES |
+
+### Building Credit During Graduate School
+
+Good credit saves money on car loans, mortgages, and insurance premiums post-PhD.
+
+- [ ] Open a **no-annual-fee credit card** (e.g., a student card or secured card).
+- [ ] Charge a small recurring expense (e.g., streaming subscription) and pay it in full each month.
+- [ ] Keep **credit utilization below 30%** of your credit limit.
+- [ ] Do **not** close old accounts — length of credit history matters.
+- [ ] Check your **free credit reports** annually at [AnnualCreditReport.com](https://www.annualcreditreport.com/).
+
+### Additional Resources
+
+- [r/GradSchool (Reddit)](https://www.reddit.com/r/GradSchool/) — community discussions
+- [The PhD Student's Guide to Personal Finance (NerdWallet)](https://www.nerdwallet.com/)
+- [Bogleheads Wiki: Getting Started](https://www.bogleheads.org/wiki/Getting_started) — low-cost index fund investing
+- [Personal Finance for PhDs (blog)](https://pfforphds.com/) — tax and finance advice specifically for graduate students
+- [IRS Free File](https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free) — free federal tax filing
 
 ---
 
