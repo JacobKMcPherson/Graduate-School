@@ -1,0 +1,314 @@
+<style>
+/* ===== SLIDE MODE ===== */
+
+/* Flash-prevention: sections hidden as soon as slide-mode class is added */
+main.slide-mode > section.level2 {
+  display: none;
+}
+main.slide-mode > section.level2.slide-active {
+  display: block;
+  animation: slide-fadein 0.22s ease;
+}
+@keyframes slide-fadein {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Hide top-level <hr> separators (intro separator before section 1) */
+main.slide-mode > hr {
+  display: none;
+}
+/* Top-level intro paragraphs are hidden via JS (class added at init) */
+main.slide-mode .slide-intro-hidden {
+  display: none;
+}
+
+/* ---- Nav bar ---- */
+.slide-nav-bar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-top: 1px solid #dee2e6;
+  padding: 10px 0 12px;
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 200;
+}
+
+/* Dark mode */
+[data-bs-theme="dark"] .slide-nav-bar {
+  background: rgba(33, 37, 41, 0.96);
+  border-top-color: #495057;
+}
+
+.slide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 18px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #212529;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.slide-btn:hover:not(:disabled) {
+  background: #f1f3f5;
+  border-color: #adb5bd;
+}
+.slide-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.slide-btn.slide-btn-next {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #ffffff;
+}
+.slide-btn.slide-btn-next:hover:not(:disabled) {
+  background: #0b5ed7;
+  border-color: #0a58ca;
+}
+[data-bs-theme="dark"] .slide-btn:not(.slide-btn-next) {
+  background: #343a40;
+  border-color: #495057;
+  color: #f8f9fa;
+}
+[data-bs-theme="dark"] .slide-btn:not(.slide-btn-next):hover:not(:disabled) {
+  background: #495057;
+}
+
+/* ---- Progress area (dots + counter label) ---- */
+.slide-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+.slide-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+}
+.slide-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #dee2e6;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s;
+  flex-shrink: 0;
+}
+.slide-dot.active {
+  background: #0d6efd;
+  transform: scale(1.35);
+}
+.slide-dot:hover {
+  background: #6ea8fe;
+}
+.slide-counter {
+  font-size: 11px;
+  color: #6c757d;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 340px;
+}
+[data-bs-theme="dark"] .slide-dot { background: #495057; }
+[data-bs-theme="dark"] .slide-dot.active { background: #6ea8fe; }
+[data-bs-theme="dark"] .slide-counter { color: #adb5bd; }
+</style>
+
+<script>
+/* Slide-mode initialization — runs at end of body */
+(function () {
+  'use strict';
+
+  function initSlides() {
+    var main = document.getElementById('quarto-document-content');
+    if (!main) return;
+
+    /* Gather only direct-child level2 sections */
+    var sections = Array.from(
+      main.querySelectorAll(':scope > section.level2')
+    );
+    if (sections.length < 2) return;   /* single-section pages: skip */
+
+    var current = 0;
+
+    /* Apply slide-mode class immediately to avoid flash */
+    main.classList.add('slide-mode');
+
+    /* Hide direct-child <p> intro paragraphs that appear BEFORE the first section */
+    var firstSectionIdx = Array.prototype.indexOf.call(main.children, sections[0]);
+    Array.from(main.children).forEach(function (child, idx) {
+      if (idx < firstSectionIdx && child.tagName === 'P') {
+        child.classList.add('slide-intro-hidden');
+      }
+    });
+
+    /* ---- Build navigation bar ---- */
+    var nav = document.createElement('div');
+    nav.className = 'slide-nav-bar';
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Slide navigation');
+
+    var prevBtn = document.createElement('button');
+    prevBtn.className = 'slide-btn slide-btn-prev';
+    prevBtn.innerHTML = '&#8592; Prev';
+    prevBtn.setAttribute('aria-label', 'Previous section');
+    prevBtn.addEventListener('click', function () { goTo(current - 1); });
+
+    var progressWrap = document.createElement('div');
+    progressWrap.className = 'slide-progress-wrap';
+
+    var dotsEl = document.createElement('div');
+    dotsEl.className = 'slide-dots';
+
+    var counterEl = document.createElement('div');
+    counterEl.className = 'slide-counter';
+
+    sections.forEach(function (sec, i) {
+      var dot = document.createElement('button');
+      dot.className = 'slide-dot';
+      var h2 = sec.querySelector('h2');
+      dot.title = h2 ? h2.textContent.trim() : ('Section ' + (i + 1));
+      dot.setAttribute('aria-label', dot.title);
+      dot.addEventListener('click', function () { goTo(i); });
+      dotsEl.appendChild(dot);
+    });
+
+    progressWrap.appendChild(dotsEl);
+    progressWrap.appendChild(counterEl);
+
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'slide-btn slide-btn-next';
+    nextBtn.innerHTML = 'Next &#8594;';
+    nextBtn.setAttribute('aria-label', 'Next section');
+    nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+    nav.appendChild(prevBtn);
+    nav.appendChild(progressWrap);
+    nav.appendChild(nextBtn);
+    main.appendChild(nav);
+
+    /* ---- Core navigation function ---- */
+    function goTo(index) {
+      if (index < 0 || index >= sections.length) return;
+
+      /* Hide current, show next */
+      sections[current].classList.remove('slide-active');
+      dotsEl.children[current].classList.remove('active');
+
+      current = index;
+
+      sections[current].classList.add('slide-active');
+      dotsEl.children[current].classList.add('active');
+
+      /* Update button states */
+      prevBtn.disabled = (current === 0);
+      nextBtn.disabled = (current === sections.length - 1);
+
+      /* Update counter label */
+      var h2 = sections[current].querySelector('h2');
+      var title = h2 ? h2.textContent.trim() : '';
+      counterEl.textContent =
+        (current + 1) + ' / ' + sections.length +
+        (title ? ' \u2014 ' + title : '');
+
+      /* Sync TOC active link */
+      var tocLinks = document.querySelectorAll(
+        '#quarto-margin-sidebar .nav-link'
+      );
+      tocLinks.forEach(function (a) { a.classList.remove('active'); });
+      var secId = sections[current].id;
+      if (secId) {
+        var active = document.querySelector(
+          '#quarto-margin-sidebar a[data-scroll-target="#' + secId + '"]'
+        );
+        if (active) active.classList.add('active');
+      }
+
+      /* Update URL hash (no scroll) */
+      if (secId && history.replaceState) {
+        history.replaceState(null, '', '#' + secId);
+      }
+
+      /* Scroll viewport to top of main content */
+      var navbar = document.querySelector('.navbar');
+      var headerH = navbar ? navbar.offsetHeight : 60;
+      var mainTop = main.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: Math.max(0, mainTop - headerH - 8), behavior: 'smooth' });
+    }
+
+    /* ---- Intercept TOC clicks ---- */
+    document.querySelectorAll(
+      '#quarto-margin-sidebar a[data-scroll-target]'
+    ).forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var target = a.getAttribute('data-scroll-target') || '';
+        if (target.charAt(0) === '#') {
+          var id = target.slice(1);
+          var idx = -1;
+          for (var i = 0; i < sections.length; i++) {
+            if (sections[i].id === id) { idx = i; break; }
+          }
+          if (idx !== -1) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            goTo(idx);
+          }
+        }
+      });
+    });
+
+    /* ---- Keyboard navigation (Left/Right and Page keys only) ---- */
+    document.addEventListener('keydown', function (e) {
+      var tag = document.activeElement ? document.activeElement.tagName : '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        e.preventDefault();
+        goTo(current + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        goTo(current - 1);
+      }
+    });
+
+    /* ---- Honour initial URL hash ---- */
+    var startIdx = 0;
+    if (window.location.hash) {
+      var hashId = window.location.hash.slice(1);
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].id === hashId) { startIdx = i; break; }
+      }
+    }
+    goTo(startIdx);
+  }
+
+  /* Run after DOM is ready */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSlides);
+  } else {
+    initSlides();
+  }
+})();
+</script>
