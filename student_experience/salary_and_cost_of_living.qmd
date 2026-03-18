@@ -20,27 +20,337 @@ PhD stipends vary widely — from below $18,000 to over $45,000 per year — whi
 
 ---
 
-## 🔢 Interactive Stipend Calculator {#sec-stipend-calculator}
+## 🗺️ University Cost-of-Living Map {#sec-university-map}
 
-> **💾 Cross-page linked.** Stipend, city, and PhD duration set here drive the [Cost-of-Living Worksheet](#sec-col-worksheet) and [University Map](#sec-university-map) below, and are automatically shared with the [Wealth Building](wealth_building.qmd), [Family Planning](family_planning.qmd), and [Career ROI](career_roi.qmd) calculators on other pages.
+Compare stipend sufficiency across **85 major US research universities** — for an **individual** and for a **family of four with a dual PhD income** (both partners are PhD students at the same institution, two children under 10). A ratio ≥ 1.0 means the stipend(s) fully cover the local living wage.
+
+> **Family scenario:** Both partners earn a PhD stipend → household income = 2 × stipend. The threshold is the [MIT Living Wage](https://livingwage.mit.edu/) for 2 working adults + 2 children in that metro area. Childcare costs are the largest additional expense. **Stipend and living-wage values are approximate 2024 estimates.**
 
 ```{ojs}
 //| echo: false
-cities_data = [
-  {name: "Rural Midwest",      coli: 85,  living_wage: 30000},
-  {name: "Raleigh, NC",        coli: 94,  living_wage: 37500},
-  {name: "Columbus, OH",       coli: 95,  living_wage: 37000},
-  {name: "Austin, TX",         coli: 100, living_wage: 40000},
-  {name: "Chicago, IL",        coli: 107, living_wage: 43000},
-  {name: "Denver, CO",         coli: 108, living_wage: 44000},
-  {name: "Atlanta, GA",        coli: 103, living_wage: 41500},
-  {name: "Seattle, WA",        coli: 115, living_wage: 52000},
-  {name: "Washington, DC",     coli: 120, living_wage: 55000},
-  {name: "Los Angeles, CA",    coli: 122, living_wage: 56000},
-  {name: "Boston, MA",         coli: 125, living_wage: 58000},
-  {name: "New York City, NY",  coli: 145, living_wage: 68000},
-  {name: "San Francisco, CA",  coli: 155, living_wage: 72000}
+topojson_lib = require("topojson-client@3")
+```
+
+```{ojs}
+//| echo: false
+us_atlas   = fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(r => r.json())
+us_states_geo = topojson_lib.feature(us_atlas, us_atlas.objects.states)
+us_nation_geo = topojson_lib.feature(us_atlas, us_atlas.objects.nation)
+```
+
+```{ojs}
+//| echo: false
+// 85 major US research universities
+// stipend : typical STEM PhD annual stipend (pre-tax, 2024 approx.)
+// lw1     : annual living wage — 1 adult, 0 children (MIT Living Wage, local)
+// lw4     : annual HOUSEHOLD living wage — 2 working adults + 2 children (MIT LW, total)
+univ_map_data = [
+  // Northeast — Very High Cost
+  {name:"MIT",               city:"Cambridge",       state:"MA", lat:42.36, lon:-71.09, stipend:42840, lw1:44000, lw4:118000},
+  {name:"Harvard",           city:"Cambridge",       state:"MA", lat:42.37, lon:-71.12, stipend:42840, lw1:44000, lw4:118000},
+  {name:"Boston University", city:"Boston",          state:"MA", lat:42.35, lon:-71.10, stipend:36000, lw1:44000, lw4:118000},
+  {name:"Tufts",             city:"Medford",         state:"MA", lat:42.41, lon:-71.12, stipend:38000, lw1:44000, lw4:118000},
+  {name:"Northeastern",      city:"Boston",          state:"MA", lat:42.34, lon:-71.09, stipend:34000, lw1:44000, lw4:118000},
+  {name:"Columbia",          city:"New York",        state:"NY", lat:40.81, lon:-73.96, stipend:40000, lw1:58000, lw4:148000},
+  {name:"NYU",               city:"New York",        state:"NY", lat:40.73, lon:-74.00, stipend:38000, lw1:58000, lw4:148000},
+  {name:"Cornell",           city:"Ithaca",          state:"NY", lat:42.45, lon:-76.48, stipend:34000, lw1:32000, lw4:86000},
+  {name:"SUNY Stony Brook",  city:"Stony Brook",     state:"NY", lat:40.91, lon:-73.12, stipend:35000, lw1:45000, lw4:120000},
+  {name:"Rochester",         city:"Rochester",       state:"NY", lat:43.13, lon:-77.63, stipend:28000, lw1:31000, lw4:83000},
+  {name:"Syracuse",          city:"Syracuse",        state:"NY", lat:43.04, lon:-76.13, stipend:26000, lw1:31000, lw4:82000},
+  {name:"Princeton",         city:"Princeton",       state:"NJ", lat:40.35, lon:-74.66, stipend:42000, lw1:43000, lw4:114000},
+  {name:"Rutgers",           city:"New Brunswick",   state:"NJ", lat:40.50, lon:-74.45, stipend:30000, lw1:42000, lw4:110000},
+  {name:"Yale",              city:"New Haven",       state:"CT", lat:41.31, lon:-72.92, stipend:38000, lw1:40000, lw4:106000},
+  {name:"Brown",             city:"Providence",      state:"RI", lat:41.83, lon:-71.40, stipend:35000, lw1:38000, lw4:100000},
+  {name:"Dartmouth",         city:"Hanover",         state:"NH", lat:43.70, lon:-72.29, stipend:35000, lw1:33000, lw4:87000},
+  // Mid-Atlantic
+  {name:"Penn",              city:"Philadelphia",    state:"PA", lat:39.95, lon:-75.19, stipend:38000, lw1:36000, lw4:96000},
+  {name:"Temple",            city:"Philadelphia",    state:"PA", lat:39.98, lon:-75.15, stipend:26000, lw1:36000, lw4:96000},
+  {name:"Drexel",            city:"Philadelphia",    state:"PA", lat:39.96, lon:-75.19, stipend:28000, lw1:36000, lw4:96000},
+  {name:"Carnegie Mellon",   city:"Pittsburgh",      state:"PA", lat:40.44, lon:-79.99, stipend:38000, lw1:33000, lw4:87000},
+  {name:"Pittsburgh",        city:"Pittsburgh",      state:"PA", lat:40.44, lon:-79.96, stipend:28000, lw1:33000, lw4:87000},
+  {name:"Penn State",        city:"State College",   state:"PA", lat:40.80, lon:-77.86, stipend:24000, lw1:29000, lw4:77000},
+  {name:"Johns Hopkins",     city:"Baltimore",       state:"MD", lat:39.33, lon:-76.62, stipend:36000, lw1:36000, lw4:96000},
+  {name:"Georgetown",        city:"Washington",      state:"DC", lat:38.91, lon:-77.07, stipend:38000, lw1:46000, lw4:122000},
+  {name:"George Washington", city:"Washington",      state:"DC", lat:38.90, lon:-77.05, stipend:36000, lw1:46000, lw4:122000},
+  {name:"Virginia",          city:"Charlottesville", state:"VA", lat:38.03, lon:-78.51, stipend:28000, lw1:33000, lw4:87000},
+  {name:"Virginia Tech",     city:"Blacksburg",      state:"VA", lat:37.23, lon:-80.42, stipend:24000, lw1:29000, lw4:77000},
+  {name:"West Virginia",     city:"Morgantown",      state:"WV", lat:39.63, lon:-79.96, stipend:22000, lw1:27000, lw4:72000},
+  {name:"Case Western",      city:"Cleveland",       state:"OH", lat:41.50, lon:-81.61, stipend:28000, lw1:30000, lw4:80000},
+  {name:"Ohio State",        city:"Columbus",        state:"OH", lat:40.00, lon:-83.02, stipend:24000, lw1:29000, lw4:78000},
+  // Southeast
+  {name:"Duke",              city:"Durham",          state:"NC", lat:35.99, lon:-78.93, stipend:35000, lw1:32000, lw4:84000},
+  {name:"UNC Chapel Hill",   city:"Chapel Hill",     state:"NC", lat:35.90, lon:-79.05, stipend:28000, lw1:32000, lw4:84000},
+  {name:"NC State",          city:"Raleigh",         state:"NC", lat:35.78, lon:-78.68, stipend:26000, lw1:32000, lw4:84000},
+  {name:"Vanderbilt",        city:"Nashville",       state:"TN", lat:36.14, lon:-86.80, stipend:33000, lw1:31000, lw4:82000},
+  {name:"Tennessee",         city:"Knoxville",       state:"TN", lat:35.96, lon:-83.92, stipend:22000, lw1:29000, lw4:77000},
+  {name:"Georgia Tech",      city:"Atlanta",         state:"GA", lat:33.77, lon:-84.40, stipend:34000, lw1:35000, lw4:92000},
+  {name:"Emory",             city:"Atlanta",         state:"GA", lat:33.79, lon:-84.32, stipend:34000, lw1:35000, lw4:92000},
+  {name:"Georgia",           city:"Athens",          state:"GA", lat:33.95, lon:-83.37, stipend:26000, lw1:30000, lw4:80000},
+  {name:"Florida",           city:"Gainesville",     state:"FL", lat:29.65, lon:-82.35, stipend:25000, lw1:31000, lw4:82000},
+  {name:"FSU",               city:"Tallahassee",     state:"FL", lat:30.44, lon:-84.30, stipend:24000, lw1:30000, lw4:80000},
+  {name:"Miami",             city:"Coral Gables",    state:"FL", lat:25.72, lon:-80.28, stipend:30000, lw1:36000, lw4:96000},
+  {name:"UCF",               city:"Orlando",         state:"FL", lat:28.60, lon:-81.20, stipend:22000, lw1:32000, lw4:85000},
+  {name:"USF",               city:"Tampa",           state:"FL", lat:28.06, lon:-82.41, stipend:22000, lw1:32000, lw4:85000},
+  {name:"South Carolina",    city:"Columbia",        state:"SC", lat:33.99, lon:-81.03, stipend:22000, lw1:29000, lw4:77000},
+  {name:"Clemson",           city:"Clemson",         state:"SC", lat:34.68, lon:-82.84, stipend:22000, lw1:28000, lw4:74000},
+  {name:"Alabama",           city:"Tuscaloosa",      state:"AL", lat:33.21, lon:-87.54, stipend:22000, lw1:27000, lw4:71000},
+  {name:"Auburn",            city:"Auburn",          state:"AL", lat:32.60, lon:-85.49, stipend:22000, lw1:27000, lw4:71000},
+  {name:"LSU",               city:"Baton Rouge",     state:"LA", lat:30.41, lon:-91.18, stipend:22000, lw1:29000, lw4:77000},
+  {name:"Tulane",            city:"New Orleans",     state:"LA", lat:29.94, lon:-90.12, stipend:30000, lw1:32000, lw4:85000},
+  {name:"Mississippi",       city:"Oxford",          state:"MS", lat:34.37, lon:-89.53, stipend:20000, lw1:26000, lw4:69000},
+  // Midwest
+  {name:"Chicago",           city:"Chicago",         state:"IL", lat:41.79, lon:-87.60, stipend:40000, lw1:39000, lw4:104000},
+  {name:"Northwestern",      city:"Evanston",        state:"IL", lat:42.05, lon:-87.68, stipend:38000, lw1:39000, lw4:104000},
+  {name:"Illinois",          city:"Urbana-Champaign",state:"IL", lat:40.11, lon:-88.21, stipend:26000, lw1:30000, lw4:80000},
+  {name:"Notre Dame",        city:"South Bend",      state:"IN", lat:41.70, lon:-86.24, stipend:32000, lw1:29000, lw4:77000},
+  {name:"Purdue",            city:"West Lafayette",  state:"IN", lat:40.43, lon:-86.92, stipend:24000, lw1:28000, lw4:74000},
+  {name:"Indiana",           city:"Bloomington",     state:"IN", lat:39.17, lon:-86.52, stipend:22000, lw1:28000, lw4:74000},
+  {name:"Michigan",          city:"Ann Arbor",       state:"MI", lat:42.28, lon:-83.74, stipend:32000, lw1:33000, lw4:87000},
+  {name:"Michigan State",    city:"East Lansing",    state:"MI", lat:42.73, lon:-84.48, stipend:26000, lw1:31000, lw4:82000},
+  {name:"Wisconsin",         city:"Madison",         state:"WI", lat:43.07, lon:-89.41, stipend:29000, lw1:33000, lw4:87000},
+  {name:"Minnesota",         city:"Minneapolis",     state:"MN", lat:44.97, lon:-93.23, stipend:28000, lw1:35000, lw4:92000},
+  {name:"Iowa",              city:"Iowa City",       state:"IA", lat:41.66, lon:-91.53, stipend:22000, lw1:28000, lw4:74000},
+  {name:"Iowa State",        city:"Ames",            state:"IA", lat:42.03, lon:-93.63, stipend:22000, lw1:28000, lw4:73000},
+  {name:"Nebraska",          city:"Lincoln",         state:"NE", lat:40.82, lon:-96.70, stipend:22000, lw1:27000, lw4:71000},
+  {name:"Kansas",            city:"Lawrence",        state:"KS", lat:38.96, lon:-95.25, stipend:22000, lw1:27000, lw4:72000},
+  {name:"Missouri",          city:"Columbia",        state:"MO", lat:38.95, lon:-92.33, stipend:22000, lw1:27000, lw4:72000},
+  {name:"Wash. U. St. Louis",city:"St. Louis",       state:"MO", lat:38.65, lon:-90.31, stipend:38000, lw1:31000, lw4:83000},
+  // South & Plains
+  {name:"UT Austin",         city:"Austin",          state:"TX", lat:30.29, lon:-97.74, stipend:33000, lw1:36000, lw4:96000},
+  {name:"Texas A&M",         city:"College Station", state:"TX", lat:30.62, lon:-96.34, stipend:27000, lw1:28000, lw4:74000},
+  {name:"Rice",              city:"Houston",         state:"TX", lat:29.72, lon:-95.40, stipend:36000, lw1:34000, lw4:90000},
+  {name:"Houston",           city:"Houston",         state:"TX", lat:29.73, lon:-95.42, stipend:24000, lw1:34000, lw4:90000},
+  {name:"Oklahoma",          city:"Norman",          state:"OK", lat:35.21, lon:-97.44, stipend:22000, lw1:28000, lw4:74000},
+  {name:"Arkansas",          city:"Fayetteville",    state:"AR", lat:36.07, lon:-94.17, stipend:22000, lw1:28000, lw4:74000},
+  {name:"Kansas State",      city:"Manhattan",       state:"KS", lat:39.18, lon:-96.58, stipend:22000, lw1:27000, lw4:72000},
+  // Mountain West
+  {name:"Colorado",          city:"Boulder",         state:"CO", lat:40.01, lon:-105.27, stipend:32000, lw1:38000, lw4:100000},
+  {name:"Colorado State",    city:"Fort Collins",    state:"CO", lat:40.57, lon:-105.08, stipend:26000, lw1:35000, lw4:93000},
+  {name:"Denver",            city:"Denver",          state:"CO", lat:39.68, lon:-104.96, stipend:28000, lw1:38000, lw4:100000},
+  {name:"Arizona",           city:"Tucson",          state:"AZ", lat:32.23, lon:-110.95, stipend:26000, lw1:31000, lw4:82000},
+  {name:"ASU",               city:"Tempe",           state:"AZ", lat:33.42, lon:-111.94, stipend:26000, lw1:33000, lw4:87000},
+  {name:"Utah",              city:"Salt Lake City",  state:"UT", lat:40.76, lon:-111.85, stipend:26000, lw1:33000, lw4:87000},
+  {name:"New Mexico",        city:"Albuquerque",     state:"NM", lat:35.08, lon:-106.62, stipend:22000, lw1:29000, lw4:78000},
+  {name:"Nevada Reno",       city:"Reno",            state:"NV", lat:39.54, lon:-119.82, stipend:24000, lw1:33000, lw4:87000},
+  // West Coast
+  {name:"Stanford",          city:"Palo Alto",       state:"CA", lat:37.43, lon:-122.17, stipend:46800, lw1:55000, lw4:145000},
+  {name:"Caltech",           city:"Pasadena",        state:"CA", lat:34.14, lon:-118.13, stipend:41000, lw1:50000, lw4:130000},
+  {name:"UC Berkeley",       city:"Berkeley",        state:"CA", lat:37.87, lon:-122.27, stipend:42000, lw1:52000, lw4:138000},
+  {name:"UCLA",              city:"Los Angeles",     state:"CA", lat:34.07, lon:-118.44, stipend:35000, lw1:48000, lw4:128000},
+  {name:"UCSD",              city:"San Diego",       state:"CA", lat:32.88, lon:-117.23, stipend:38000, lw1:46000, lw4:122000},
+  {name:"UCSB",              city:"Santa Barbara",   state:"CA", lat:34.41, lon:-119.85, stipend:36000, lw1:47000, lw4:124000},
+  {name:"UC Davis",          city:"Davis",           state:"CA", lat:38.54, lon:-121.74, stipend:35000, lw1:42000, lw4:110000},
+  {name:"UC Irvine",         city:"Irvine",          state:"CA", lat:33.64, lon:-117.84, stipend:34000, lw1:46000, lw4:122000},
+  {name:"UC Riverside",      city:"Riverside",       state:"CA", lat:33.97, lon:-117.33, stipend:32000, lw1:40000, lw4:106000},
+  {name:"UCSF",              city:"San Francisco",   state:"CA", lat:37.76, lon:-122.46, stipend:43000, lw1:55000, lw4:142000},
+  {name:"USC",               city:"Los Angeles",     state:"CA", lat:34.02, lon:-118.28, stipend:35000, lw1:48000, lw4:128000},
+  {name:"Washington",        city:"Seattle",         state:"WA", lat:47.65, lon:-122.31, stipend:37000, lw1:48000, lw4:128000},
+  {name:"Oregon",            city:"Eugene",          state:"OR", lat:44.04, lon:-123.07, stipend:26000, lw1:36000, lw4:95000},
+  {name:"Oregon State",      city:"Corvallis",       state:"OR", lat:44.56, lon:-123.28, stipend:24000, lw1:33000, lw4:87000},
+  {name:"Hawaii",            city:"Honolulu",        state:"HI", lat:21.30, lon:-157.82, stipend:28000, lw1:48000, lw4:126000},
+  {name:"Alaska Fairbanks",  city:"Fairbanks",       state:"AK", lat:64.86, lon:-147.83, stipend:22000, lw1:38000, lw4:100000},
 ]
+```
+
+```{ojs}
+//| echo: false
+viewof map_scenario = Inputs.radio(
+  ["👤 Individual", "👨‍👩‍👧‍👦 Family of 4 (both PhD students, 2 kids)"],
+  {label: "Scenario:", value: "👤 Individual"}
+)
+```
+
+```{ojs}
+//| echo: false
+is_fam       = map_scenario.includes("Family")
+univ_ratios  = univ_map_data.map(u => {
+  const income = is_fam ? 2 * u.stipend : u.stipend
+  const lw     = is_fam ? u.lw4 : u.lw1
+  const ratio  = income / lw
+  return {
+    ...u,
+    income,
+    lw,
+    ratio,
+    color: ratio >= 1.25 ? "#1a9641"
+         : ratio >= 1.0  ? "#78c679"
+         : ratio >= 0.8  ? "#d9f0a3"
+         : ratio >= 0.6  ? "#fe9929"
+         :                  "#cc4c02",
+    badge: ratio >= 1.25 ? "✅ Comfortable (≥125%)"
+         : ratio >= 1.0  ? "✅ Sufficient (100–125%)"
+         : ratio >= 0.8  ? "⚠️ Close (80–99%)"
+         : ratio >= 0.6  ? "🔶 Insufficient (60–79%)"
+         :                  "🔴 Severe shortfall (<60%)",
+    shortfall: income < lw ? Math.round(lw - income) : 0
+  }
+}).sort((a, b) => b.ratio - a.ratio)
+```
+
+```{ojs}
+//| echo: false
+// Color legend
+html`<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:10px 0 4px;">
+  <strong style="font-size:.85rem;">Ratio Legend:</strong>
+  ${[
+    {color:"#1a9641", label:"≥ 1.25× Comfortable"},
+    {color:"#78c679", label:"1.0–1.25× Sufficient"},
+    {color:"#d9f0a3", label:"0.8–1.0× Close"},
+    {color:"#fe9929", label:"0.6–0.8× Insufficient"},
+    {color:"#cc4c02", label:"< 0.6× Severe shortfall"}
+  ].map(e => html`<span style="display:inline-flex;align-items:center;gap:5px;font-size:.82rem;">
+    <span style="width:13px;height:13px;border-radius:50%;background:${e.color};border:1px solid #555;flex-shrink:0;"></span>${e.label}
+  </span>`)}
+</div>`
+```
+
+```{ojs}
+//| echo: false
+Plot.plot({
+  projection: "albers-usa",
+  width: 860,
+  height: 500,
+  style: {background: "transparent", overflow: "visible"},
+  marks: [
+    Plot.geo(us_states_geo, {stroke: "#bbb", strokeWidth: 0.6, fill: "#f5f5f5"}),
+    Plot.geo(us_nation_geo, {stroke: "#888", strokeWidth: 1.4, fill: "none"}),
+    Plot.dot(univ_ratios, {
+      x: "lon",
+      y: "lat",
+      r: 7,
+      fill: "color",
+      stroke: "white",
+      strokeWidth: 1,
+      opacity: 0.88,
+      title: d => [
+        `${d.name}`,
+        `${d.city}, ${d.state}`,
+        ``,
+        `Stipend: $${d.stipend.toLocaleString()}/yr`,
+        is_fam ? `Household income (2×): $${d.income.toLocaleString()}/yr` : "",
+        `Living wage threshold: $${d.lw.toLocaleString()}/yr`,
+        `Ratio: ${d.ratio.toFixed(2)}× — ${d.badge}`,
+        d.shortfall > 0 ? `Annual shortfall: $${d.shortfall.toLocaleString()}` : `Surplus: $${(d.income - d.lw).toLocaleString()}`
+      ].filter(Boolean).join("\n")
+    })
+  ]
+})
+```
+
+```{ojs}
+//| echo: false
+// Summary stat cards
+n_sufficient   = univ_ratios.filter(u => u.ratio >= 1.0).length
+n_close        = univ_ratios.filter(u => u.ratio >= 0.8 && u.ratio < 1.0).length
+n_insufficient = univ_ratios.filter(u => u.ratio < 0.8).length
+median_ratio   = (() => {
+  const n = univ_ratios.length
+  return n % 2 === 0
+    ? (univ_ratios[n/2 - 1].ratio + univ_ratios[n/2].ratio) / 2
+    : univ_ratios[Math.floor(n/2)].ratio
+})()
+best_uni       = univ_ratios[0]
+worst_uni      = univ_ratios[univ_ratios.length - 1]
+
+html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:14px 0;">
+  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">${is_fam ? "Both stipends sufficient" : "Stipend sufficient"}</div>
+    <div style="font-size:1.6rem;font-weight:700;color:#1a9641;margin-top:4px;">${n_sufficient} <span style="font-size:1rem;">/ ${univ_ratios.length}</span></div>
+  </div>
+  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Close (80–99%)</div>
+    <div style="font-size:1.6rem;font-weight:700;color:#fe9929;margin-top:4px;">${n_close} <span style="font-size:1rem;">/ ${univ_ratios.length}</span></div>
+  </div>
+  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Insufficient (&lt;80%)</div>
+    <div style="font-size:1.6rem;font-weight:700;color:#cc4c02;margin-top:4px;">${n_insufficient} <span style="font-size:1rem;">/ ${univ_ratios.length}</span></div>
+  </div>
+  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Median ratio</div>
+    <div style="font-size:1.6rem;font-weight:700;margin-top:4px;">${median_ratio.toFixed(2)}×</div>
+  </div>
+  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Best ratio</div>
+    <div style="font-size:1.1rem;font-weight:700;color:#1a9641;margin-top:4px;">${best_uni.name} (${best_uni.ratio.toFixed(2)}×)</div>
+  </div>
+  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Worst ratio</div>
+    <div style="font-size:1.1rem;font-weight:700;color:#cc4c02;margin-top:4px;">${worst_uni.name} (${worst_uni.ratio.toFixed(2)}×)</div>
+  </div>
+</div>`
+```
+
+```{ojs}
+//| echo: false
+// Sortable ranked table — "Income" = stipend for Individual, 2× stipend for Family scenario
+html`<p style="font-size:.85rem;opacity:.7;margin-bottom:4px;">
+  <em>Income column = ${is_fam ? "household income (2 × stipend)" : "individual stipend"}. Click any column header to sort.</em>
+</p>`
+```
+
+```{ojs}
+//| echo: false
+Inputs.table(
+  univ_ratios.map(u => ({
+    University: u.name,
+    "City, State": `${u.city}, ${u.state}`,
+    "Stipend/yr": `$${u.stipend.toLocaleString()}`,
+    "Income": `$${u.income.toLocaleString()}`,
+    "Living Wage": `$${u.lw.toLocaleString()}`,
+    "Ratio": u.ratio.toFixed(2) + "×",
+    "Rating": u.badge
+  })),
+  {rows: 20, sort: "Ratio", reverse: true}
+)
+```
+
+---
+
+## 🔢 Interactive Stipend Calculator {#sec-stipend-calculator}
+
+> **💾 Cross-page linked.** Stipend, city, and PhD duration set here drive the [University Map](#sec-university-map) and [Cost-of-Living Worksheet](#sec-col-worksheet) on this page, and are automatically shared with the [Wealth Building](wealth_building.qmd), [Family Planning](family_planning.qmd), and [Career ROI](career_roi.qmd) calculators on other pages.
+
+```{ojs}
+//| echo: false
+city_presets = [
+  ["Albuquerque, NM", 29000], ["Ames, IA", 28000], ["Ann Arbor, MI", 33000],
+  ["Athens, GA", 30000], ["Atlanta, GA", 35000], ["Auburn, AL", 27000],
+  ["Austin, TX", 36000], ["Baltimore, MD", 36000], ["Baton Rouge, LA", 29000],
+  ["Berkeley, CA", 52000], ["Blacksburg, VA", 29000], ["Bloomington, IN", 28000],
+  ["Boston, MA", 44000], ["Boulder, CO", 38000], ["Cambridge, MA", 44000],
+  ["Chapel Hill, NC", 32000], ["Charlottesville, VA", 33000], ["Chicago, IL", 39000],
+  ["Clemson, SC", 28000], ["Cleveland, OH", 30000], ["College Station, TX", 28000],
+  ["Columbia, MO", 27000], ["Columbia, SC", 29000], ["Columbus, OH", 29000],
+  ["Coral Gables, FL", 36000], ["Corvallis, OR", 33000], ["Davis, CA", 42000],
+  ["Denver, CO", 38000], ["Durham, NC", 32000], ["East Lansing, MI", 31000],
+  ["Eugene, OR", 36000], ["Evanston, IL", 39000], ["Fairbanks, AK", 38000],
+  ["Fayetteville, AR", 28000], ["Fort Collins, CO", 35000], ["Gainesville, FL", 31000],
+  ["Hanover, NH", 33000], ["Honolulu, HI", 48000], ["Houston, TX", 34000],
+  ["Iowa City, IA", 28000], ["Irvine, CA", 46000], ["Ithaca, NY", 32000],
+  ["Knoxville, TN", 29000], ["Lawrence, KS", 27000], ["Lincoln, NE", 27000],
+  ["Los Angeles, CA", 48000], ["Madison, WI", 33000], ["Manhattan, KS", 27000],
+  ["Medford, MA", 44000], ["Minneapolis, MN", 35000], ["Morgantown, WV", 27000],
+  ["Nashville, TN", 31000], ["New Brunswick, NJ", 42000], ["New Haven, CT", 40000],
+  ["New Orleans, LA", 32000], ["New York City, NY", 58000], ["Norman, OK", 28000],
+  ["Orlando, FL", 32000], ["Oxford, MS", 26000], ["Palo Alto, CA", 55000],
+  ["Pasadena, CA", 50000], ["Philadelphia, PA", 36000], ["Pittsburgh, PA", 33000],
+  ["Princeton, NJ", 43000], ["Providence, RI", 38000], ["Raleigh, NC", 32000],
+  ["Reno, NV", 33000], ["Riverside, CA", 40000], ["Rochester, NY", 31000],
+  ["Salt Lake City, UT", 33000], ["San Diego, CA", 46000], ["San Francisco, CA", 55000],
+  ["Santa Barbara, CA", 47000], ["Seattle, WA", 48000], ["South Bend, IN", 29000],
+  ["State College, PA", 29000], ["St. Louis, MO", 31000], ["Stony Brook, NY", 45000],
+  ["Syracuse, NY", 31000], ["Tallahassee, FL", 30000], ["Tampa, FL", 32000],
+  ["Tempe, AZ", 33000], ["Tucson, AZ", 31000], ["Tuscaloosa, AL", 27000],
+  ["Urbana-Champaign, IL", 30000], ["Washington, DC", 46000], ["West Lafayette, IN", 28000]
+]
+
+cities_data = city_presets
+  .map(([name, living_wage]) => ({
+    name,
+    living_wage,
+    coli: Math.max(80, Math.min(160, Math.round(living_wage / 360)))
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name))
 ```
 
 ```{ojs}
@@ -62,21 +372,109 @@ viewof annual_stipend = {
 ```{ojs}
 //| echo: false
 viewof selected_city = {
-  const savedName = localStorage.getItem('phd_city') || 'Austin, TX';
-  const match = cities_data.find(c => c.name === savedName) || cities_data[3];
-  const el = Inputs.select(cities_data, {
-    label: "University City",
-    format: c => c.name,
-    value: match
-  });
-  const persist = () => {
-    localStorage.setItem('phd_city', el.value.name);
-    localStorage.setItem('phd_city_coli', String(el.value.coli));
-    localStorage.setItem('phd_city_living_wage', String(el.value.living_wage));
-  };
-  el.addEventListener('change', persist);
-  persist();
-  return el;
+  const savedName = localStorage.getItem('phd_city') || 'Austin, TX'
+  const savedColi = parseFloat(localStorage.getItem('phd_city_coli') || '100')
+  const savedLivingWage = parseFloat(localStorage.getItem('phd_city_living_wage') || '36000')
+  const presetMatch = cities_data.find(c => c.name === savedName)
+  const fallbackPreset = presetMatch || cities_data.find(c => c.name === "Austin, TX") || cities_data[0]
+
+  const container = document.createElement('div')
+  container.style.cssText = 'display:grid;gap:12px;margin:6px 0 2px;'
+
+  const modeWrap = document.createElement('div')
+  modeWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.85rem;'
+  modeWrap.innerHTML = `
+    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+      <input type="radio" name="city_mode" value="preset" ${presetMatch ? 'checked' : ''}>
+      <span>Pick a university city</span>
+    </label>
+    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+      <input type="radio" name="city_mode" value="custom" ${presetMatch ? '' : 'checked'}>
+      <span>Enter your own city</span>
+    </label>
+  `
+
+  const presetWrap = document.createElement('label')
+  presetWrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;font-weight:600;'
+  presetWrap.innerHTML = '<span>University City</span>'
+  const presetSelect = document.createElement('select')
+  presetSelect.style.cssText = 'padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;'
+  cities_data.forEach((city) => {
+    const option = document.createElement('option')
+    option.value = city.name
+    option.textContent = `${city.name} — MIT living wage $${city.living_wage.toLocaleString()}`
+    option.selected = city.name === fallbackPreset.name
+    presetSelect.appendChild(option)
+  })
+  presetWrap.appendChild(presetSelect)
+
+  const customGrid = document.createElement('div')
+  customGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;'
+  customGrid.innerHTML = `
+    <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+      <span>University City</span>
+      <input type="text" name="custom_city_name" value="${presetMatch ? '' : savedName}" placeholder="e.g. Madison, WI" style="padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;">
+    </label>
+    <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+      <span>City COLI</span>
+      <input type="number" name="custom_city_coli" min="60" max="220" step="1" value="${Number.isFinite(savedColi) ? savedColi : 100}" style="padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;">
+    </label>
+    <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+      <span>MIT Living Wage ($/yr)</span>
+      <input type="number" name="custom_city_lw" min="10000" max="200000" step="500" value="${Number.isFinite(savedLivingWage) ? savedLivingWage : fallbackPreset.living_wage}" style="padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;">
+    </label>
+  `
+
+  const helper = document.createElement('div')
+  helper.style.cssText = 'font-size:.78rem;opacity:.75;'
+  helper.textContent = 'University presets cover major U.S. graduate-school cities; switch to custom mode any time if your city is missing or you want to enter your own COLI and living-wage values.'
+
+  container.append(modeWrap, presetWrap, customGrid, helper)
+
+  const modeInputs = Array.from(modeWrap.querySelectorAll('input[name="city_mode"]'))
+  const customName = customGrid.querySelector('input[name="custom_city_name"]')
+  const customColi = customGrid.querySelector('input[name="custom_city_coli"]')
+  const customLivingWage = customGrid.querySelector('input[name="custom_city_lw"]')
+
+  const clamp = (value, min, max, fallback) => {
+    const parsed = Number(value)
+    if (!Number.isFinite(parsed)) return fallback
+    return Math.min(max, Math.max(min, parsed))
+  }
+
+  const activeMode = () => modeInputs.find(input => input.checked)?.value || 'preset'
+
+  function currentValue() {
+    if (activeMode() === 'custom') {
+      const name = (customName.value || '').trim() || 'Custom City'
+      return {
+        name,
+        coli: clamp(customColi.value, 60, 220, 100),
+        living_wage: clamp(customLivingWage.value, 10000, 200000, fallbackPreset.living_wage)
+      }
+    }
+    return cities_data.find(c => c.name === presetSelect.value) || fallbackPreset
+  }
+
+  function sync() {
+    const isCustom = activeMode() === 'custom'
+    presetWrap.style.display = isCustom ? 'none' : 'flex'
+    customGrid.style.display = isCustom ? 'grid' : 'none'
+    const value = currentValue()
+    localStorage.setItem('phd_city', value.name)
+    localStorage.setItem('phd_city_coli', String(value.coli))
+    localStorage.setItem('phd_city_living_wage', String(value.living_wage))
+    container.value = value
+    container.dispatchEvent(new Event('input'))
+  }
+
+  ;[presetSelect, customName, customColi, customLivingWage, ...modeInputs].forEach((input) => {
+    input.addEventListener('input', sync)
+    input.addEventListener('change', sync)
+  })
+
+  sync()
+  return container
 }
 ```
 
@@ -353,292 +751,6 @@ To compare stipends across cities, use the **Cost of Living Index (COLI)**. The 
 - [NerdWallet Cost of Living Calculator](https://www.nerdwallet.com/cost-of-living-calculator)
 - [MIT Living Wage Calculator](https://livingwage.mit.edu/)
 - [BLS Consumer Expenditure Survey](https://www.bls.gov/cex/)
-
----
-
-## 🗺️ University Cost-of-Living Map {#sec-university-map}
-
-Compare stipend sufficiency across **85 major US research universities** — for an **individual** and for a **family of four with a dual PhD income** (both partners are PhD students at the same institution, two children under 10). A ratio ≥ 1.0 means the stipend(s) fully cover the local living wage.
-
-> **Family scenario:** Both partners earn a PhD stipend → household income = 2 × stipend. The threshold is the [MIT Living Wage](https://livingwage.mit.edu/) for 2 working adults + 2 children in that metro area. Childcare costs are the largest additional expense. **Stipend and living-wage values are approximate 2024 estimates.**
-
-```{ojs}
-//| echo: false
-topojson_lib = require("topojson-client@3")
-```
-
-```{ojs}
-//| echo: false
-us_atlas   = fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(r => r.json())
-us_states_geo = topojson_lib.feature(us_atlas, us_atlas.objects.states)
-us_nation_geo = topojson_lib.feature(us_atlas, us_atlas.objects.nation)
-```
-
-```{ojs}
-//| echo: false
-// 85 major US research universities
-// stipend : typical STEM PhD annual stipend (pre-tax, 2024 approx.)
-// lw1     : annual living wage — 1 adult, 0 children (MIT Living Wage, local)
-// lw4     : annual HOUSEHOLD living wage — 2 working adults + 2 children (MIT LW, total)
-univ_map_data = [
-  // Northeast — Very High Cost
-  {name:"MIT",               city:"Cambridge",       state:"MA", lat:42.36, lon:-71.09, stipend:42840, lw1:44000, lw4:118000},
-  {name:"Harvard",           city:"Cambridge",       state:"MA", lat:42.37, lon:-71.12, stipend:42840, lw1:44000, lw4:118000},
-  {name:"Boston University", city:"Boston",          state:"MA", lat:42.35, lon:-71.10, stipend:36000, lw1:44000, lw4:118000},
-  {name:"Tufts",             city:"Medford",         state:"MA", lat:42.41, lon:-71.12, stipend:38000, lw1:44000, lw4:118000},
-  {name:"Northeastern",      city:"Boston",          state:"MA", lat:42.34, lon:-71.09, stipend:34000, lw1:44000, lw4:118000},
-  {name:"Columbia",          city:"New York",        state:"NY", lat:40.81, lon:-73.96, stipend:40000, lw1:58000, lw4:148000},
-  {name:"NYU",               city:"New York",        state:"NY", lat:40.73, lon:-74.00, stipend:38000, lw1:58000, lw4:148000},
-  {name:"Cornell",           city:"Ithaca",          state:"NY", lat:42.45, lon:-76.48, stipend:34000, lw1:32000, lw4:86000},
-  {name:"SUNY Stony Brook",  city:"Stony Brook",     state:"NY", lat:40.91, lon:-73.12, stipend:35000, lw1:45000, lw4:120000},
-  {name:"Rochester",         city:"Rochester",       state:"NY", lat:43.13, lon:-77.63, stipend:28000, lw1:31000, lw4:83000},
-  {name:"Syracuse",          city:"Syracuse",        state:"NY", lat:43.04, lon:-76.13, stipend:26000, lw1:31000, lw4:82000},
-  {name:"Princeton",         city:"Princeton",       state:"NJ", lat:40.35, lon:-74.66, stipend:42000, lw1:43000, lw4:114000},
-  {name:"Rutgers",           city:"New Brunswick",   state:"NJ", lat:40.50, lon:-74.45, stipend:30000, lw1:42000, lw4:110000},
-  {name:"Yale",              city:"New Haven",       state:"CT", lat:41.31, lon:-72.92, stipend:38000, lw1:40000, lw4:106000},
-  {name:"Brown",             city:"Providence",      state:"RI", lat:41.83, lon:-71.40, stipend:35000, lw1:38000, lw4:100000},
-  {name:"Dartmouth",         city:"Hanover",         state:"NH", lat:43.70, lon:-72.29, stipend:35000, lw1:33000, lw4:87000},
-  // Mid-Atlantic
-  {name:"Penn",              city:"Philadelphia",    state:"PA", lat:39.95, lon:-75.19, stipend:38000, lw1:36000, lw4:96000},
-  {name:"Temple",            city:"Philadelphia",    state:"PA", lat:39.98, lon:-75.15, stipend:26000, lw1:36000, lw4:96000},
-  {name:"Drexel",            city:"Philadelphia",    state:"PA", lat:39.96, lon:-75.19, stipend:28000, lw1:36000, lw4:96000},
-  {name:"Carnegie Mellon",   city:"Pittsburgh",      state:"PA", lat:40.44, lon:-79.99, stipend:38000, lw1:33000, lw4:87000},
-  {name:"Pittsburgh",        city:"Pittsburgh",      state:"PA", lat:40.44, lon:-79.96, stipend:28000, lw1:33000, lw4:87000},
-  {name:"Penn State",        city:"State College",   state:"PA", lat:40.80, lon:-77.86, stipend:24000, lw1:29000, lw4:77000},
-  {name:"Johns Hopkins",     city:"Baltimore",       state:"MD", lat:39.33, lon:-76.62, stipend:36000, lw1:36000, lw4:96000},
-  {name:"Georgetown",        city:"Washington",      state:"DC", lat:38.91, lon:-77.07, stipend:38000, lw1:46000, lw4:122000},
-  {name:"George Washington", city:"Washington",      state:"DC", lat:38.90, lon:-77.05, stipend:36000, lw1:46000, lw4:122000},
-  {name:"Virginia",          city:"Charlottesville", state:"VA", lat:38.03, lon:-78.51, stipend:28000, lw1:33000, lw4:87000},
-  {name:"Virginia Tech",     city:"Blacksburg",      state:"VA", lat:37.23, lon:-80.42, stipend:24000, lw1:29000, lw4:77000},
-  {name:"West Virginia",     city:"Morgantown",      state:"WV", lat:39.63, lon:-79.96, stipend:22000, lw1:27000, lw4:72000},
-  {name:"Case Western",      city:"Cleveland",       state:"OH", lat:41.50, lon:-81.61, stipend:28000, lw1:30000, lw4:80000},
-  {name:"Ohio State",        city:"Columbus",        state:"OH", lat:40.00, lon:-83.02, stipend:24000, lw1:29000, lw4:78000},
-  // Southeast
-  {name:"Duke",              city:"Durham",          state:"NC", lat:35.99, lon:-78.93, stipend:35000, lw1:32000, lw4:84000},
-  {name:"UNC Chapel Hill",   city:"Chapel Hill",     state:"NC", lat:35.90, lon:-79.05, stipend:28000, lw1:32000, lw4:84000},
-  {name:"NC State",          city:"Raleigh",         state:"NC", lat:35.78, lon:-78.68, stipend:26000, lw1:32000, lw4:84000},
-  {name:"Vanderbilt",        city:"Nashville",       state:"TN", lat:36.14, lon:-86.80, stipend:33000, lw1:31000, lw4:82000},
-  {name:"Tennessee",         city:"Knoxville",       state:"TN", lat:35.96, lon:-83.92, stipend:22000, lw1:29000, lw4:77000},
-  {name:"Georgia Tech",      city:"Atlanta",         state:"GA", lat:33.77, lon:-84.40, stipend:34000, lw1:35000, lw4:92000},
-  {name:"Emory",             city:"Atlanta",         state:"GA", lat:33.79, lon:-84.32, stipend:34000, lw1:35000, lw4:92000},
-  {name:"Georgia",           city:"Athens",          state:"GA", lat:33.95, lon:-83.37, stipend:26000, lw1:30000, lw4:80000},
-  {name:"Florida",           city:"Gainesville",     state:"FL", lat:29.65, lon:-82.35, stipend:25000, lw1:31000, lw4:82000},
-  {name:"FSU",               city:"Tallahassee",     state:"FL", lat:30.44, lon:-84.30, stipend:24000, lw1:30000, lw4:80000},
-  {name:"Miami",             city:"Coral Gables",    state:"FL", lat:25.72, lon:-80.28, stipend:30000, lw1:36000, lw4:96000},
-  {name:"UCF",               city:"Orlando",         state:"FL", lat:28.60, lon:-81.20, stipend:22000, lw1:32000, lw4:85000},
-  {name:"USF",               city:"Tampa",           state:"FL", lat:28.06, lon:-82.41, stipend:22000, lw1:32000, lw4:85000},
-  {name:"South Carolina",    city:"Columbia",        state:"SC", lat:33.99, lon:-81.03, stipend:22000, lw1:29000, lw4:77000},
-  {name:"Clemson",           city:"Clemson",         state:"SC", lat:34.68, lon:-82.84, stipend:22000, lw1:28000, lw4:74000},
-  {name:"Alabama",           city:"Tuscaloosa",      state:"AL", lat:33.21, lon:-87.54, stipend:22000, lw1:27000, lw4:71000},
-  {name:"Auburn",            city:"Auburn",          state:"AL", lat:32.60, lon:-85.49, stipend:22000, lw1:27000, lw4:71000},
-  {name:"LSU",               city:"Baton Rouge",     state:"LA", lat:30.41, lon:-91.18, stipend:22000, lw1:29000, lw4:77000},
-  {name:"Tulane",            city:"New Orleans",     state:"LA", lat:29.94, lon:-90.12, stipend:30000, lw1:32000, lw4:85000},
-  {name:"Mississippi",       city:"Oxford",          state:"MS", lat:34.37, lon:-89.53, stipend:20000, lw1:26000, lw4:69000},
-  // Midwest
-  {name:"Chicago",           city:"Chicago",         state:"IL", lat:41.79, lon:-87.60, stipend:40000, lw1:39000, lw4:104000},
-  {name:"Northwestern",      city:"Evanston",        state:"IL", lat:42.05, lon:-87.68, stipend:38000, lw1:39000, lw4:104000},
-  {name:"Illinois",          city:"Urbana-Champaign",state:"IL", lat:40.11, lon:-88.21, stipend:26000, lw1:30000, lw4:80000},
-  {name:"Notre Dame",        city:"South Bend",      state:"IN", lat:41.70, lon:-86.24, stipend:32000, lw1:29000, lw4:77000},
-  {name:"Purdue",            city:"West Lafayette",  state:"IN", lat:40.43, lon:-86.92, stipend:24000, lw1:28000, lw4:74000},
-  {name:"Indiana",           city:"Bloomington",     state:"IN", lat:39.17, lon:-86.52, stipend:22000, lw1:28000, lw4:74000},
-  {name:"Michigan",          city:"Ann Arbor",       state:"MI", lat:42.28, lon:-83.74, stipend:32000, lw1:33000, lw4:87000},
-  {name:"Michigan State",    city:"East Lansing",    state:"MI", lat:42.73, lon:-84.48, stipend:26000, lw1:31000, lw4:82000},
-  {name:"Wisconsin",         city:"Madison",         state:"WI", lat:43.07, lon:-89.41, stipend:29000, lw1:33000, lw4:87000},
-  {name:"Minnesota",         city:"Minneapolis",     state:"MN", lat:44.97, lon:-93.23, stipend:28000, lw1:35000, lw4:92000},
-  {name:"Iowa",              city:"Iowa City",       state:"IA", lat:41.66, lon:-91.53, stipend:22000, lw1:28000, lw4:74000},
-  {name:"Iowa State",        city:"Ames",            state:"IA", lat:42.03, lon:-93.63, stipend:22000, lw1:28000, lw4:73000},
-  {name:"Nebraska",          city:"Lincoln",         state:"NE", lat:40.82, lon:-96.70, stipend:22000, lw1:27000, lw4:71000},
-  {name:"Kansas",            city:"Lawrence",        state:"KS", lat:38.96, lon:-95.25, stipend:22000, lw1:27000, lw4:72000},
-  {name:"Missouri",          city:"Columbia",        state:"MO", lat:38.95, lon:-92.33, stipend:22000, lw1:27000, lw4:72000},
-  {name:"Wash. U. St. Louis",city:"St. Louis",       state:"MO", lat:38.65, lon:-90.31, stipend:38000, lw1:31000, lw4:83000},
-  // South & Plains
-  {name:"UT Austin",         city:"Austin",          state:"TX", lat:30.29, lon:-97.74, stipend:33000, lw1:36000, lw4:96000},
-  {name:"Texas A&M",         city:"College Station", state:"TX", lat:30.62, lon:-96.34, stipend:27000, lw1:28000, lw4:74000},
-  {name:"Rice",              city:"Houston",         state:"TX", lat:29.72, lon:-95.40, stipend:36000, lw1:34000, lw4:90000},
-  {name:"Houston",           city:"Houston",         state:"TX", lat:29.73, lon:-95.42, stipend:24000, lw1:34000, lw4:90000},
-  {name:"Oklahoma",          city:"Norman",          state:"OK", lat:35.21, lon:-97.44, stipend:22000, lw1:28000, lw4:74000},
-  {name:"Arkansas",          city:"Fayetteville",    state:"AR", lat:36.07, lon:-94.17, stipend:22000, lw1:28000, lw4:74000},
-  {name:"Kansas State",      city:"Manhattan",       state:"KS", lat:39.18, lon:-96.58, stipend:22000, lw1:27000, lw4:72000},
-  // Mountain West
-  {name:"Colorado",          city:"Boulder",         state:"CO", lat:40.01, lon:-105.27, stipend:32000, lw1:38000, lw4:100000},
-  {name:"Colorado State",    city:"Fort Collins",    state:"CO", lat:40.57, lon:-105.08, stipend:26000, lw1:35000, lw4:93000},
-  {name:"Denver",            city:"Denver",          state:"CO", lat:39.68, lon:-104.96, stipend:28000, lw1:38000, lw4:100000},
-  {name:"Arizona",           city:"Tucson",          state:"AZ", lat:32.23, lon:-110.95, stipend:26000, lw1:31000, lw4:82000},
-  {name:"ASU",               city:"Tempe",           state:"AZ", lat:33.42, lon:-111.94, stipend:26000, lw1:33000, lw4:87000},
-  {name:"Utah",              city:"Salt Lake City",  state:"UT", lat:40.76, lon:-111.85, stipend:26000, lw1:33000, lw4:87000},
-  {name:"New Mexico",        city:"Albuquerque",     state:"NM", lat:35.08, lon:-106.62, stipend:22000, lw1:29000, lw4:78000},
-  {name:"Nevada Reno",       city:"Reno",            state:"NV", lat:39.54, lon:-119.82, stipend:24000, lw1:33000, lw4:87000},
-  // West Coast
-  {name:"Stanford",          city:"Palo Alto",       state:"CA", lat:37.43, lon:-122.17, stipend:46800, lw1:55000, lw4:145000},
-  {name:"Caltech",           city:"Pasadena",        state:"CA", lat:34.14, lon:-118.13, stipend:41000, lw1:50000, lw4:130000},
-  {name:"UC Berkeley",       city:"Berkeley",        state:"CA", lat:37.87, lon:-122.27, stipend:42000, lw1:52000, lw4:138000},
-  {name:"UCLA",              city:"Los Angeles",     state:"CA", lat:34.07, lon:-118.44, stipend:35000, lw1:48000, lw4:128000},
-  {name:"UCSD",              city:"San Diego",       state:"CA", lat:32.88, lon:-117.23, stipend:38000, lw1:46000, lw4:122000},
-  {name:"UCSB",              city:"Santa Barbara",   state:"CA", lat:34.41, lon:-119.85, stipend:36000, lw1:47000, lw4:124000},
-  {name:"UC Davis",          city:"Davis",           state:"CA", lat:38.54, lon:-121.74, stipend:35000, lw1:42000, lw4:110000},
-  {name:"UC Irvine",         city:"Irvine",          state:"CA", lat:33.64, lon:-117.84, stipend:34000, lw1:46000, lw4:122000},
-  {name:"UC Riverside",      city:"Riverside",       state:"CA", lat:33.97, lon:-117.33, stipend:32000, lw1:40000, lw4:106000},
-  {name:"UCSF",              city:"San Francisco",   state:"CA", lat:37.76, lon:-122.46, stipend:43000, lw1:55000, lw4:142000},
-  {name:"USC",               city:"Los Angeles",     state:"CA", lat:34.02, lon:-118.28, stipend:35000, lw1:48000, lw4:128000},
-  {name:"Washington",        city:"Seattle",         state:"WA", lat:47.65, lon:-122.31, stipend:37000, lw1:48000, lw4:128000},
-  {name:"Oregon",            city:"Eugene",          state:"OR", lat:44.04, lon:-123.07, stipend:26000, lw1:36000, lw4:95000},
-  {name:"Oregon State",      city:"Corvallis",       state:"OR", lat:44.56, lon:-123.28, stipend:24000, lw1:33000, lw4:87000},
-  {name:"Hawaii",            city:"Honolulu",        state:"HI", lat:21.30, lon:-157.82, stipend:28000, lw1:48000, lw4:126000},
-  {name:"Alaska Fairbanks",  city:"Fairbanks",       state:"AK", lat:64.86, lon:-147.83, stipend:22000, lw1:38000, lw4:100000},
-]
-```
-
-```{ojs}
-//| echo: false
-viewof map_scenario = Inputs.radio(
-  ["👤 Individual", "👨‍👩‍👧‍👦 Family of 4 (both PhD students, 2 kids)"],
-  {label: "Scenario:", value: "👤 Individual"}
-)
-```
-
-```{ojs}
-//| echo: false
-is_fam       = map_scenario.includes("Family")
-univ_ratios  = univ_map_data.map(u => {
-  const income = is_fam ? 2 * u.stipend : u.stipend
-  const lw     = is_fam ? u.lw4 : u.lw1
-  const ratio  = income / lw
-  return {
-    ...u,
-    income,
-    lw,
-    ratio,
-    color: ratio >= 1.25 ? "#1a9641"
-         : ratio >= 1.0  ? "#78c679"
-         : ratio >= 0.8  ? "#d9f0a3"
-         : ratio >= 0.6  ? "#fe9929"
-         :                  "#cc4c02",
-    badge: ratio >= 1.25 ? "✅ Comfortable (≥125%)"
-         : ratio >= 1.0  ? "✅ Sufficient (100–125%)"
-         : ratio >= 0.8  ? "⚠️ Close (80–99%)"
-         : ratio >= 0.6  ? "🔶 Insufficient (60–79%)"
-         :                  "🔴 Severe shortfall (<60%)",
-    shortfall: income < lw ? Math.round(lw - income) : 0
-  }
-}).sort((a, b) => b.ratio - a.ratio)
-```
-
-```{ojs}
-//| echo: false
-// Color legend
-html`<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:10px 0 4px;">
-  <strong style="font-size:.85rem;">Ratio Legend:</strong>
-  ${[
-    {color:"#1a9641", label:"≥ 1.25× Comfortable"},
-    {color:"#78c679", label:"1.0–1.25× Sufficient"},
-    {color:"#d9f0a3", label:"0.8–1.0× Close"},
-    {color:"#fe9929", label:"0.6–0.8× Insufficient"},
-    {color:"#cc4c02", label:"< 0.6× Severe shortfall"}
-  ].map(e => html`<span style="display:inline-flex;align-items:center;gap:5px;font-size:.82rem;">
-    <span style="width:13px;height:13px;border-radius:50%;background:${e.color};border:1px solid #555;flex-shrink:0;"></span>${e.label}
-  </span>`)}
-</div>`
-```
-
-```{ojs}
-//| echo: false
-Plot.plot({
-  projection: "albers-usa",
-  width: 860,
-  height: 500,
-  style: {background: "transparent", overflow: "visible"},
-  marks: [
-    Plot.geo(us_states_geo, {stroke: "#bbb", strokeWidth: 0.6, fill: "#f5f5f5"}),
-    Plot.geo(us_nation_geo, {stroke: "#888", strokeWidth: 1.4, fill: "none"}),
-    Plot.dot(univ_ratios, {
-      x: "lon",
-      y: "lat",
-      r: 7,
-      fill: "color",
-      stroke: "white",
-      strokeWidth: 1,
-      opacity: 0.88,
-      title: d => [
-        `${d.name}`,
-        `${d.city}, ${d.state}`,
-        ``,
-        `Stipend: $${d.stipend.toLocaleString()}/yr`,
-        is_fam ? `Household income (2×): $${d.income.toLocaleString()}/yr` : "",
-        `Living wage threshold: $${d.lw.toLocaleString()}/yr`,
-        `Ratio: ${d.ratio.toFixed(2)}× — ${d.badge}`,
-        d.shortfall > 0 ? `Annual shortfall: $${d.shortfall.toLocaleString()}` : `Surplus: $${(d.income - d.lw).toLocaleString()}`
-      ].filter(Boolean).join("\n")
-    })
-  ]
-})
-```
-
-```{ojs}
-//| echo: false
-// Summary stat cards
-n_sufficient   = univ_ratios.filter(u => u.ratio >= 1.0).length
-n_close        = univ_ratios.filter(u => u.ratio >= 0.8 && u.ratio < 1.0).length
-n_insufficient = univ_ratios.filter(u => u.ratio < 0.8).length
-median_ratio   = (() => {
-  const n = univ_ratios.length
-  return n % 2 === 0
-    ? (univ_ratios[n/2 - 1].ratio + univ_ratios[n/2].ratio) / 2
-    : univ_ratios[Math.floor(n/2)].ratio
-})()
-best_uni       = univ_ratios[0]
-worst_uni      = univ_ratios[univ_ratios.length - 1]
-
-html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:14px 0;">
-  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">${is_fam ? "Both stipends sufficient" : "Stipend sufficient"}</div>
-    <div style="font-size:1.6rem;font-weight:700;color:#1a9641;margin-top:4px;">${n_sufficient} <span style="font-size:1rem;">/ 85</span></div>
-  </div>
-  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Close (80–99%)</div>
-    <div style="font-size:1.6rem;font-weight:700;color:#fe9929;margin-top:4px;">${n_close} <span style="font-size:1rem;">/ 85</span></div>
-  </div>
-  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Insufficient (&lt;80%)</div>
-    <div style="font-size:1.6rem;font-weight:700;color:#cc4c02;margin-top:4px;">${n_insufficient} <span style="font-size:1rem;">/ 85</span></div>
-  </div>
-  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Median ratio</div>
-    <div style="font-size:1.6rem;font-weight:700;margin-top:4px;">${median_ratio.toFixed(2)}×</div>
-  </div>
-  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Best ratio</div>
-    <div style="font-size:1.1rem;font-weight:700;color:#1a9641;margin-top:4px;">${best_uni.name} (${best_uni.ratio.toFixed(2)}×)</div>
-  </div>
-  <div style="padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Worst ratio</div>
-    <div style="font-size:1.1rem;font-weight:700;color:#cc4c02;margin-top:4px;">${worst_uni.name} (${worst_uni.ratio.toFixed(2)}×)</div>
-  </div>
-</div>`
-```
-
-```{ojs}
-//| echo: false
-// Sortable ranked table — "Income" = stipend for Individual, 2× stipend for Family scenario
-html`<p style="font-size:.85rem;opacity:.7;margin-bottom:4px;">
-  <em>Income column = ${is_fam ? "household income (2 × stipend)" : "individual stipend"}. Click any column header to sort.</em>
-</p>`
-```
-
-```{ojs}
-//| echo: false
-Inputs.table(
-  univ_ratios.map(u => ({
-    University: u.name,
-    "City, State": `${u.city}, ${u.state}`,
-    "Stipend/yr": `$${u.stipend.toLocaleString()}`,
-    "Income": `$${u.income.toLocaleString()}`,
-    "Living Wage": `$${u.lw.toLocaleString()}`,
-    "Ratio": u.ratio.toFixed(2) + "×",
-    "Rating": u.badge
-  })),
-  {rows: 20, sort: "Ratio", reverse: true}
-)
-```
 
 ---
 

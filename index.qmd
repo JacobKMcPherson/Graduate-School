@@ -18,45 +18,31 @@ This repository is a **comprehensive toolkit** for PhD students, combining acade
 
 Navigate the guides using the sidebar, or jump directly to a topic below.
 
-::: {.grid}
+::: {.grid .resource-guides-grid}
 
-::: {.g-col-12 .g-col-md-6}
+::: {.g-col-12 .g-col-md-6 .resource-guide-group}
 ### 💰 Compensation & Finances
 
-::: {.card .h-100}
-::: {.card-body}
-**[Salary & Cost of Living](student_experience/salary_and_cost_of_living.qmd)**  
-Evaluate your stipend against local cost of living, use city-by-city benchmarks, and learn evidence-based negotiation strategies.
-
-**[Wealth Building](student_experience/wealth_building.qmd)**  
-Monthly budgeting templates, Roth IRA and 403(b) guides, student loan management, and credit-building steps — all calibrated for a grad-school income.
-:::
-:::
+- **[Salary & Cost of Living](student_experience/salary_and_cost_of_living.qmd)**<br>
+  Evaluate your stipend against local cost of living, use city-by-city benchmarks, and learn evidence-based negotiation strategies.
+- **[Wealth Building](student_experience/wealth_building.qmd)**<br>
+  Monthly budgeting templates, Roth IRA and 403(b) guides, student loan management, and credit-building steps — all calibrated for a grad-school income.
 :::
 
-::: {.g-col-12 .g-col-md-6}
+::: {.g-col-12 .g-col-md-6 .resource-guide-group}
 ### 🏥 Life & Wellbeing
 
-::: {.card .h-100}
-::: {.card-body}
-**[Family Planning](student_experience/family_planning.qmd)**  
-FMLA and Title IX rights, parental leave policy checklists, childcare cost benchmarks, subsidy programs, and partner career planning.
-
-**[Health Insurance & Mental Health](student_experience/health_insurance.qmd)**  
-Insurance glossary, coverage-gap solutions, mental health resource tiers, crisis hotlines, and advisor-relationship red flags.
-:::
-:::
+- **[Family Planning](student_experience/family_planning.qmd)**<br>
+  FMLA and Title IX rights, parental leave policy checklists, childcare cost benchmarks, subsidy programs, and partner career planning.
+- **[Health Insurance & Mental Health](student_experience/health_insurance.qmd)**<br>
+  Insurance glossary, coverage-gap solutions, mental health resource tiers, crisis hotlines, and advisor-relationship red flags.
 :::
 
-::: {.g-col-12 .g-col-md-12}
+::: {.g-col-12 .resource-guide-group}
 ### 🎓 Career
 
-::: {.card .h-100}
-::: {.card-body}
-**[Career ROI, Contracts & Employment Prospects](student_experience/career_roi.qmd)**  
-Opportunity-cost calculator, PhD salary premium by sector, full offer-letter review checklist (compensation, equity, IP assignment, non-compete), negotiation strategy, and postdoc evaluation framework.
-:::
-:::
+- **[Career ROI, Contracts & Employment Prospects](student_experience/career_roi.qmd)**<br>
+  Opportunity-cost calculator, PhD salary premium by sector, full offer-letter review checklist (compensation, equity, IP assignment, non-compete), negotiation strategy, and postdoc evaluation framework.
 :::
 
 :::

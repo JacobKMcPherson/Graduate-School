@@ -202,7 +202,7 @@ Plot.plot({
 
 ---
 
-## 📊 Interactive Budget & Retirement Planner {#sec-budget-planner}
+## 📊 Wealth Building & Savings Goal Planner {#sec-budget-planner}
 
 > **💾 Cross-page linked.** Stipend is loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). Adjust below to override for this session.
 

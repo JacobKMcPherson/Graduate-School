@@ -30,67 +30,74 @@ roi_sector_data = [
 //| echo: false
 roi_stipend_init  = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
 roi_duration_init = parseFloat(localStorage.getItem('phd_duration')        || '6')
+roi_alt_init      = parseFloat(localStorage.getItem('phd_alt_salary')      || '70000')
 
-viewof roi_stipend = {
-  const options = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
-  const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(roi_stipend_init)?roi_stipend_init:30000))<Math.abs(a-(isFinite(roi_stipend_init)?roi_stipend_init:30000))?b:a, 30000);
-  const el = Inputs.select(options, {
-    label: "Annual Stipend (pre-tax, $) — override updates other pages",
-    format: d => `$${d.toLocaleString()}`,
-    value: nearest
+viewof roi_controls = {
+  const stipendOptions = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
+  const durationOptions = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9];
+  const altSalaryOptions = [40000,45000,50000,55000,60000,65000,70000,75000,80000,85000,90000,95000,100000,110000,120000,130000,140000,150000];
+  const postdocOptions = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+  const nearest = (options, value, fallback) => options.reduce((a, b) => Math.abs(b - value) < Math.abs(a - value) ? b : a, fallback);
+  const container = document.createElement('div');
+  container.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end;margin:10px 0 14px;';
+
+  function makeField(label, choices, current, formatter) {
+    const wrap = document.createElement('label');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;font-size:.86rem;font-weight:600;';
+    const caption = document.createElement('span');
+    caption.textContent = label;
+    const select = document.createElement('select');
+    select.style.cssText = 'padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;';
+    choices.forEach((choice) => {
+      const option = document.createElement('option');
+      option.value = String(choice);
+      option.textContent = formatter(choice);
+      if (choice === current) option.selected = true;
+      select.appendChild(option);
+    });
+    wrap.append(caption, select);
+    container.appendChild(wrap);
+    return select;
+  }
+
+  const stipendSelect = makeField('Annual Stipend (pre-tax, $)', stipendOptions, nearest(stipendOptions, isFinite(roi_stipend_init) ? roi_stipend_init : 30000, 30000), d => `$${d.toLocaleString()}`);
+  const durationSelect = makeField('PhD Duration (years)', durationOptions, nearest(durationOptions, isFinite(roi_duration_init) ? roi_duration_init : 6, 6), d => `${d} years`);
+  const altSalarySelect = makeField('Alternative Career Salary', altSalaryOptions, nearest(altSalaryOptions, isFinite(roi_alt_init) ? roi_alt_init : 70000, 70000), d => `$${d.toLocaleString()}`);
+  const sectorSelect = makeField('Target Career Sector', roi_sector_data.map(s => s.sector), roi_sector_data[0].sector, d => d);
+  const postdocSelect = makeField('Postdoc Years', postdocOptions, 0, d => d === 0 ? 'None' : `${d} years`);
+
+  function update() {
+    const value = {
+      stipend: Number(stipendSelect.value),
+      duration: Number(durationSelect.value),
+      alt_salary: Number(altSalarySelect.value),
+      sector: sectorSelect.value,
+      postdoc_years: Number(postdocSelect.value)
+    };
+    localStorage.setItem('phd_annual_stipend', String(value.stipend));
+    localStorage.setItem('phd_duration', String(value.duration));
+    localStorage.setItem('phd_alt_salary', String(value.alt_salary));
+    container.value = value;
+    container.dispatchEvent(new Event('input'));
+  }
+
+  [stipendSelect, durationSelect, altSalarySelect, sectorSelect, postdocSelect].forEach((input) => {
+    input.addEventListener('change', update);
+    input.addEventListener('input', update);
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
-  return el;
+
+  update();
+  return container;
 }
 ```
 
 ```{ojs}
 //| echo: false
-viewof roi_duration = {
-  const opts = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9];
-  const nearest = opts.reduce((a,b) => Math.abs(b-(isFinite(roi_duration_init)?roi_duration_init:6))<Math.abs(a-(isFinite(roi_duration_init)?roi_duration_init:6))?b:a, 6);
-  const el = Inputs.select(opts, {
-    label: "PhD Duration (years) — override updates other pages",
-    format: d => `${d} years`,
-    value: nearest
-  });
-  el.addEventListener('change', () => localStorage.setItem('phd_duration', String(el.value)));
-  return el;
-}
-```
-
-```{ojs}
-//| echo: false
-viewof roi_alt_salary = {
-  const saved = parseFloat(localStorage.getItem('phd_alt_salary') || '70000');
-  const options = [40000,45000,50000,55000,60000,65000,70000,75000,80000,85000,90000,95000,100000,110000,120000,130000,140000,150000];
-  const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(saved)?saved:70000))<Math.abs(a-(isFinite(saved)?saved:70000))?b:a, 70000);
-  const el = Inputs.select(options, {
-    label: "Alternative Career Salary (BS/MS entry-level, pre-tax, $) — what you'd earn without a PhD",
-    format: d => `$${d.toLocaleString()}`,
-    value: nearest
-  });
-  el.addEventListener('change', () => localStorage.setItem('phd_alt_salary', String(el.value)));
-  return el;
-}
-```
-
-```{ojs}
-//| echo: false
-viewof roi_target_sector = Inputs.select(roi_sector_data, {
-  label: "Target Career Sector (post-PhD)",
-  format: s => s.sector,
-  value: roi_sector_data[0]
-})
-```
-
-```{ojs}
-//| echo: false
-viewof roi_postdoc_years = Inputs.select([0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5], {
-  label: "Postdoc Years (if planning a postdoc; 0 = none)",
-  format: d => d === 0 ? "None" : `${d} years`,
-  value: 0
-})
+roi_stipend = roi_controls.stipend
+roi_duration = roi_controls.duration
+roi_alt_salary = roi_controls.alt_salary
+roi_target_sector = roi_sector_data.find(s => s.sector === roi_controls.sector) || roi_sector_data[0]
+roi_postdoc_years = roi_controls.postdoc_years
 ```
 
 ```{ojs}
