@@ -632,27 +632,6 @@ If you carry undergraduate loans into graduate school:
 
 :::
 
-### Tax Strategy for Graduate Students
-
-| Strategy | Benefit | Notes |
-|---|---|---|
-| Claim the **Lifetime Learning Credit** | Up to $2,000 credit on tuition & fees | Phases out at higher incomes; cannot be combined with some exclusions |
-| Deduct **student loan interest** | Up to $2,500 deduction | Income limits apply |
-| Contribute to **Roth IRA** | Tax-free growth | Requires earned income; standard Roth contributions do not require Form 8606 (that form is for nondeductible traditional IRA contributions and Roth conversions) |
-| Contribute to an **HSA** | Triple tax advantage for medical costs | Requires enrollment in a qualifying HDHP |
-| Track **unreimbursed business expenses** (conferences, supplies) | May be deductible as Schedule C expenses if self-employed (fellowship) | Keep receipts |
-| File **quarterly estimated taxes** (fellowships) | Avoid underpayment penalty | Use IRS Form 1040-ES |
-
-### Building Credit During Graduate School
-
-Good credit saves money on car loans, mortgages, and insurance premiums post-PhD.
-
-- [ ] Open a **no-annual-fee credit card** (e.g., a student card or secured card).
-- [ ] Charge a small recurring expense (e.g., streaming subscription) and pay it in full each month.
-- [ ] Keep **credit utilization below 30%** of your credit limit.
-- [ ] Do **not** close old accounts — length of credit history matters.
-- [ ] Check your **free credit reports** annually at [AnnualCreditReport.com](https://www.annualcreditreport.com/).
-
 ### Additional Resources
 
 - [r/GradSchool (Reddit)](https://www.reddit.com/r/GradSchool/) — community discussions
