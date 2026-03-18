@@ -26,15 +26,17 @@ main.slide-mode .slide-intro-hidden {
 /* ---- Nav bar ---- */
 .slide-nav-bar {
   position: sticky;
-  bottom: 0;
+  top: calc(var(--bs-navbar-height, 56px) + 12px);
   left: 0;
   right: 0;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  border-top: 1px solid #dee2e6;
-  padding: 10px 0 12px;
-  margin-top: 28px;
+  border: 1px solid #dee2e6;
+  padding: 10px 12px 12px;
+  margin: 0 0 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -45,7 +47,7 @@ main.slide-mode .slide-intro-hidden {
 /* Dark mode */
 [data-bs-theme="dark"] .slide-nav-bar {
   background: rgba(33, 37, 41, 0.96);
-  border-top-color: #495057;
+  border-color: #495057;
 }
 
 .slide-btn {
@@ -88,6 +90,12 @@ main.slide-mode .slide-intro-hidden {
 }
 [data-bs-theme="dark"] .slide-btn:not(.slide-btn-next):hover:not(:disabled) {
   background: #495057;
+}
+
+@media (max-width: 991.98px) {
+  .slide-nav-bar {
+    top: 8px;
+  }
 }
 
 /* ---- Progress area (dots + counter label) ---- */
@@ -208,7 +216,7 @@ main.slide-mode .slide-intro-hidden {
     nav.appendChild(prevBtn);
     nav.appendChild(progressWrap);
     nav.appendChild(nextBtn);
-    main.appendChild(nav);
+    main.insertBefore(nav, main.firstChild);
 
     /* ---- Core navigation function ---- */
     function goTo(index) {
@@ -260,25 +268,41 @@ main.slide-mode .slide-intro-hidden {
     }
 
     /* ---- Intercept TOC clicks ---- */
-    document.querySelectorAll(
-      '#quarto-margin-sidebar a[data-scroll-target]'
-    ).forEach(function (a) {
-      a.addEventListener('click', function (e) {
-        var target = a.getAttribute('data-scroll-target') || '';
-        if (target.charAt(0) === '#') {
-          var id = target.slice(1);
-          var idx = -1;
-          for (var i = 0; i < sections.length; i++) {
-            if (sections[i].id === id) { idx = i; break; }
+    function sectionIndexForHash(target) {
+      if (!target) return -1;
+      var hash = '';
+      if (target.charAt(0) === '#') {
+        hash = target;
+      } else {
+        try {
+          var parsed = new URL(target, window.location.href);
+          if (parsed.origin !== window.location.origin || parsed.pathname !== window.location.pathname) {
+            return -1;
           }
-          if (idx !== -1) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            goTo(idx);
-          }
+          hash = parsed.hash || '';
+        } catch (err) {
+          return -1;
         }
-      });
-    });
+      }
+      if (!hash || hash.charAt(0) !== '#') return -1;
+      var id = hash.slice(1);
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].id === id) return i;
+      }
+      return -1;
+    }
+
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('a[href], a[data-scroll-target]');
+      if (!link) return;
+      var target = link.getAttribute('data-scroll-target') || link.getAttribute('href') || '';
+      var idx = sectionIndexForHash(target);
+      if (idx !== -1) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        goTo(idx);
+      }
+    }, true);
 
     /* ---- Keyboard navigation (Left/Right and Page keys only) ---- */
     document.addEventListener('keydown', function (e) {
@@ -290,6 +314,13 @@ main.slide-mode .slide-intro-hidden {
       } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
         e.preventDefault();
         goTo(current - 1);
+      }
+    });
+
+    window.addEventListener('hashchange', function () {
+      var idx = sectionIndexForHash(window.location.hash || '');
+      if (idx !== -1 && idx !== current) {
+        goTo(idx);
       }
     });
 

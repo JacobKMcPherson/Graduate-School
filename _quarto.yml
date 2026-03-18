@@ -36,6 +36,7 @@ format:
     toc-depth: 3
     toc-title: "On this page"
     code-fold: true
+    css: styles/site.css
     smooth-scroll: false
     link-external-newwindow: true
     include-after-body: _slides-footer.html

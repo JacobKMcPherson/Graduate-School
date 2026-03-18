@@ -66,101 +66,7 @@ Access to affordable, comprehensive health insurance and mental health support i
 
 ---
 
-## 4. Mental Health Resources
-
-### Why Graduate Students Are at High Risk
-
-Research consistently shows PhD students experience depression and anxiety at rates 6 times higher than the general population (Evans et al., *Nature Biotechnology*, 2018). Stressors include:
-
-- Funding uncertainty
-- Isolation and lack of social support
-- Advisor relationship difficulties
-- Imposter syndrome
-- Career uncertainty
-- Long work hours with poor work-life boundaries
-
-### Recognizing When to Seek Help
-
-It is appropriate to seek support if you experience, for more than two weeks:
-
-- [ ] Persistent sadness, emptiness, or hopelessness
-- [ ] Loss of interest in research or activities you previously enjoyed
-- [ ] Significant changes in sleep, appetite, or weight
-- [ ] Difficulty concentrating or making decisions
-- [ ] Feelings of worthlessness or excessive guilt
-- [ ] Thoughts of death or suicide *(if present, seek help immediately)*
-
-### Levels of Mental Health Support
-
-| Level | What It Is | How to Access |
-|---|---|---|
-| **Self-help / peer support** | Apps, journaling, graduate student mental health groups | Free; see apps below |
-| **University counseling center** | Free individual and group therapy for enrolled students | Campus counseling center website; typically limited to 6–12 sessions |
-| **University psychiatry** | Medication management and psychiatric evaluation | Referral from counseling center |
-| **Community mental health** | Sliding-scale therapy in the community | [Psychology Today therapist finder](https://www.psychologytoday.com/us/therapists) |
-| **In-network therapist (via insurance)** | Covered (partially) by health plan | Check insurer's provider directory |
-| **Crisis services** | Immediate help for safety crises | See Crisis Resources below |
-
-### Crisis Resources (US)
-
-| Resource | Contact | Notes |
-|---|---|---|
-| **988 Suicide & Crisis Lifeline** | Call or text **988** | 24/7; free; confidential |
-| **Crisis Text Line** | Text **HOME** to **741741** | 24/7; text-based |
-| **SAMHSA National Helpline** | 1-800-662-4357 | 24/7; substance use and mental health |
-| **Trans Lifeline** | 877-565-8860 | By and for trans people |
-| **Trevor Project (LGBTQ+ youth)** | 1-866-488-7386 or text START to 678-678 | 24/7 |
-| **Campus Emergency / Security** | Your campus emergency number | Physical safety crises |
-
-> **If you are in immediate danger, call 911 or go to your nearest emergency room.**
-
----
-
-## 5. Mental Health Apps and Self-Help Tools
-
-| App / Resource | Focus | Cost |
-|---|---|---|
-| [Headspace](https://www.headspace.com/) | Meditation, stress reduction | Free trial; many universities offer free access |
-| [Calm](https://www.calm.com/) | Mindfulness, sleep | Free trial; discounts available |
-| [Woebot](https://woebothealth.com/) | CBT-based mental health chatbot | Free |
-| [Sanvello](https://www.sanvello.com/) | Anxiety, depression self-management | Free basic; covered by some insurance |
-| [7 Cups](https://www.7cups.com/) | Peer support chat | Free |
-| [MindShift CBT](https://www.anxietycanada.com/resources/mindshift-cbt/) | Anxiety management | Free |
-
----
-
-## 6. Advisor Relationship and Mental Health
-
-The advisor relationship is one of the strongest predictors of graduate student mental health. Signs of an unhealthy advising relationship include:
-
-- Unpredictable or volatile emotional reactions
-- Unrealistic demands on time (including nights, weekends, holidays)
-- Dismissiveness about mental health or personal circumstances
-- Taking credit for student work or withholding authorship
-- Isolation from other mentors or collaborators
-
-**If you are experiencing difficulties:**
-
-1. Consult your program's **graduate student ombudsperson** or **Dean of Graduate Studies** — these conversations are typically confidential.
-2. Reach out to a **committee member** or secondary mentor.
-3. Document interactions in writing where possible.
-4. Know that **changing advisors is possible** at most institutions, even if it feels difficult.
-
----
-
-## 7. Physical Health and Wellness
-
-Don't overlook the basics — they significantly affect mental health:
-
-- [ ] Schedule an **annual physical** and use your preventive care benefits.
-- [ ] Use the **campus recreation center** (typically free or very low-cost for students).
-- [ ] Prioritize **7–9 hours of sleep** — chronic sleep deprivation impairs cognition, emotional regulation, and immune function.
-- [ ] Set **boundaries around work hours** — research shows diminishing returns beyond 50 hours/week.
-- [ ] Maintain **social connections** outside your lab; isolation is a major risk factor for depression.
-
----
-
-## 💊 Preventive Health Value Estimator {#sec-health-value}
+## 4. 💊 Preventive Health Value Estimator {#sec-health-value}
 
 > Estimates the cumulative financial value (avoided future healthcare costs) of starting preventive health habits now. Based on published research; individual results vary.
 
@@ -183,26 +89,50 @@ viewof phi_horizon = Inputs.select([10, 20, 30, 40], {
 
 ```{ojs}
 //| echo: false
-viewof phi_exercise = Inputs.toggle({
-  label: "🏃 Regular Exercise (≥150 min/week moderate activity)",
-  value: true
-})
+viewof phi_habits = {
+  const container = document.createElement('div')
+  container.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 14px;'
+
+  const habits = [
+    {key: 'exercise', emoji: '🏃', label: 'Regular exercise (≥150 min/week)', color: '#27ae60', active: true},
+    {key: 'diet', emoji: '🥗', label: 'Healthy diet', color: '#3498db', active: true},
+    {key: 'screenings', emoji: '🩺', label: 'Annual preventive screenings', color: '#e67e22', active: true}
+  ]
+
+  function sync() {
+    container.value = Object.fromEntries(habits.map(habit => [habit.key, habit.active]))
+    container.dispatchEvent(new Event('input'))
+  }
+
+  habits.forEach((habit) => {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.textContent = habit.emoji
+    button.title = habit.label
+    button.setAttribute('aria-label', habit.label)
+    button.setAttribute('aria-pressed', String(habit.active))
+    button.style.cssText = `width:48px;height:48px;border-radius:999px;border:2px solid ${habit.color};background:${habit.active ? habit.color : 'transparent'};color:${habit.active ? '#fff' : habit.color};font-size:1.25rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:${habit.active ? '0 8px 18px rgba(0,0,0,.12)' : 'none'};`
+    button.addEventListener('click', () => {
+      habit.active = !habit.active
+      button.setAttribute('aria-pressed', String(habit.active))
+      button.style.background = habit.active ? habit.color : 'transparent'
+      button.style.color = habit.active ? '#fff' : habit.color
+      button.style.boxShadow = habit.active ? '0 8px 18px rgba(0,0,0,.12)' : 'none'
+      sync()
+    })
+    container.appendChild(button)
+  })
+
+  sync()
+  return container
+}
 ```
 
 ```{ojs}
 //| echo: false
-viewof phi_diet = Inputs.toggle({
-  label: "🥗 Healthy Diet (Mediterranean / whole-food plant-based)",
-  value: true
-})
-```
-
-```{ojs}
-//| echo: false
-viewof phi_screenings = Inputs.toggle({
-  label: "🩺 Annual Preventive Screenings (per USPSTF guidelines)",
-  value: true
-})
+phi_exercise = phi_habits.exercise
+phi_diet = phi_habits.diet
+phi_screenings = phi_habits.screenings
 ```
 
 ```{ojs}
@@ -302,6 +232,98 @@ phi_tidy.length > 0
 ```
 
 > **Methodology:** Exercise avoided costs ~$1,400/yr (Carlson et al., *RAND* 2015); healthy diet ~$2,000/yr (Springmann et al., *PLOS Medicine* 2021); preventive screenings ~$600/yr (CDC, 5–10× ROI on USPSTF-recommended care). Values increase +3%/yr after age 30 (rising disease risk) and 3.5%/yr healthcare cost inflation. This is an educational estimate — actual savings vary by individual.
+
+---
+
+## 5. Mental Health Resources, Apps, and Self-Help Tools
+
+### Why Graduate Students Are at High Risk
+
+Research consistently shows PhD students experience depression and anxiety at rates 6 times higher than the general population (Evans et al., *Nature Biotechnology*, 2018). Stressors include:
+
+- Funding uncertainty
+- Isolation and lack of social support
+- Advisor relationship difficulties
+- Imposter syndrome
+- Career uncertainty
+- Long work hours with poor work-life boundaries
+
+### Recognizing When to Seek Help
+
+It is appropriate to seek support if you experience, for more than two weeks:
+
+- [ ] Persistent sadness, emptiness, or hopelessness
+- [ ] Loss of interest in research or activities you previously enjoyed
+- [ ] Significant changes in sleep, appetite, or weight
+- [ ] Difficulty concentrating or making decisions
+- [ ] Feelings of worthlessness or excessive guilt
+- [ ] Thoughts of death or suicide *(if present, seek help immediately)*
+
+### Levels of Mental Health Support
+
+| Level | What It Is | How to Access |
+|---|---|---|
+| **Self-help / peer support** | Apps, journaling, graduate student mental health groups | Free; see apps below |
+| **University counseling center** | Free individual and group therapy for enrolled students | Campus counseling center website; typically limited to 6–12 sessions |
+| **University psychiatry** | Medication management and psychiatric evaluation | Referral from counseling center |
+| **Community mental health** | Sliding-scale therapy in the community | [Psychology Today therapist finder](https://www.psychologytoday.com/us/therapists) |
+| **In-network therapist (via insurance)** | Covered (partially) by health plan | Check insurer's provider directory |
+| **Crisis services** | Immediate help for safety crises | See Crisis Resources below |
+
+### Crisis Resources (US)
+
+| Resource | Contact | Notes |
+|---|---|---|
+| **988 Suicide & Crisis Lifeline** | Call or text **988** | 24/7; free; confidential |
+| **Crisis Text Line** | Text **HOME** to **741741** | 24/7; text-based |
+| **SAMHSA National Helpline** | 1-800-662-4357 | 24/7; substance use and mental health |
+| **Trans Lifeline** | 877-565-8860 | By and for trans people |
+| **Trevor Project (LGBTQ+ youth)** | 1-866-488-7386 or text START to 678-678 | 24/7 |
+| **Campus Emergency / Security** | Your campus emergency number | Physical safety crises |
+
+> **If you are in immediate danger, call 911 or go to your nearest emergency room.**
+
+### Mental Health Apps and Self-Help Tools
+
+| App / Resource | Focus | Cost |
+|---|---|---|
+| [Headspace](https://www.headspace.com/) | Meditation, stress reduction | Free trial; many universities offer free access |
+| [Calm](https://www.calm.com/) | Mindfulness, sleep | Free trial; discounts available |
+| [Woebot](https://woebothealth.com/) | CBT-based mental health chatbot | Free |
+| [Sanvello](https://www.sanvello.com/) | Anxiety, depression self-management | Free basic; covered by some insurance |
+| [7 Cups](https://www.7cups.com/) | Peer support chat | Free |
+| [MindShift CBT](https://www.anxietycanada.com/resources/mindshift-cbt/) | Anxiety management | Free |
+
+---
+
+## 6. Advisor Relationship and Mental Health
+
+The advisor relationship is one of the strongest predictors of graduate student mental health. Signs of an unhealthy advising relationship include:
+
+- Unpredictable or volatile emotional reactions
+- Unrealistic demands on time (including nights, weekends, holidays)
+- Dismissiveness about mental health or personal circumstances
+- Taking credit for student work or withholding authorship
+- Isolation from other mentors or collaborators
+
+**If you are experiencing difficulties:**
+
+1. Consult your program's **graduate student ombudsperson** or **Dean of Graduate Studies** — these conversations are typically confidential.
+2. Reach out to a **committee member** or secondary mentor.
+3. Document interactions in writing where possible.
+4. Know that **changing advisors is possible** at most institutions, even if it feels difficult.
+
+---
+
+## 7. Physical Health and Wellness
+
+Don't overlook the basics — they significantly affect mental health:
+
+- [ ] Schedule an **annual physical** and use your preventive care benefits.
+- [ ] Use the **campus recreation center** (typically free or very low-cost for students).
+- [ ] Prioritize **7–9 hours of sleep** — chronic sleep deprivation impairs cognition, emotional regulation, and immune function.
+- [ ] Set **boundaries around work hours** — research shows diminishing returns beyond 50 hours/week.
+- [ ] Maintain **social connections** outside your lab; isolation is a major risk factor for depression.
 
 ---
 
