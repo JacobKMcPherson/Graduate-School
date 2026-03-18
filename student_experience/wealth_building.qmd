@@ -108,7 +108,6 @@ viewof bud_checked = {
     container.appendChild(section);
   }
   container.value = checked;
-  container.dispatchEvent = (ev) => { HTMLElement.prototype.dispatchEvent.call(container, ev); };
   return container;
 }
 ```
@@ -116,13 +115,16 @@ viewof bud_checked = {
 ```{ojs}
 //| echo: false
 // Compute totals from checked items
-bud_active = bud_lines_def.map(l => ({
-  ...l,
-  amount: l.type === "income"
-    ? (l.id === "stipend" ? bud_monthly_net : (bud_checked.has ? (bud_checked.has(l.id) ? l.base : 0) : 0))
-    : (bud_checked.has ? (bud_checked.has(l.id) ? (l.scale ? Math.round(l.base * bud_coli / 100) : l.base) : 0) : 0),
-  included: bud_checked.has ? bud_checked.has(l.id) : l.checked
-}))
+bud_active = bud_lines_def.map(l => {
+  const isChecked = bud_checked instanceof Set ? bud_checked.has(l.id) : l.checked;
+  let amount = 0;
+  if (l.type === "income") {
+    amount = l.id === "stipend" ? bud_monthly_net : (isChecked ? l.base : 0);
+  } else {
+    amount = isChecked ? (l.scale ? Math.round(l.base * bud_coli / 100) : l.base) : 0;
+  }
+  return {...l, amount, included: isChecked};
+})
 
 bud_total_income  = bud_active.filter(l => l.type === "income"  && l.included).reduce((s,l) => s+l.amount, 0)
 bud_total_needs   = bud_active.filter(l => l.type === "needs"   && l.included).reduce((s,l) => s+l.amount, 0)
@@ -485,13 +487,20 @@ viewof sg_goal_type = Inputs.select(["🏠 House Down Payment", "🚗 Car Purcha
 
 ```{ojs}
 //| echo: false
-sg_goal_defaults = {
+sg_goal_defaults = ({
   "🏠 House Down Payment": {target: 30000, label: "Down payment (10–20% of home price)"},
   "🚗 Car Purchase":       {target: 8000,  label: "Used car cash purchase or down payment"},
   "✈️ Other Goal":         {target: 5000,  label: "Custom savings target"}
-}
-sg_goal_info = sg_goal_defaults[sg_goal_type]
+})
+```
 
+```{ojs}
+//| echo: false
+sg_goal_info = sg_goal_defaults[sg_goal_type]
+```
+
+```{ojs}
+//| echo: false
 viewof sg_target = Inputs.select([2000, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 12000, 15000, 18000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 75000, 100000], {
   label: `Target Amount ($) — ${sg_goal_info.label}`,
   format: d => `$${d.toLocaleString()}`,
