@@ -210,7 +210,8 @@ wb_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '3000
 
 viewof wb_stipend = {
   const options = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
-  const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(wb_stipend_init)?wb_stipend_init:30000))<Math.abs(a-(isFinite(wb_stipend_init)?wb_stipend_init:30000))?b:a, 30000);
+  const initVal = isFinite(wb_stipend_init) ? wb_stipend_init : 30000;
+  const nearest = options.reduce((a,b) => Math.abs(b-initVal)<Math.abs(a-initVal)?b:a, 30000);
   const el = Inputs.select(options, {
     label: "Annual Stipend (pre-tax, $) — override if needed",
     format: d => `$${d.toLocaleString()}`,
@@ -234,7 +235,8 @@ viewof wb_savings_pct = Inputs.select([5, 8, 10, 12, 15, 18, 20, 22, 25, 28, 30]
 viewof wb_ira_monthly = {
   const saved = parseFloat(localStorage.getItem('phd_ira_monthly') || '100');
   const options = [0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 350, 400, 450, 500, 550, 583];
-  const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(saved)?saved:100))<Math.abs(a-(isFinite(saved)?saved:100))?b:a, 100);
+  const initSaved = isFinite(saved) ? saved : 100;
+  const nearest = options.reduce((a,b) => Math.abs(b-initSaved)<Math.abs(a-initSaved)?b:a, 100);
   const el = Inputs.select(options, {
     label: "Monthly Roth IRA Contribution ($) — max $583/mo to hit $7,000/yr limit",
     format: d => `$${d}/mo`,
@@ -541,14 +543,12 @@ sg_months_needed = (() => {
 })()
 
 sg_projection = Array.from({length: Math.min((sg_months_needed || 240) + 1, 361)}, (_, m) => {
+  const growthFactor = Math.pow(1 + sg_monthly_rate, m);
   const principal = sg_existing + sg_monthly * m;
-  const interest  = sg_monthly_rate > 0
-    ? sg_existing * (Math.pow(1 + sg_monthly_rate, m) - 1)
-      + (m > 0 ? sg_monthly * (Math.pow(1 + sg_monthly_rate, m) - 1) / sg_monthly_rate : 0)
-    : 0;
-  const balance = sg_existing * Math.pow(1 + sg_monthly_rate, m)
-    + (sg_monthly_rate > 0 ? sg_monthly * (Math.pow(1 + sg_monthly_rate, m) - 1) / sg_monthly_rate : sg_monthly * m);
-  return {month: m, balance: Math.round(balance), principal: Math.round(principal), interest: Math.round(Math.max(0, balance - principal))};
+  const balance = sg_existing * growthFactor
+    + (sg_monthly_rate > 0 ? sg_monthly * (growthFactor - 1) / sg_monthly_rate : sg_monthly * m);
+  const interest = Math.round(Math.max(0, balance - principal));
+  return {month: m, balance: Math.round(balance), principal: Math.round(principal), interest};
 })
 
 sg_months_text = sg_months_needed
