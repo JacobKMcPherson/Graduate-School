@@ -103,9 +103,12 @@ viewof bud_checked = {
       const detail = card.querySelector('div');
       const renderCard = () => {
         const active = cb.checked;
+        cb.style.accentColor = typeColors[grp];
         card.style.borderColor = active ? typeColors[grp] : 'var(--bs-border-color,#dee2e6)';
+        card.style.borderWidth = active ? '2px' : '1px';
         card.style.background = active ? typeBg[grp] : 'var(--bs-body-bg,#fff)';
         card.style.boxShadow = active ? `0 8px 18px ${typeBg[grp]}` : 'none';
+        card.style.transform = active ? 'translateY(-1px)' : 'none';
         detail.style.opacity = active ? '1' : '.72';
       };
       cb.addEventListener('change', () => {

@@ -331,15 +331,16 @@ main.slide-mode .slide-intro-hidden {
 
     /* ---- Honour initial URL hash ---- */
     var startIdx = 0;
-    if (window.location.hash) {
+    var hasHash = !!window.location.hash;
+    if (hasHash) {
       var hashId = window.location.hash.slice(1);
       for (var i = 0; i < sections.length; i++) {
         if (sections[i].id === hashId) { startIdx = i; break; }
       }
     }
     goTo(startIdx, {
-      updateHash: !!window.location.hash,
-      scrollToTop: !!window.location.hash
+      updateHash: hasHash,
+      scrollToTop: hasHash
     });
   }
 
