@@ -226,7 +226,7 @@ Use this section to connect your **take-home pay, savings rate, Roth IRA contrib
 ::: {.callout-note appearance="simple"}
 ### Planner Inputs
 
-Use the enhanced controls below to **type custom values, tap quick-select buttons, or step amounts up/down**. Quick-select buttons automatically highlight when selected and de-select when you enter a custom value that no longer matches a preset.
+Use the enhanced controls below to **type custom values, tap quick-select buttons, or step amounts up/down**. Quick-select buttons automatically highlight when selected and deselect when you enter a custom value that no longer matches a preset.
 
 ```{ojs}
 //| echo: false
@@ -243,10 +243,22 @@ wb_format_number = (value, digits = 0) =>
     maximumFractionDigits: digits
   })
 
+wb_alpha = (hex, alpha) => {
+  const sanitized = hex.replace("#", "");
+  const expanded = sanitized.length === 3
+    ? sanitized.split("").map(part => part + part).join("")
+    : sanitized;
+  const bigint = parseInt(expanded, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 wb_chip_css = (active, accent) => `
   appearance:none;
   border:1px solid ${active ? accent : wb_input_theme.border};
-  background:${active ? `${accent}18` : wb_input_theme.bg};
+  background:${active ? wb_alpha(accent, 0.09) : wb_input_theme.bg};
   color:${active ? accent : wb_input_theme.text};
   border-radius:999px;
   padding:6px 12px;
@@ -255,7 +267,7 @@ wb_chip_css = (active, accent) => `
   line-height:1.2;
   cursor:pointer;
   transition:all .15s ease;
-  box-shadow:${active ? `0 8px 18px ${accent}22` : "none"};
+  box-shadow:${active ? `0 8px 18px ${wb_alpha(accent, 0.14)}` : "none"};
 `
 
 wb_number_control = ({
@@ -317,9 +329,11 @@ wb_number_control = ({
   const hint = document.createElement("div");
   hint.style.cssText = "font-size:.78rem;line-height:1.4;opacity:.72;";
 
+  const initialValue = decimals > 0 ? Number(Number(value).toFixed(decimals)) : Math.round(value);
+
   const normalize = raw => {
     const numeric = Number(raw);
-    const fallback = Number.isFinite(container.value) ? container.value : value;
+    const fallback = typeof container.value === "number" ? container.value : initialValue;
     if (!Number.isFinite(numeric)) return fallback;
     const bounded = Math.min(max, Math.max(min, numeric));
     return decimals > 0 ? Number(bounded.toFixed(decimals)) : Math.round(bounded);
@@ -349,18 +363,23 @@ wb_number_control = ({
     container.dispatchEvent(new Event("input"));
   };
 
-  minus.addEventListener("click", () => updateValue((container.value ?? value) - step));
-  plus.addEventListener("click", () => updateValue((container.value ?? value) + step));
-  input.addEventListener("input", () => {
-    if (input.value === "") return;
+  const syncFromInput = restoreCurrent => {
+    if (input.value === "") {
+      if (restoreCurrent) input.value = normalize(container.value).toFixed(decimals);
+      return;
+    }
     updateValue(input.value);
-  });
-  input.addEventListener("change", () => updateValue(input.value === "" ? value : input.value));
+  };
+
+  minus.addEventListener("click", () => updateValue(container.value - step));
+  plus.addEventListener("click", () => updateValue(container.value + step));
+  input.addEventListener("input", () => syncFromInput(false));
+  input.addEventListener("change", () => syncFromInput(true));
 
   container.append(title, row);
   if (presets.length) container.append(chips);
   container.append(hint);
-  updateValue(value);
+  updateValue(initialValue);
   return container;
 }
 
@@ -445,7 +464,7 @@ viewof wb_savings_pct = wb_number_control({
   max: 40,
   step: 1,
   presets: [5, 8, 10, 12, 15, 18, 20, 25, 30],
-  help: "Quick buttons de-select automatically when you enter a custom percentage.",
+  help: "Quick buttons deselect automatically when you enter a custom percentage.",
   accent: "#8e44ad",
   format: d => `${d}%`
 })
@@ -497,7 +516,7 @@ viewof wb_goal_share = wb_number_control({
   max: 100,
   step: 5,
   presets: [0, 25, 40, 50, 60, 75, 100],
-  help: "Choose 0% if you want to temporarily de-select goal funding and route savings elsewhere.",
+  help: "Choose 0% if you want to temporarily deselect goal funding and route savings elsewhere.",
   accent: "#f39c12",
   format: d => `${d}%`
 })
@@ -580,7 +599,7 @@ viewof sg_existing = wb_number_control({
   label: "Existing savings toward this goal ($)",
   value: 0,
   min: 0,
-  max: 100000,
+  max: 150000,
   step: 250,
   presets: [0, 500, 1000, 2500, 5000, 7500, 10000],
   help: "Type what you already have saved so the timeline starts from the right place.",
