@@ -5,14 +5,6 @@ description: "Opportunity-cost calculator, PhD salary premium by sector, full of
 order: 5
 ---
 
-```{=html}
-<style>
-#title-block-header {
-  display: none !important;
-}
-</style>
-```
-
 A PhD is a significant investment of time and opportunity cost. This guide helps you evaluate the financial and professional return on that investment, review employment contracts critically, and plan a strategic job search across academia, industry, government, and nonprofit sectors.
 
 ---

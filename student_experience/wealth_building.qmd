@@ -8,7 +8,7 @@ order: 2
 Building financial security on a graduate stipend is challenging but possible. The key is starting early — even small, consistent contributions to an emergency fund and retirement account compound significantly over a 5–7 year PhD program. This guide covers budgeting, saving, investing, and managing debt on a grad-school income.
 
 
-## 1. Key Financial Milestones for Graduate Students
+### Key Financial Milestones for Graduate Students
 
 Work through these roughly in order:
 
@@ -22,7 +22,7 @@ Work through these roughly in order:
 
 ---
 
-## 2. Monthly Budget Planner {#sec-budget-template}
+## 1. Monthly Budget Planner {#sec-budget-template}
 
 > **💾 Cross-page linked.** City and stipend are loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). Select a city and adjust your stipend there to populate city-specific estimates here.
 
@@ -201,7 +201,7 @@ Plot.plot({
 
 ---
 
-## 3. Wealth Building & Savings Goal Planner {#sec-budget-planner}
+## 2. Wealth Building & Savings Goal Planner {#sec-budget-planner}
 
 > **💾 Cross-page linked.** Stipend is loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd). The monthly budget planner above sets the realistic ceiling; this planner turns that monthly cash flow into a debt, retirement, and savings-goal strategy.
 

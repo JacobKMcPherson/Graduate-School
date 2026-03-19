@@ -5,14 +5,6 @@ description: "A worksheet-based guide to assessing PhD stipend purchasing power,
 order: 1
 ---
 
-```{=html}
-<style>
-#title-block-header {
-  display: none !important;
-}
-</style>
-```
-
 PhD stipends vary widely — from below $18,000 to over $45,000 per year — while the cost of living in university cities ranges just as dramatically. A stipend that sounds reasonable in one city may leave students unable to afford rent, food, or transportation in another. This guide helps you evaluate your real purchasing power and advocate for fair compensation.
 
 ---
@@ -609,8 +601,6 @@ city_comparison_data = cities_data.map(c => ({
   sufficient: annual_stipend >= c.living_wage
 }))
 
-city_comparison_sorted = city_comparison_data.slice().sort((a, b) => b.living_wage - a.living_wage)
-
 Plot.plot({
   title: `Does $${annual_stipend.toLocaleString()}/yr Meet the Living Wage in Each City?`,
   subtitle: "Tick mark (|) shows each city's MIT living wage. Green bar = stipend meets or exceeds it.",
@@ -625,11 +615,11 @@ Plot.plot({
     tickFormat: d => d ? "≥ Living Wage ✓" : "< Living Wage ✗"
   },
   marks: [
-    Plot.barX(city_comparison_sorted, {
+    Plot.barX(city_comparison_data, {
       x: "nominal_stipend", y: "city", fill: "sufficient",
-      rx: 3, tip: true
+      sort: {y: "-living_wage"}, rx: 3, tip: true
     }),
-    Plot.tickX(city_comparison_sorted, {
+    Plot.tickX(city_comparison_data, {
       x: "living_wage", y: "city",
       stroke: "#1a1a1a", strokeWidth: 2.5
     }),
@@ -767,7 +757,33 @@ html`
 
 ---
 
-## 3. Negotiating Your Stipend
+## 3. Adjusting for City Cost of Living
+
+To compare stipends across cities, this guide uses a **living-wage-based cost index** rather than a published COLI series. The index is anchored to **Austin, TX = 100** using each city's MIT Living Wage value, so it stays internally consistent with the calculator and worksheet above.
+
+| City | Approx. Cost Index (Austin = 100) | Implication for a $30,000 stipend |
+|---|---|---|
+| Ames, IA | 80 | Equivalent to ~$37,500 purchasing power |
+| Austin, TX | 100 | Face value |
+| Boston, MA | 122 | Equivalent to ~$24,600 purchasing power |
+| Seattle, WA | 133 | Equivalent to ~$22,600 purchasing power |
+| San Francisco, CA | 153 | Equivalent to ~$19,600 purchasing power |
+| New York City, NY | 160 | Equivalent to ~$18,800 purchasing power |
+
+**Formula:**  
+`Adjusted Purchasing Power = Stipend × (100 / Local Cost Index)`
+
+> **Note:** This is a practical proxy for relative city costs, not an externally published COLI benchmark. If you need a formal cost-of-living index for a specific negotiation or policy document, use a source such as NerdWallet or another published COL calculator alongside the MIT living-wage data.
+
+**Tools:**
+
+- [NerdWallet Cost of Living Calculator](https://www.nerdwallet.com/cost-of-living-calculator)
+- [MIT Living Wage Calculator](https://livingwage.mit.edu/)
+- [BLS Consumer Expenditure Survey](https://www.bls.gov/cex/)
+
+---
+
+## 4. Negotiating Your Stipend
 
 Most PhD students don't realize stipends are negotiable — especially at offer time. Here are evidence-based strategies:
 
@@ -788,7 +804,7 @@ Most PhD students don't realize stipends are negotiable — especially at offer 
 
 ---
 
-## 4. Taxes on Graduate Stipends
+## 5. Taxes on Graduate Stipends
 
 Stipend taxation depends on how you are funded:
 
@@ -808,7 +824,7 @@ Stipend taxation depends on how you are funded:
 
 ---
 
-## 5. Advocacy & External Resources
+## 6. Advocacy & External Resources
 
 - [National Science Policy Network (NSPN)](https://scipolnetwork.org/)
 - [UAW Graduate Student Union campaigns](https://uaw.org/)
