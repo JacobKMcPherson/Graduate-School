@@ -24,49 +24,7 @@ Access to affordable, comprehensive health insurance and mental health support i
 
 ---
 
-## 2. Understanding Your Health Plan
-
-### Key Terms Glossary
-
-| Term | Definition |
-|---|---|
-| **Premium** | The monthly cost of the plan, regardless of whether you use healthcare |
-| **Deductible** | Amount you pay out-of-pocket before insurance begins paying for covered services |
-| **Copay** | A fixed fee you pay at each visit (e.g., $20 for a PCP visit) |
-| **Coinsurance** | The percentage you pay after meeting your deductible (e.g., 20%) |
-| **Out-of-Pocket Maximum** | The most you will pay in a plan year; after this, insurance pays 100% |
-| **In-Network** | Providers who have a contract with your insurer (lower cost to you) |
-| **Out-of-Network** | Providers without a contract (much higher cost, often not covered) |
-| **FSA** | Flexible Spending Account — pre-tax money for medical expenses (use it or lose it) |
-| **HSA** | Health Savings Account — pre-tax savings for medical expenses; rolls over year to year (requires a High Deductible Health Plan) |
-| **EOB** | Explanation of Benefits — a statement from your insurer showing what was billed, paid, and owed |
-
-### Annual Health Insurance Checklist
-
-- [ ] Review the **Summary of Benefits and Coverage (SBC)** — a standardized 2-page summary required by law.
-- [ ] Confirm your **enrollment window** — graduate student plans often renew each August/September.
-- [ ] If you are under 26, compare the cost of staying on a **parent's plan** vs. the university plan.
-- [ ] If you are married/partnered, compare **individual vs. family plan** costs.
-- [ ] Check whether the plan includes **dental and vision**, or whether you need to enroll separately.
-- [ ] Set up an **HSA or FSA** if eligible — reduces taxable income.
-
----
-
-## 3. Common Coverage Gaps and How to Address Them
-
-| Gap | Solution |
-|---|---|
-| High deductible (>$1,500/individual) | Enroll in an HSA; contribute the maximum to offset risk |
-| Dental coverage missing or weak | Look into standalone dental insurance (e.g., Delta Dental individual plans, ~$20–$40/mo) or a dental school clinic for low-cost care |
-| Vision coverage missing | VSP individual plans start at ~$13/mo; many optometrists accept direct-pay patients at $50–$100 for an exam |
-| Mental health visits limited or high copay | Use university counseling center (often free); ask HR about mental health parity complaint process |
-| Prescription costs high | Use [GoodRx](https://www.goodrx.com/) for discounts; ask your doctor for generic equivalents |
-| Reproductive health not covered | Contact your Title IX office; [Planned Parenthood](https://www.plannedparenthood.org/) offers sliding-scale services |
-| Telehealth not included | [MDLive](https://www.mdlive.com/), [Teladoc](https://www.teladoc.com/), and similar services offer low-cost per-visit access |
-
----
-
-## 4. 💊 Preventive Health Value Estimator {#sec-health-value}
+## 2. 💊 Preventive Health Value Estimator {#sec-health-value}
 
 > Estimates the cumulative financial value (avoided future healthcare costs) of starting preventive health habits now. Based on published research; individual results vary.
 
@@ -232,6 +190,49 @@ phi_tidy.length > 0
 ```
 
 > **Methodology:** Exercise avoided costs ~$1,400/yr (Carlson et al., *RAND* 2015); healthy diet ~$2,000/yr (Springmann et al., *PLOS Medicine* 2021); preventive screenings ~$600/yr (CDC, 5–10× ROI on USPSTF-recommended care). Values increase +3%/yr after age 30 (rising disease risk) and 3.5%/yr healthcare cost inflation. This is an educational estimate — actual savings vary by individual.
+
+
+---
+
+## 3. Understanding Your Health Plan
+
+### Key Terms Glossary
+
+| Term | Definition |
+|---|---|
+| **Premium** | The monthly cost of the plan, regardless of whether you use healthcare |
+| **Deductible** | Amount you pay out-of-pocket before insurance begins paying for covered services |
+| **Copay** | A fixed fee you pay at each visit (e.g., $20 for a PCP visit) |
+| **Coinsurance** | The percentage you pay after meeting your deductible (e.g., 20%) |
+| **Out-of-Pocket Maximum** | The most you will pay in a plan year; after this, insurance pays 100% |
+| **In-Network** | Providers who have a contract with your insurer (lower cost to you) |
+| **Out-of-Network** | Providers without a contract (much higher cost, often not covered) |
+| **FSA** | Flexible Spending Account — pre-tax money for medical expenses (use it or lose it) |
+| **HSA** | Health Savings Account — pre-tax savings for medical expenses; rolls over year to year (requires a High Deductible Health Plan) |
+| **EOB** | Explanation of Benefits — a statement from your insurer showing what was billed, paid, and owed |
+
+### Annual Health Insurance Checklist
+
+- [ ] Review the **Summary of Benefits and Coverage (SBC)** — a standardized 2-page summary required by law.
+- [ ] Confirm your **enrollment window** — graduate student plans often renew each August/September.
+- [ ] If you are under 26, compare the cost of staying on a **parent's plan** vs. the university plan.
+- [ ] If you are married/partnered, compare **individual vs. family plan** costs.
+- [ ] Check whether the plan includes **dental and vision**, or whether you need to enroll separately.
+- [ ] Set up an **HSA or FSA** if eligible — reduces taxable income.
+
+---
+
+## 4. Common Coverage Gaps and How to Address Them
+
+| Gap | Solution |
+|---|---|
+| High deductible (>$1,500/individual) | Enroll in an HSA; contribute the maximum to offset risk |
+| Dental coverage missing or weak | Look into standalone dental insurance (e.g., Delta Dental individual plans, ~$20–$40/mo) or a dental school clinic for low-cost care |
+| Vision coverage missing | VSP individual plans start at ~$13/mo; many optometrists accept direct-pay patients at $50–$100 for an exam |
+| Mental health visits limited or high copay | Use university counseling center (often free); ask HR about mental health parity complaint process |
+| Prescription costs high | Use [GoodRx](https://www.goodrx.com/) for discounts; ask your doctor for generic equivalents |
+| Reproductive health not covered | Contact your Title IX office; [Planned Parenthood](https://www.plannedparenthood.org/) offers sliding-scale services |
+| Telehealth not included | [MDLive](https://www.mdlive.com/), [Teladoc](https://www.teladoc.com/), and similar services offer low-cost per-visit access |
 
 ---
 
