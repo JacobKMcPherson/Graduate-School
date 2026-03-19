@@ -20,7 +20,6 @@ website:
     search: true
     contents:
       - index.qmd
-      - student_experience/all_calculators.qmd
       - student_experience/salary_and_cost_of_living.qmd
       - student_experience/wealth_building.qmd
       - student_experience/family_planning.qmd
