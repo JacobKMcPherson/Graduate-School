@@ -5,6 +5,14 @@ description: "Insurance glossary, coverage-gap solutions, mental health resource
 order: 4
 ---
 
+```{=html}
+<style>
+#title-block-header {
+  display: none !important;
+}
+</style>
+```
+
 Access to affordable, comprehensive health insurance and mental health support is a critical — and often underdiscussed — dimension of graduate student well-being. This guide covers understanding your university health plan, supplementing coverage gaps, navigating mental health resources, and recognizing and responding to crisis situations.
 
 ---
