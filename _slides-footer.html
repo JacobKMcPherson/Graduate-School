@@ -219,7 +219,10 @@ main.slide-mode .slide-intro-hidden {
     main.insertBefore(nav, main.firstChild);
 
     /* ---- Core navigation function ---- */
-    function goTo(index) {
+    function goTo(index, options) {
+      options = options || {};
+      var updateHash = options.updateHash !== false;
+      var scrollToTop = options.scrollToTop !== false;
       if (index < 0 || index >= sections.length) return;
 
       /* Hide current, show next */
@@ -256,15 +259,17 @@ main.slide-mode .slide-intro-hidden {
       }
 
       /* Update URL hash (no scroll) */
-      if (secId && history.replaceState) {
+      if (updateHash && secId && history.replaceState) {
         history.replaceState(null, '', '#' + secId);
       }
 
       /* Scroll viewport to top of main content */
-      var navbar = document.querySelector('.navbar');
-      var headerH = navbar ? navbar.offsetHeight : 60;
-      var mainTop = main.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top: Math.max(0, mainTop - headerH - 8), behavior: 'smooth' });
+      if (scrollToTop) {
+        var navbar = document.querySelector('.navbar');
+        var headerH = navbar ? navbar.offsetHeight : 60;
+        var mainTop = main.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: Math.max(0, mainTop - headerH - 8), behavior: 'smooth' });
+      }
     }
 
     /* ---- Intercept TOC clicks ---- */
@@ -332,7 +337,10 @@ main.slide-mode .slide-intro-hidden {
         if (sections[i].id === hashId) { startIdx = i; break; }
       }
     }
-    goTo(startIdx);
+    goTo(startIdx, {
+      updateHash: !!window.location.hash,
+      scrollToTop: !!window.location.hash
+    });
   }
 
   /* Run after DOM is ready */

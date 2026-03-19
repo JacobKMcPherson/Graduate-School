@@ -8,7 +8,7 @@ order: 2
 Building financial security on a graduate stipend is challenging but possible. The key is starting early — even small, consistent contributions to an emergency fund and retirement account compound significantly over a 5–7 year PhD program. This guide covers budgeting, saving, investing, and managing debt on a grad-school income.
 
 
-### Key Financial Milestones for Graduate Students
+## Key Financial Milestones for Graduate Students
 
 Work through these roughly in order:
 
@@ -76,34 +76,47 @@ viewof bud_checked = {
 
   const checked = new Set(bud_lines_def.filter(l => l.checked).map(l => l.id));
   const container = document.createElement('div');
-  container.style.cssText = 'font-family:inherit;';
+  container.style.cssText = 'display:grid;gap:10px;font-family:inherit;margin:10px 0 4px;';
 
   for (const grp of groups) {
     const lines = bud_lines_def.filter(l => l.type === grp);
     const section = document.createElement('div');
-    section.style.cssText = `margin-bottom:8px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;overflow:hidden;`;
-    section.innerHTML = `<div style="padding:8px 12px;font-weight:700;font-size:.88rem;background:${typeBg[grp]};color:${typeColors[grp]};border-bottom:1px solid var(--bs-border-color,#dee2e6);">${groupLabels[grp]}</div>`;
-    const table = document.createElement('table');
-    table.style.cssText = 'width:100%;border-collapse:collapse;font-size:.86rem;';
+    section.style.cssText = `border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;overflow:hidden;background:var(--bs-body-bg,#fff);`;
+    section.innerHTML = `<div style="padding:9px 12px;font-weight:700;font-size:.88rem;background:${typeBg[grp]};color:${typeColors[grp]};border-bottom:1px solid var(--bs-border-color,#dee2e6);">${groupLabels[grp]}</div>`;
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;padding:10px;';
     for (const l of lines) {
       const scaled = l.scale ? Math.round(l.base * (bud_coli / 100)) : l.base;
-      const tr = document.createElement('tr');
-      tr.style.borderBottom = '1px solid var(--bs-border-color,#dee2e6)';
-      tr.innerHTML = `
-        <td style="padding:6px 10px;width:30px;">
-          <input type="checkbox" id="cb_${l.id}" ${checked.has(l.id) ? 'checked' : ''} style="cursor:pointer;">
-        </td>
-        <td style="padding:6px 4px;"><label for="cb_${l.id}" style="cursor:pointer;">${l.label}</label></td>
-        <td style="padding:6px 8px;text-align:right;font-weight:600;">$${scaled.toLocaleString()}</td>
-        <td style="padding:6px 10px;opacity:.6;font-size:.78rem;">${l.notes}</td>`;
-      const cb = tr.querySelector('input');
+      const card = document.createElement('label');
+      card.setAttribute('for', `cb_${l.id}`);
+      card.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:start;padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;background:var(--bs-body-bg,#fff);cursor:pointer;';
+      card.innerHTML = `
+        <input type="checkbox" id="cb_${l.id}" ${checked.has(l.id) ? 'checked' : ''} style="margin-top:2px;cursor:pointer;">
+        <div style="display:grid;gap:4px;min-width:0;">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+            <span style="font-weight:600;line-height:1.3;">${l.label}</span>
+            <span style="font-weight:700;white-space:nowrap;">$${scaled.toLocaleString()}</span>
+          </div>
+          <div style="font-size:.77rem;opacity:.7;line-height:1.35;">${l.notes || '&nbsp;'}</div>
+        </div>`;
+      const cb = card.querySelector('input');
+      const detail = card.querySelector('div');
+      const renderCard = () => {
+        const active = cb.checked;
+        card.style.borderColor = active ? typeColors[grp] : 'var(--bs-border-color,#dee2e6)';
+        card.style.background = active ? typeBg[grp] : 'var(--bs-body-bg,#fff)';
+        card.style.boxShadow = active ? `0 8px 18px ${typeBg[grp]}` : 'none';
+        detail.style.opacity = active ? '1' : '.72';
+      };
       cb.addEventListener('change', () => {
         if (cb.checked) checked.add(l.id); else checked.delete(l.id);
+        renderCard();
         container.dispatchEvent(new Event('input'));
       });
-      table.appendChild(tr);
+      renderCard();
+      grid.appendChild(card);
     }
-    section.appendChild(table);
+    section.appendChild(grid);
     container.appendChild(section);
   }
   container.value = checked;
@@ -207,6 +220,12 @@ Plot.plot({
 
 Use this section to connect your **take-home pay, savings rate, Roth IRA contribution, student-loan strategy, and major savings goal** in one place.
 
+::: {.callout-note appearance="simple"}
+### Planner Inputs
+
+::: {.columns}
+::: {.column width="50%"}
+
 ```{ojs}
 //| echo: false
 wb_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
@@ -268,6 +287,9 @@ viewof wb_goal_share = Inputs.select([25, 40, 50, 60, 75, 100], {
 })
 ```
 
+:::
+::: {.column width="50%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_other_account = Inputs.select(["403(b)", "HSA", "529 plan", "Cash buffer"], {
@@ -326,6 +348,16 @@ viewof sg_existing = Inputs.select([0, 250, 500, 750, 1000, 1500, 2000, 2500, 30
 })
 ```
 
+:::
+:::
+:::
+
+::: {.callout-tip appearance="simple"}
+### Shared Home Goal Inputs
+
+::: {.columns}
+::: {.column width="33%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_home_target = {
@@ -342,6 +374,9 @@ viewof wb_home_target = {
   return el;
 }
 ```
+
+:::
+::: {.column width="33%"}
 
 ```{ojs}
 //| echo: false
@@ -360,6 +395,9 @@ viewof wb_home_rate = {
 }
 ```
 
+:::
+::: {.column width="33%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_home_existing = {
@@ -376,6 +414,10 @@ viewof wb_home_existing = {
   return el;
 }
 ```
+
+:::
+:::
+:::
 
 ```{ojs}
 //| echo: false
