@@ -592,36 +592,40 @@ Plot.plot({
 
 ```{ojs}
 //| echo: false
-// Compare nominal stipend vs. nominal living wage for each city (same dollar basis)
+// Compare the city-adjusted buying power of the same nominal stipend across graduate-school cities.
 city_comparison_data = cities_data.map(c => ({
   city: c.name,
-  nominal_stipend: annual_stipend,
-  living_wage: c.living_wage,
-  // Purchasing power shown separately in stat cards; sufficiency = can your stipend cover local living wage?
-  sufficient: annual_stipend >= c.living_wage
+  coli: c.coli,
+  purchasing_power: Math.round(annual_stipend * (100 / c.coli)),
+  tier: c.name === selected_city.name
+    ? "Selected city"
+    : c.coli <= 100
+      ? "Lower-cost than Austin"
+      : "Higher-cost than Austin"
 }))
 
 Plot.plot({
-  title: `Does $${annual_stipend.toLocaleString()}/yr Meet the Living Wage in Each City?`,
-  subtitle: "Tick mark (|) shows each city's MIT living wage. Green bar = stipend meets or exceeds it.",
+  title: `Purchasing Power of $${annual_stipend.toLocaleString()}/yr Across Graduate-School Cities`,
+  subtitle: "Bars show Austin-equivalent buying power after adjusting for each city's cost index. The dashed line marks your nominal stipend.",
   width: 660,
   height: 380,
   marginLeft: 165,
-  x: {label: "Annual $ →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
+  x: {label: "Austin-equivalent annual purchasing power →", tickFormat: d => `$${(d/1000).toFixed(0)}k`},
   color: {
-    domain: [true, false],
-    range: ["#27ae60", "#e74c3c"],
-    legend: true,
-    tickFormat: d => d ? "≥ Living Wage ✓" : "< Living Wage ✗"
+    domain: ["Selected city", "Lower-cost than Austin", "Higher-cost than Austin"],
+    range: ["#f39c12", "#27ae60", "#3498db"],
+    legend: true
   },
   marks: [
     Plot.barX(city_comparison_data, {
-      x: "nominal_stipend", y: "city", fill: "sufficient",
-      sort: {y: "-living_wage"}, rx: 3, tip: true
+      x: "purchasing_power", y: "city", fill: "tier",
+      sort: {y: "-x"}, rx: 3, tip: true,
+      title: d => `${d.city}
+Cost index: ${d.coli}
+Purchasing power: $${d.purchasing_power.toLocaleString()}/yr`
     }),
-    Plot.tickX(city_comparison_data, {
-      x: "living_wage", y: "city",
-      stroke: "#1a1a1a", strokeWidth: 2.5
+    Plot.ruleX([annual_stipend], {
+      stroke: "#1a1a1a", strokeWidth: 2, strokeDash: [5, 3]
     }),
     Plot.ruleX([0])
   ]

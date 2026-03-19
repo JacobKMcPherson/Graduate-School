@@ -22,63 +22,7 @@ Starting or growing a family during a PhD program presents unique logistical, fi
 
 ---
 
-## 2. Parental Leave: What to Know
-
-### Federal Protections
-
-- **FMLA (Family and Medical Leave Act):** Provides up to 12 weeks of **unpaid, job-protected** leave for the birth or adoption of a child. Applies to employees who have worked 12 months and 1,250 hours — may apply to TA/RA employees, but fellowship recipients may not qualify. Confirm with your HR office.
-- **Title IX:** Prohibits sex discrimination, which includes discrimination based on pregnancy and parenting status. Universities receiving federal funding must provide reasonable accommodations.
-- **The PUMP Act (2022):** Requires employers to provide break time and private space for nursing employees.
-
-### Institutional Leave Policies
-
-Parental leave varies dramatically by institution. Use this checklist when reviewing your program's policy:
-
-| Question | Your Institution's Policy |
-|---|---|
-| Weeks of paid parental leave for primary caregiver | |
-| Weeks of paid parental leave for non-primary caregiver / partner | |
-| Leave available to fellowship-funded students (not just employees) | |
-| Whether leave **extends** funding timeline (e.g., adds 1 semester to guarantee) | |
-| Whether TA/RA duties are waived during leave | |
-| Policy for adoption or foster placement | |
-| Lactation room availability on campus | |
-
-**Resources:**
-
-- [NWLC Pregnancy & Parenting in Higher Education](https://nwlc.org/)
-- [Pregnant Scholar](https://www.pregnantscholar.org/) — legal rights database for students and postdocs by institution
-- [CoPI Family Leave Policy Database](https://copi.science/) — comparative policies across research institutions
-
----
-
-## 3. Childcare Planning
-
-### Cost Benchmarks
-
-| Childcare Type | Approximate Annual Cost (US, 2024) |
-|---|---|
-| Infant full-time daycare center | $15,000 – $30,000 |
-| Toddler full-time daycare center | $12,000 – $25,000 |
-| Family home daycare | $10,000 – $20,000 |
-| Au pair (full-time live-in) | $20,000 – $35,000 + room/board |
-| Part-time babysitter / nanny share | $8,000 – $18,000 |
-
-> Childcare in major university cities (Boston, NYC, San Francisco) often exceeds the higher end of these ranges.
-
-### Reducing Childcare Costs
-
-- [ ] **Apply to university-run childcare centers** as early as possible — waitlists can be 1–2 years.
-- [ ] Ask whether your program offers **childcare subsidies** or emergency childcare funds (many graduate schools have these; they are underutilized).
-- [ ] Investigate **CCAP (Child Care and Development Fund)** state subsidies — income limits often cover graduate stipends.
-- [ ] Use a **Dependent Care FSA (DCFSA)** to pay up to $5,000/year in childcare costs pre-tax (if offered by your university as an employee benefit).
-- [ ] Claim the **Child and Dependent Care Tax Credit** (Form 2441) — up to 35% of $3,000 in qualified expenses for one child.
-- [ ] Explore **graduate student emergency childcare funds** through your graduate school or student government.
-- [ ] Look into **campus childcare co-ops** — some universities have informal cooperative care networks.
-
----
-
-## 👶 Interactive Family Cost Calculator {#sec-family-calculator}
+## 2. 👶 Interactive Family Cost Calculator {#sec-family-calculator}
 
 > **💾 Cross-page linked.** Stipend is loaded from [Salary & Cost of Living](salary_and_cost_of_living.qmd).
 
@@ -101,11 +45,54 @@ viewof fp_stipend = {
 
 ```{ojs}
 //| echo: false
-viewof fp_num_children = Inputs.select([0, 1, 2, 3], {
-  label: "Number of Young Children (ages 0–5)",
-  format: d => d === 0 ? "None" : `${d}`,
-  value: 1
-})
+viewof fp_num_children = {
+  const options = [
+    {value: 0, label: 'No children', note: 'Planning ahead'},
+    {value: 1, label: '1 child', note: 'One child'},
+    {value: 2, label: '2 children', note: 'Two children'},
+    {value: 3, label: '3 children', note: 'Three children'}
+  ]
+  const container = document.createElement('div')
+  container.style.cssText = 'display:grid;gap:8px;margin:10px 0 4px;'
+
+  const label = document.createElement('div')
+  label.textContent = 'Number of Young Children (ages 0–5)'
+  label.style.cssText = 'font-weight:600;font-size:.92rem;'
+
+  const group = document.createElement('div')
+  group.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;'
+
+  let current = 1
+  const buttons = options.map((option) => {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.innerHTML = `<span style="display:block;font-weight:700;font-size:.95rem;">${option.label}</span><span style="display:block;font-size:.75rem;opacity:.72;margin-top:2px;">${option.note}</span>`
+    button.style.cssText = 'padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;background:var(--bs-body-bg,#fff);color:inherit;text-align:left;cursor:pointer;transition:all .15s ease;'
+    button.addEventListener('click', () => {
+      current = option.value
+      render()
+    })
+    group.appendChild(button)
+    return {option, button}
+  })
+
+  function render() {
+    buttons.forEach(({option, button}) => {
+      const active = option.value === current
+      button.setAttribute('aria-pressed', String(active))
+      button.style.borderColor = active ? '#3498db' : 'var(--bs-border-color,#dee2e6)'
+      button.style.background = active ? 'rgba(52,152,219,.09)' : 'var(--bs-body-bg,#fff)'
+      button.style.boxShadow = active ? '0 10px 22px rgba(52,152,219,.12)' : 'none'
+      button.style.transform = active ? 'translateY(-1px)' : 'none'
+    })
+    container.value = current
+    container.dispatchEvent(new Event('input'))
+  }
+
+  container.append(label, group)
+  render()
+  return container
+}
 ```
 
 ```{ojs}
@@ -119,11 +106,53 @@ fp_childcare_options = [
   {type: "Relative / Unpaid Care",       annual_cost:     0}
 ]
 
-viewof fp_childcare_type = Inputs.select(fp_childcare_options, {
-  label: "Primary Childcare Arrangement",
-  format: c => c.type,
-  value: fp_childcare_options[0]
-})
+viewof fp_childcare_type = {
+  const container = document.createElement('div')
+  container.style.cssText = 'display:grid;gap:8px;margin:10px 0 4px;'
+
+  const label = document.createElement('div')
+  label.textContent = 'Primary Childcare Arrangement'
+  label.style.cssText = 'font-weight:600;font-size:.92rem;'
+
+  const helper = document.createElement('div')
+  helper.textContent = 'Choose the closest arrangement to compare annual childcare cost pressure per child.'
+  helper.style.cssText = 'font-size:.78rem;opacity:.72;margin-top:-2px;'
+
+  const grid = document.createElement('div')
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;'
+
+  let current = fp_childcare_options[0]
+  const buttons = fp_childcare_options.map((option) => {
+    const button = document.createElement('button')
+    button.type = 'button'
+    const monthly = Math.round(option.annual_cost / 12)
+    button.innerHTML = `<span style="display:block;font-weight:700;line-height:1.3;">${option.type}</span><span style="display:block;font-size:.78rem;opacity:.76;margin-top:6px;">≈ $${option.annual_cost.toLocaleString()}/yr · $${monthly.toLocaleString()}/mo</span>`
+    button.style.cssText = 'padding:14px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:12px;background:var(--bs-body-bg,#fff);color:inherit;text-align:left;cursor:pointer;transition:all .15s ease;min-height:92px;'
+    button.addEventListener('click', () => {
+      current = option
+      render()
+    })
+    grid.appendChild(button)
+    return {option, button}
+  })
+
+  function render() {
+    buttons.forEach(({option, button}) => {
+      const active = option.type === current.type
+      button.setAttribute('aria-pressed', String(active))
+      button.style.borderColor = active ? '#e74c3c' : 'var(--bs-border-color,#dee2e6)'
+      button.style.background = active ? 'rgba(231,76,60,.08)' : 'var(--bs-body-bg,#fff)'
+      button.style.boxShadow = active ? '0 12px 24px rgba(231,76,60,.12)' : 'none'
+      button.style.transform = active ? 'translateY(-1px)' : 'none'
+    })
+    container.value = current
+    container.dispatchEvent(new Event('input'))
+  }
+
+  container.append(label, helper, grid)
+  render()
+  return container
+}
 ```
 
 ```{ojs}
@@ -159,11 +188,49 @@ html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px
 
 ```{ojs}
 //| echo: false
-viewof fp_home_share = Inputs.select([25, 50, 75, 100], {
-  label: "Share of remaining monthly room directed to the shared home fund",
-  format: d => `${d}%`,
-  value: 75
-})
+viewof fp_home_share = {
+  const options = [25, 50, 75, 100]
+  const container = document.createElement('div')
+  container.style.cssText = 'display:grid;gap:8px;margin:10px 0 4px;'
+
+  const label = document.createElement('div')
+  label.textContent = 'Share of remaining monthly room directed to the shared home fund'
+  label.style.cssText = 'font-weight:600;font-size:.92rem;'
+
+  const group = document.createElement('div')
+  group.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;'
+
+  let current = 75
+  const buttons = options.map((option) => {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.innerHTML = `<span style="display:block;font-weight:700;font-size:1rem;">${option}%</span><span style="display:block;font-size:.75rem;opacity:.72;margin-top:2px;">toward home savings</span>`
+    button.style.cssText = 'padding:12px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;background:var(--bs-body-bg,#fff);color:inherit;text-align:left;cursor:pointer;transition:all .15s ease;'
+    button.addEventListener('click', () => {
+      current = option
+      render()
+    })
+    group.appendChild(button)
+    return {option, button}
+  })
+
+  function render() {
+    buttons.forEach(({option, button}) => {
+      const active = option === current
+      button.setAttribute('aria-pressed', String(active))
+      button.style.borderColor = active ? '#f39c12' : 'var(--bs-border-color,#dee2e6)'
+      button.style.background = active ? 'rgba(243,156,18,.10)' : 'var(--bs-body-bg,#fff)'
+      button.style.boxShadow = active ? '0 10px 22px rgba(243,156,18,.14)' : 'none'
+      button.style.transform = active ? 'translateY(-1px)' : 'none'
+    })
+    container.value = current
+    container.dispatchEvent(new Event('input'))
+  }
+
+  container.append(label, group)
+  render()
+  return container
+}
 ```
 
 ```{ojs}
@@ -452,9 +519,66 @@ Plot.plot({
 
 :::
 
+
 ---
 
-## 4. Financial Planning for Family Growth
+## 3. Parental Leave: What to Know
+
+### Federal Protections
+
+- **FMLA (Family and Medical Leave Act):** Provides up to 12 weeks of **unpaid, job-protected** leave for the birth or adoption of a child. Applies to employees who have worked 12 months and 1,250 hours — may apply to TA/RA employees, but fellowship recipients may not qualify. Confirm with your HR office.
+- **Title IX:** Prohibits sex discrimination, which includes discrimination based on pregnancy and parenting status. Universities receiving federal funding must provide reasonable accommodations.
+- **The PUMP Act (2022):** Requires employers to provide break time and private space for nursing employees.
+
+### Institutional Leave Policies
+
+Parental leave varies dramatically by institution. Use this checklist when reviewing your program's policy:
+
+| Question | Your Institution's Policy |
+|---|---|
+| Weeks of paid parental leave for primary caregiver | |
+| Weeks of paid parental leave for non-primary caregiver / partner | |
+| Leave available to fellowship-funded students (not just employees) | |
+| Whether leave **extends** funding timeline (e.g., adds 1 semester to guarantee) | |
+| Whether TA/RA duties are waived during leave | |
+| Policy for adoption or foster placement | |
+| Lactation room availability on campus | |
+
+**Resources:**
+
+- [NWLC Pregnancy & Parenting in Higher Education](https://nwlc.org/)
+- [Pregnant Scholar](https://www.pregnantscholar.org/) — legal rights database for students and postdocs by institution
+- [CoPI Family Leave Policy Database](https://copi.science/) — comparative policies across research institutions
+
+---
+
+## 4. Childcare Planning
+
+### Cost Benchmarks
+
+| Childcare Type | Approximate Annual Cost (US, 2024) |
+|---|---|
+| Infant full-time daycare center | $15,000 – $30,000 |
+| Toddler full-time daycare center | $12,000 – $25,000 |
+| Family home daycare | $10,000 – $20,000 |
+| Au pair (full-time live-in) | $20,000 – $35,000 + room/board |
+| Part-time babysitter / nanny share | $8,000 – $18,000 |
+
+> Childcare in major university cities (Boston, NYC, San Francisco) often exceeds the higher end of these ranges.
+
+### Reducing Childcare Costs
+
+- [ ] **Apply to university-run childcare centers** as early as possible — waitlists can be 1–2 years.
+- [ ] Ask whether your program offers **childcare subsidies** or emergency childcare funds (many graduate schools have these; they are underutilized).
+- [ ] Investigate **CCAP (Child Care and Development Fund)** state subsidies — income limits often cover graduate stipends.
+- [ ] Use a **Dependent Care FSA (DCFSA)** to pay up to $5,000/year in childcare costs pre-tax (if offered by your university as an employee benefit).
+- [ ] Claim the **Child and Dependent Care Tax Credit** (Form 2441) — up to 35% of $3,000 in qualified expenses for one child.
+- [ ] Explore **graduate student emergency childcare funds** through your graduate school or student government.
+- [ ] Look into **campus childcare co-ops** — some universities have informal cooperative care networks.
+
+---
+
+## 5. Financial Planning for Family Growth
 
 | Expense | Estimated One-Time Cost | Notes |
 |---|---|---|
@@ -480,7 +604,7 @@ Plot.plot({
 
 ---
 
-## 5. Partner Career Considerations
+## 6. Partner Career Considerations
 
 The "two-body problem" is a well-known challenge in academia. Plan early:
 
@@ -493,7 +617,7 @@ The "two-body problem" is a well-known challenge in academia. Plan early:
 
 ---
 
-## 6. Institutional Accommodations
+## 7. Institutional Accommodations
 
 You are entitled to ask for and receive reasonable accommodations. Document all requests and responses in writing.
 
@@ -508,7 +632,7 @@ You are entitled to ask for and receive reasonable accommodations. Document all 
 
 ---
 
-## 7. Additional Resources
+## 8. Additional Resources
 
 - [Pregnant Scholar](https://www.pregnantscholar.org/) — institution-specific rights lookup
 - [National Women's Law Center](https://nwlc.org/) — legal advocacy resources

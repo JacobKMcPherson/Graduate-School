@@ -23,6 +23,8 @@ Navigate the guides using the sidebar, or jump directly to a topic below.
 ::: {.g-col-12 .g-col-md-6 .resource-guide-group}
 ### 💰 Compensation & Finances
 
+- **[All Calculators](student_experience/all_calculators.qmd)**<br>
+  Launch every interactive calculator and chart in one slide stack, with the same shared stipend, city, and planning inputs used throughout the site.
 - **[Salary & Cost of Living](student_experience/salary_and_cost_of_living.qmd)**<br>
   Evaluate your stipend against local cost of living, use city-by-city benchmarks, and learn evidence-based negotiation strategies.
 - **[Wealth Building](student_experience/wealth_building.qmd)**<br>
