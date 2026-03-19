@@ -1,5 +1,5 @@
 ---
-title: "Health Insurance & Mental Health"
+title: "Health & Health Insurance"
 subtitle: "Navigating coverage, mental health support, and wellbeing as a PhD student"
 description: "Insurance glossary, coverage-gap solutions, mental health resource tiers, US crisis hotlines, and advisor-relationship red flags for PhD students."
 order: 4

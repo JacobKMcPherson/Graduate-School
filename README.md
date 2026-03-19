@@ -19,7 +19,7 @@ These guides are rendered as an interactive [Quarto](https://quarto.org/) websit
 | [Salary & Cost of Living](student_experience/salary_and_cost_of_living.qmd) | Evaluate your stipend against local cost of living; negotiate effectively |
 | [Wealth Building](student_experience/wealth_building.qmd) | Budgeting, emergency funds, retirement, and tax strategy on a grad stipend |
 | [Family Planning](student_experience/family_planning.qmd) | Parental leave, childcare, partner employment, and family-friendly policies |
-| [Health Insurance & Mental Health](student_experience/health_insurance.qmd) | Understand your coverage, find mental health support, and navigate crises |
+| [Health & Health Insurance](student_experience/health_insurance.qmd) | Understand your coverage, find mental health support, and navigate crises |
 | [Career ROI, Contracts & Employment Prospects](student_experience/career_roi.qmd) | Assess the value of your PhD, review offer letters, and plan your job search |
 
 ---

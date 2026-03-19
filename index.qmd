@@ -34,7 +34,7 @@ Navigate the guides using the sidebar, or jump directly to a topic below.
 
 - **[Family Planning](student_experience/family_planning.qmd)**<br>
   FMLA and Title IX rights, parental leave policy checklists, childcare cost benchmarks, subsidy programs, and partner career planning.
-- **[Health Insurance & Mental Health](student_experience/health_insurance.qmd)**<br>
+- **[Health & Health Insurance](student_experience/health_insurance.qmd)**<br>
   Insurance glossary, coverage-gap solutions, mental health resource tiers, crisis hotlines, and advisor-relationship red flags.
 :::
 
