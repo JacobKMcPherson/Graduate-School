@@ -607,7 +607,9 @@ city_comparison_data = cities_data.map(c => ({
   living_wage: c.living_wage,
   // Purchasing power shown separately in stat cards; sufficiency = can your stipend cover local living wage?
   sufficient: annual_stipend >= c.living_wage
-})).sort((a, b) => b.living_wage - a.living_wage)
+}))
+
+city_comparison_sorted = city_comparison_data.slice().sort((a, b) => b.living_wage - a.living_wage)
 
 Plot.plot({
   title: `Does $${annual_stipend.toLocaleString()}/yr Meet the Living Wage in Each City?`,
@@ -623,11 +625,11 @@ Plot.plot({
     tickFormat: d => d ? "≥ Living Wage ✓" : "< Living Wage ✗"
   },
   marks: [
-    Plot.barX(city_comparison_data, {
+    Plot.barX(city_comparison_sorted, {
       x: "nominal_stipend", y: "city", fill: "sufficient",
       rx: 3, tip: true
     }),
-    Plot.tickX(city_comparison_data, {
+    Plot.tickX(city_comparison_sorted, {
       x: "living_wage", y: "city",
       stroke: "#1a1a1a", strokeWidth: 2.5
     }),
