@@ -226,6 +226,190 @@ Use this section to connect your **take-home pay, savings rate, Roth IRA contrib
 ::: {.callout-note appearance="simple"}
 ### Planner Inputs
 
+Use the enhanced controls below to **type custom values, tap quick-select buttons, or step amounts up/down**. Quick-select buttons automatically highlight when selected and de-select when you enter a custom value that no longer matches a preset.
+
+```{ojs}
+//| echo: false
+wb_input_theme = ({
+  border: "var(--bs-border-color,#dee2e6)",
+  bg: "var(--bs-body-bg,#fff)",
+  text: "var(--bs-body-color,#212529)",
+  card: "linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.98))"
+})
+
+wb_format_number = (value, digits = 0) =>
+  Number(value).toLocaleString(undefined, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  })
+
+wb_chip_css = (active, accent) => `
+  appearance:none;
+  border:1px solid ${active ? accent : wb_input_theme.border};
+  background:${active ? `${accent}18` : wb_input_theme.bg};
+  color:${active ? accent : wb_input_theme.text};
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:.8rem;
+  font-weight:${active ? "700" : "600"};
+  line-height:1.2;
+  cursor:pointer;
+  transition:all .15s ease;
+  box-shadow:${active ? `0 8px 18px ${accent}22` : "none"};
+`
+
+wb_number_control = ({
+  label,
+  value,
+  min = 0,
+  max = 100000,
+  step = 1,
+  presets = [],
+  help = "",
+  accent = "#2c7be5",
+  storageKey = null,
+  decimals = 0,
+  format = d => `${d}`
+}) => {
+  const container = document.createElement("div");
+  container.style.cssText = `display:grid;gap:10px;padding:14px;border:1px solid ${wb_input_theme.border};border-radius:16px;background:${wb_input_theme.card};box-shadow:0 10px 28px rgba(15,23,42,.05);`;
+
+  const title = document.createElement("div");
+  title.style.cssText = "font-weight:700;line-height:1.35;";
+  title.textContent = label;
+
+  const row = document.createElement("div");
+  row.style.cssText = "display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;";
+
+  const minus = document.createElement("button");
+  minus.type = "button";
+  minus.textContent = "−";
+  minus.setAttribute("aria-label", `Decrease ${label}`);
+  minus.style.cssText = wb_chip_css(false, accent) + "min-width:38px;padding:9px 0;font-size:1rem;";
+
+  const inputWrap = document.createElement("div");
+  inputWrap.style.cssText = `display:grid;gap:4px;padding:10px 12px;border:1px solid ${wb_input_theme.border};border-radius:14px;background:${wb_input_theme.bg};`;
+
+  const input = document.createElement("input");
+  input.type = "number";
+  input.min = String(min);
+  input.max = String(max);
+  input.step = String(step);
+  input.inputMode = decimals > 0 ? "decimal" : "numeric";
+  input.style.cssText = "width:100%;border:0;outline:none;background:transparent;font-size:1.05rem;font-weight:700;padding:0;";
+
+  const summary = document.createElement("div");
+  summary.style.cssText = `font-size:.78rem;font-weight:600;color:${accent};`;
+
+  inputWrap.append(input, summary);
+
+  const plus = document.createElement("button");
+  plus.type = "button";
+  plus.textContent = "+";
+  plus.setAttribute("aria-label", `Increase ${label}`);
+  plus.style.cssText = wb_chip_css(false, accent) + "min-width:38px;padding:9px 0;font-size:1rem;";
+
+  row.append(minus, inputWrap, plus);
+
+  const chips = document.createElement("div");
+  chips.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;";
+
+  const hint = document.createElement("div");
+  hint.style.cssText = "font-size:.78rem;line-height:1.4;opacity:.72;";
+
+  const normalize = raw => {
+    const numeric = Number(raw);
+    const fallback = Number.isFinite(container.value) ? container.value : value;
+    if (!Number.isFinite(numeric)) return fallback;
+    const bounded = Math.min(max, Math.max(min, numeric));
+    return decimals > 0 ? Number(bounded.toFixed(decimals)) : Math.round(bounded);
+  };
+
+  const presetButtons = presets.map(preset => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = format(preset);
+    button.setAttribute("aria-pressed", "false");
+    button.addEventListener("click", () => updateValue(preset));
+    chips.appendChild(button);
+    return {button, preset};
+  });
+
+  const updateValue = next => {
+    const normalized = normalize(next);
+    container.value = normalized;
+    input.value = normalized.toFixed(decimals);
+    summary.textContent = `Current selection: ${format(normalized)}`;
+    hint.textContent = help;
+    for (const {button, preset} of presetButtons) {
+      button.style.cssText = wb_chip_css(normalized === preset, accent);
+      button.setAttribute("aria-pressed", normalized === preset ? "true" : "false");
+    }
+    if (storageKey) localStorage.setItem(storageKey, String(normalized));
+    container.dispatchEvent(new Event("input"));
+  };
+
+  minus.addEventListener("click", () => updateValue((container.value ?? value) - step));
+  plus.addEventListener("click", () => updateValue((container.value ?? value) + step));
+  input.addEventListener("input", () => {
+    if (input.value === "") return;
+    updateValue(input.value);
+  });
+  input.addEventListener("change", () => updateValue(input.value === "" ? value : input.value));
+
+  container.append(title, row);
+  if (presets.length) container.append(chips);
+  container.append(hint);
+  updateValue(value);
+  return container;
+}
+
+wb_choice_control = ({
+  label,
+  value,
+  options,
+  help = "",
+  accent = "#6f42c1"
+}) => {
+  const container = document.createElement("div");
+  container.style.cssText = `display:grid;gap:10px;padding:14px;border:1px solid ${wb_input_theme.border};border-radius:16px;background:${wb_input_theme.card};box-shadow:0 10px 28px rgba(15,23,42,.05);`;
+
+  const title = document.createElement("div");
+  title.style.cssText = "font-weight:700;line-height:1.35;";
+  title.textContent = label;
+
+  const chips = document.createElement("div");
+  chips.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;";
+
+  const hint = document.createElement("div");
+  hint.style.cssText = "font-size:.78rem;line-height:1.4;opacity:.72;";
+  hint.textContent = help;
+
+  const buttons = options.map(option => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = option;
+    button.setAttribute("aria-pressed", "false");
+    button.addEventListener("click", () => updateValue(option));
+    chips.appendChild(button);
+    return {button, option};
+  });
+
+  const updateValue = next => {
+    container.value = next;
+    for (const {button, option} of buttons) {
+      button.style.cssText = wb_chip_css(next === option, accent);
+      button.setAttribute("aria-pressed", next === option ? "true" : "false");
+    }
+    container.dispatchEvent(new Event("input"));
+  };
+
+  container.append(title, chips, hint);
+  updateValue(value);
+  return container;
+}
+```
+
 ::: {.columns}
 ::: {.column width="50%"}
 
@@ -237,21 +421,33 @@ viewof wb_stipend = {
   const options = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
   const initVal = isFinite(wb_stipend_init) ? wb_stipend_init : 30000;
   const nearest = options.reduce((a,b) => Math.abs(b-initVal)<Math.abs(a-initVal)?b:a, 30000);
-  const el = Inputs.select(options, {
+  return wb_number_control({
     label: "Annual Stipend (pre-tax, $) — override if needed",
-    format: d => `$${d.toLocaleString()}`,
-    value: nearest
+    value: nearest,
+    min: 15000,
+    max: 60000,
+    step: 1000,
+    presets: [20000, 25000, 30000, 35000, 40000, 50000],
+    help: "Type any stipend amount or tap a quick-select button.",
+    accent: "#27ae60",
+    storageKey: "phd_annual_stipend",
+    format: d => `$${wb_format_number(d)}`
   });
-  return el;
 }
 ```
 
 ```{ojs}
 //| echo: false
-viewof wb_savings_pct = Inputs.select([5, 8, 10, 12, 15, 18, 20, 22, 25, 28, 30], {
+viewof wb_savings_pct = wb_number_control({
   label: "Savings, debt payoff & goal allocation (% of take-home)",
-  format: d => `${d}%`,
-  value: 15
+  value: 15,
+  min: 0,
+  max: 40,
+  step: 1,
+  presets: [5, 8, 10, 12, 15, 18, 20, 25, 30],
+  help: "Quick buttons de-select automatically when you enter a custom percentage.",
+  accent: "#8e44ad",
+  format: d => `${d}%`
 })
 ```
 
@@ -262,31 +458,48 @@ viewof wb_ira_monthly = {
   const options = [0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 350, 400, 450, 500, 550, 583];
   const initSaved = isFinite(saved) ? saved : 100;
   const nearest = options.reduce((a,b) => Math.abs(b-initSaved)<Math.abs(a-initSaved)?b:a, 100);
-  const el = Inputs.select(options, {
+  return wb_number_control({
     label: "Monthly Roth IRA Contribution ($) — max $583/mo to hit $7,000/yr limit",
-    format: d => `$${d}/mo`,
-    value: nearest
+    value: nearest,
+    min: 0,
+    max: 583,
+    step: 25,
+    presets: [0, 50, 100, 150, 250, 400, 583],
+    help: "Use quick amounts or type a custom monthly contribution.",
+    accent: "#8e44ad",
+    storageKey: "phd_ira_monthly",
+    format: d => `$${wb_format_number(d)}/mo`
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_ira_monthly', String(el.value)));
-  return el;
 }
 ```
 
 ```{ojs}
 //| echo: false
-viewof wb_extra_loan_payment = Inputs.select([0, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500], {
+viewof wb_extra_loan_payment = wb_number_control({
   label: "Extra student-loan payment ($/mo)",
-  format: d => d === 0 ? 'None' : `$${d}/mo`,
-  value: 100
+  value: 100,
+  min: 0,
+  max: 1000,
+  step: 25,
+  presets: [0, 50, 100, 150, 250, 400, 500],
+  help: "Set this to $0 to pause extra payments while keeping minimums in your budget plan.",
+  accent: "#e67e22",
+  format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
 })
 ```
 
 ```{ojs}
 //| echo: false
-viewof wb_goal_share = Inputs.select([25, 40, 50, 60, 75, 100], {
+viewof wb_goal_share = wb_number_control({
   label: "Share of remaining savings directed to your current goal",
-  format: d => `${d}%`,
-  value: 60
+  value: 60,
+  min: 0,
+  max: 100,
+  step: 5,
+  presets: [0, 25, 40, 50, 60, 75, 100],
+  help: "Choose 0% if you want to temporarily de-select goal funding and route savings elsewhere.",
+  accent: "#f39c12",
+  format: d => `${d}%`
 })
 ```
 
@@ -295,17 +508,23 @@ viewof wb_goal_share = Inputs.select([25, 40, 50, 60, 75, 100], {
 
 ```{ojs}
 //| echo: false
-viewof wb_other_account = Inputs.select(["403(b)", "HSA", "529 plan", "Cash buffer"], {
+viewof wb_other_account = wb_choice_control({
   label: "Direct any remaining savings to",
-  value: "HSA"
+  value: "HSA",
+  options: ["403(b)", "HSA", "529 plan", "Cash buffer"],
+  help: "Tap a destination button to reroute any remaining monthly savings.",
+  accent: "#3498db"
 })
 ```
 
 ```{ojs}
 //| echo: false
-viewof sg_goal_type = Inputs.select(["🏠 House Down Payment", "🚗 Car Purchase", "👶 Family / Childcare", "✈️ Other Goal"], {
+viewof sg_goal_type = wb_choice_control({
   label: "Current savings goal",
-  value: "🏠 House Down Payment"
+  value: "🏠 House Down Payment",
+  options: ["🏠 House Down Payment", "🚗 Car Purchase", "👶 Family / Childcare", "✈️ Other Goal"],
+  help: "The selected goal drives the timeline and projection cards below.",
+  accent: "#f39c12"
 })
 ```
 
@@ -326,28 +545,47 @@ sg_goal_info = sg_goal_defaults[sg_goal_type]
 
 ```{ojs}
 //| echo: false
-viewof sg_target = Inputs.select([2000, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 12000, 15000, 18000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 75000, 100000], {
+viewof sg_target = wb_number_control({
   label: `Target Amount ($) — ${sg_goal_info.label}`,
-  format: d => `$${d.toLocaleString()}`,
-  value: sg_goal_info.target
+  value: sg_goal_info.target,
+  min: 2000,
+  max: 150000,
+  step: 500,
+  presets: [5000, 8000, 12000, 20000, 30000, 50000, 100000],
+  help: "Enter any goal amount to match your actual target.",
+  accent: "#f39c12",
+  format: d => `$${wb_format_number(d)}`
 })
 ```
 
 ```{ojs}
 //| echo: false
-viewof sg_rate = Inputs.select([0, 1, 2, 3, 4, 4.5, 5, 5.5], {
+viewof sg_rate = wb_number_control({
   label: "Annual Interest / HYSA Rate (%)",
-  format: d => `${d}%`,
-  value: 4.5
+  value: 4.5,
+  min: 0,
+  max: 10,
+  step: 0.1,
+  presets: [0, 1, 2, 3, 4, 4.5, 5, 5.5],
+  help: "Type a current HYSA or CD rate for a custom projection.",
+  accent: "#27ae60",
+  decimals: 1,
+  format: d => `${wb_format_number(d, 1)}%`
 })
 ```
 
 ```{ojs}
 //| echo: false
-viewof sg_existing = Inputs.select([0, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 7500, 10000], {
+viewof sg_existing = wb_number_control({
   label: "Existing savings toward this goal ($)",
-  format: d => `$${d.toLocaleString()}`,
-  value: 0
+  value: 0,
+  min: 0,
+  max: 100000,
+  step: 250,
+  presets: [0, 500, 1000, 2500, 5000, 7500, 10000],
+  help: "Type what you already have saved so the timeline starts from the right place.",
+  accent: "#27ae60",
+  format: d => `$${wb_format_number(d)}`
 })
 ```
 
@@ -368,13 +606,18 @@ viewof wb_home_target = {
   const saved = parseFloat(localStorage.getItem('phd_home_goal_target') || '30000');
   const initVal = isFinite(saved) ? saved : 30000;
   const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 30000);
-  const el = Inputs.select(options, {
+  return wb_number_control({
     label: "Shared home down payment target ($) — also used in Family Planning",
-    format: d => `$${d.toLocaleString()}`,
-    value: nearest
+    value: nearest,
+    min: 5000,
+    max: 150000,
+    step: 1000,
+    presets: [10000, 20000, 30000, 50000, 75000, 100000],
+    help: "This value stays synced with the Family Planning page.",
+    accent: "#3498db",
+    storageKey: "phd_home_goal_target",
+    format: d => `$${wb_format_number(d)}`
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_target', String(el.value)));
-  return el;
 }
 ```
 
@@ -388,13 +631,19 @@ viewof wb_home_rate = {
   const saved = parseFloat(localStorage.getItem('phd_home_goal_rate') || '4.5');
   const initVal = isFinite(saved) ? saved : 4.5;
   const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 4.5);
-  const el = Inputs.select(options, {
+  return wb_number_control({
     label: "Shared home-fund APY (%) — also used in Family Planning",
-    format: d => `${d}%`,
-    value: nearest
+    value: nearest,
+    min: 0,
+    max: 10,
+    step: 0.1,
+    presets: [0, 1, 2, 3, 4, 4.5, 5, 5.5],
+    help: "Use the same APY here and in Family Planning for a consistent timeline.",
+    accent: "#27ae60",
+    storageKey: "phd_home_goal_rate",
+    decimals: 1,
+    format: d => `${wb_format_number(d, 1)}%`
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_rate', String(el.value)));
-  return el;
 }
 ```
 
@@ -408,13 +657,18 @@ viewof wb_home_existing = {
   const saved = parseFloat(localStorage.getItem('phd_home_goal_existing') || '0');
   const initVal = isFinite(saved) ? saved : 0;
   const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 0);
-  const el = Inputs.select(options, {
+  return wb_number_control({
     label: "Existing home savings ($) — also used in Family Planning",
-    format: d => `$${d.toLocaleString()}`,
-    value: nearest
+    value: nearest,
+    min: 0,
+    max: 100000,
+    step: 500,
+    presets: [0, 1000, 2500, 5000, 10000, 20000, 30000, 50000],
+    help: "Keep this synced with your actual home-fund balance across both pages.",
+    accent: "#3498db",
+    storageKey: "phd_home_goal_existing",
+    format: d => `$${wb_format_number(d)}`
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_existing', String(el.value)));
-  return el;
 }
 ```
 
