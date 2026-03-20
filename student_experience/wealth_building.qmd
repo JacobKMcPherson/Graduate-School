@@ -637,6 +637,9 @@ viewof wb_stipend = {
 }
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_savings_pct = wb_number_control({
@@ -653,6 +656,45 @@ viewof wb_savings_pct = wb_number_control({
 ```
 
 :::
+::: {.column width="25%"}
+
+```{ojs}
+//| echo: false
+viewof wb_goal_share = wb_number_control({
+  label: "Share of remaining savings directed to your current goal",
+  value: 60,
+  min: 0,
+  max: 100,
+  step: 5,
+  presets: [0, 25, 40, 50, 60, 75, 100],
+  help: "Choose 0% if you want to temporarily deselect goal funding and route savings elsewhere.",
+  accent: "#f39c12",
+  format: d => `${d}%`
+})
+```
+
+:::
+::: {.column width="25%"}
+
+```{ojs}
+//| echo: false
+viewof wb_extra_loan_payment = wb_number_control({
+  label: "Extra student-loan payment ($/mo)",
+  value: 100,
+  min: 0,
+  max: 1000,
+  step: 25,
+  presets: [0, 50, 100, 150, 250, 400, 500],
+  help: "Set this to $0 to pause extra payments while keeping minimums in your budget plan.",
+  accent: "#e67e22",
+  format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
+})
+```
+
+:::
+:::
+
+::: {.columns}
 ::: {.column width="25%"}
 
 ```{ojs}
@@ -677,38 +719,8 @@ viewof wb_ira_monthly = {
 }
 ```
 
-```{ojs}
-//| echo: false
-viewof wb_extra_loan_payment = wb_number_control({
-  label: "Extra student-loan payment ($/mo)",
-  value: 100,
-  min: 0,
-  max: 1000,
-  step: 25,
-  presets: [0, 50, 100, 150, 250, 400, 500],
-  help: "Set this to $0 to pause extra payments while keeping minimums in your budget plan.",
-  accent: "#e67e22",
-  format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
-})
-```
-
 :::
 ::: {.column width="25%"}
-
-```{ojs}
-//| echo: false
-viewof wb_goal_share = wb_number_control({
-  label: "Share of remaining savings directed to your current goal",
-  value: 60,
-  min: 0,
-  max: 100,
-  step: 5,
-  presets: [0, 25, 40, 50, 60, 75, 100],
-  help: "Choose 0% if you want to temporarily deselect goal funding and route savings elsewhere.",
-  accent: "#f39c12",
-  format: d => `${d}%`
-})
-```
 
 ```{ojs}
 //| echo: false
@@ -753,6 +765,9 @@ viewof wb_hsa_monthly = {
 }
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_529_monthly = {
@@ -772,6 +787,12 @@ viewof wb_529_monthly = {
   });
 }
 ```
+
+:::
+:::
+
+::: {.columns}
+::: {.column width="25%"}
 
 ```{ojs}
 //| echo: false
@@ -799,6 +820,9 @@ sg_goal_defaults = ({
 sg_goal_info = sg_goal_defaults[sg_goal_type]
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof sg_target = wb_number_control({
@@ -813,6 +837,9 @@ viewof sg_target = wb_number_control({
   format: d => `$${wb_format_number(d)}`
 })
 ```
+
+:::
+::: {.column width="25%"}
 
 ```{ojs}
 //| echo: false
@@ -829,6 +856,9 @@ viewof sg_rate = wb_number_control({
   format: d => `${wb_format_number(d, 1)}%`
 })
 ```
+
+:::
+::: {.column width="25%"}
 
 ```{ojs}
 //| echo: false
