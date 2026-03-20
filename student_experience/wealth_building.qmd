@@ -419,6 +419,12 @@ wb_input_theme = ({
   card: "linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,.98))"
 })
 
+wb_surface_white = "rgba(255,255,255,.98)"
+wb_budget_capacity_accent = "#1f7a8c"
+wb_hsa_accent = "#16a085"
+wb_529_accent = "#e67e22"
+wb_extra_loan_accent = "#d97706"
+
 wb_format_number = (value, digits = 0) =>
   Number(value).toLocaleString(undefined, {
     minimumFractionDigits: digits,
@@ -452,6 +458,35 @@ wb_chip_css = (active, accent) => `
   box-shadow:${active ? `0 5px 12px ${wb_alpha(accent, 0.12)}` : "none"};
 `
 
+wb_tinted_panel_css = accent => `
+  display:grid;
+  gap:8px;
+  padding:12px;
+  border:1px solid ${wb_alpha(accent, 0.28)};
+  border-radius:14px;
+  background:linear-gradient(180deg, ${wb_alpha(accent, 0.09)}, ${wb_surface_white});
+  box-shadow:0 8px 22px ${wb_alpha(accent, 0.08)};
+`
+
+wb_banner_css = accent => `
+  margin:16px 0 10px;
+  padding:12px 14px;
+  border:1px solid ${wb_alpha(accent, 0.28)};
+  border-left:5px solid ${accent};
+  border-radius:14px;
+  background:linear-gradient(90deg, ${wb_alpha(accent, 0.12)}, rgba(255,255,255,.96));
+`
+
+wb_metric_card_css = accent => `
+  padding:14px 10px;
+  border:1px solid ${wb_alpha(accent, 0.28)};
+  border-top:4px solid ${accent};
+  border-radius:12px;
+  text-align:center;
+  background:linear-gradient(180deg, ${wb_alpha(accent, 0.08)}, ${wb_surface_white});
+  box-shadow:0 8px 18px ${wb_alpha(accent, 0.08)};
+`
+
 wb_number_control = ({
   label,
   value,
@@ -466,7 +501,7 @@ wb_number_control = ({
   format = d => `${d}`
 }) => {
   const container = document.createElement("div");
-  container.style.cssText = `display:grid;gap:8px;padding:12px;border:1px solid ${wb_input_theme.border};border-radius:14px;background:${wb_input_theme.card};box-shadow:0 8px 22px rgba(15,23,42,.05);`;
+  container.style.cssText = wb_tinted_panel_css(accent);
 
   const title = document.createElement("div");
   title.style.cssText = "font-weight:700;line-height:1.35;";
@@ -573,7 +608,7 @@ wb_choice_control = ({
   accent = "#6f42c1"
 }) => {
   const container = document.createElement("div");
-  container.style.cssText = `display:grid;gap:8px;padding:12px;border:1px solid ${wb_input_theme.border};border-radius:14px;background:${wb_input_theme.card};box-shadow:0 8px 22px rgba(15,23,42,.05);`;
+  container.style.cssText = wb_tinted_panel_css(accent);
 
   const title = document.createElement("div");
   title.style.cssText = "font-weight:700;line-height:1.35;";
@@ -609,10 +644,36 @@ wb_choice_control = ({
   updateValue(value);
   return container;
 }
+
+wb_group_banner = ({step, title, description, accent}) => html`
+  <div style="${wb_banner_css(accent)}">
+    <div style="font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${accent};">${step}</div>
+    <div style="font-size:1rem;font-weight:700;line-height:1.25;margin-top:2px;">${title}</div>
+    <div style="font-size:.84rem;line-height:1.45;opacity:.78;margin-top:4px;">${description}</div>
+  </div>
+`
+
+wb_metric_card = ({label, value, note = "", accent = "#6c757d"}) => html`
+  <div style="${wb_metric_card_css(accent)}">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.68">${label}</div>
+    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:${accent};">${value}</div>
+    ${note ? html`<div style="font-size:.72rem;opacity:.68;margin-top:4px;">${note}</div>` : ""}
+  </div>
+`
+```
+
+```{ojs}
+//| echo: false
+wb_group_banner({
+  step: "Step 1",
+  title: "Income & savings target",
+  description: "Start with your stipend and target savings rate so the summary cards below can report a realistic monthly wealth-building ceiling.",
+  accent: "#27ae60"
+})
 ```
 
 ::: {.columns}
-::: {.column width="25%"}
+::: {.column width="50%"}
 
 ```{ojs}
 //| echo: false
@@ -638,7 +699,7 @@ viewof wb_stipend = {
 ```
 
 :::
-::: {.column width="25%"}
+::: {.column width="50%"}
 
 ```{ojs}
 //| echo: false
@@ -656,43 +717,17 @@ viewof wb_savings_pct = wb_number_control({
 ```
 
 :::
-::: {.column width="25%"}
+:::
 
 ```{ojs}
 //| echo: false
-viewof wb_goal_share = wb_number_control({
-  label: "Goal Share (%)",
-  value: 60,
-  min: 0,
-  max: 100,
-  step: 5,
-  presets: [0, 25, 40, 50, 60, 75, 100],
-  help: "Choose 0% if you want to temporarily deselect goal funding and route savings elsewhere.",
-  accent: "#f39c12",
-  format: d => `${d}%`
+wb_group_banner({
+  step: "Step 2",
+  title: "Tax-advantaged account mix",
+  description: "Choose the retirement and specialty accounts that fit your situation before you decide how much of the remaining savings goes to debt or a near-term goal.",
+  accent: "#3498db"
 })
 ```
-
-:::
-::: {.column width="25%"}
-
-```{ojs}
-//| echo: false
-viewof wb_extra_loan_payment = wb_number_control({
-  label: "Extra Loan ($/mo)",
-  value: 100,
-  min: 0,
-  max: 1000,
-  step: 25,
-  presets: [0, 50, 100, 150, 250, 400, 500],
-  help: "Set this to $0 to pause extra payments while keeping minimums in your budget plan.",
-  accent: "#e67e22",
-  format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
-})
-```
-
-:::
-:::
 
 ::: {.columns}
 ::: {.column width="25%"}
@@ -758,7 +793,7 @@ viewof wb_hsa_monthly = {
     step: 25,
     presets: [0, 25, 50, 100, 175, 250, 346],
     help: "Max $346/mo ($4,150/yr individual). Requires a qualifying high-deductible health plan (HDHP).",
-    accent: "#27ae60",
+    accent: wb_hsa_accent,
     storageKey: "phd_hsa_monthly",
     format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
   });
@@ -781,7 +816,7 @@ viewof wb_529_monthly = {
     step: 25,
     presets: [0, 25, 50, 100, 200, 300, 500],
     help: "Tax-free growth for qualified education expenses. No federal annual cap.",
-    accent: "#e67e22",
+    accent: wb_529_accent,
     storageKey: "phd_529_monthly",
     format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
   });
@@ -791,7 +826,53 @@ viewof wb_529_monthly = {
 :::
 :::
 
+```{ojs}
+//| echo: false
+wb_group_banner({
+  step: "Step 3",
+  title: "Debt payoff + current goal details",
+  description: "Use these controls to decide how the remaining monthly savings should be split between extra loan payoff and the goal timeline reporter further down the page.",
+  accent: "#f39c12"
+})
+```
+
 ::: {.columns}
+::: {.column width="25%"}
+
+```{ojs}
+//| echo: false
+viewof wb_extra_loan_payment = wb_number_control({
+  label: "Extra Loan ($/mo)",
+  value: 100,
+  min: 0,
+  max: 1000,
+  step: 25,
+  presets: [0, 50, 100, 150, 250, 400, 500],
+  help: "Set this to $0 to pause extra payments while keeping minimums in your budget plan.",
+  accent: wb_extra_loan_accent,
+  format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
+})
+```
+
+:::
+::: {.column width="25%"}
+
+```{ojs}
+//| echo: false
+viewof wb_goal_share = wb_number_control({
+  label: "Goal Share (%)",
+  value: 60,
+  min: 0,
+  max: 100,
+  step: 5,
+  presets: [0, 25, 40, 50, 60, 75, 100],
+  help: "Choose 0% if you want to temporarily deselect goal funding and route savings elsewhere.",
+  accent: "#f39c12",
+  format: d => `${d}%`
+})
+```
+
+:::
 ::: {.column width="25%"}
 
 ```{ojs}
@@ -803,21 +884,6 @@ viewof sg_goal_type = wb_choice_control({
   help: "The selected goal drives the timeline and projection cards below.",
   accent: "#f39c12"
 })
-```
-
-```{ojs}
-//| echo: false
-sg_goal_defaults = ({
-  "🏠 House Down Payment": {target: 30000, label: "Down payment (10–20% of home price)"},
-  "🚗 Car Purchase":       {target: 8000,  label: "Used car cash purchase or down payment"},
-  "👶 Family / Childcare": {target: 12000, label: "Birth, leave, or childcare buffer"},
-  "✈️ Other Goal":         {target: 5000,  label: "Custom savings target"}
-})
-```
-
-```{ojs}
-//| echo: false
-sg_goal_info = sg_goal_defaults[sg_goal_type]
 ```
 
 :::
@@ -839,7 +905,10 @@ viewof sg_target = wb_number_control({
 ```
 
 :::
-::: {.column width="25%"}
+:::
+
+::: {.columns}
+::: {.column width="50%"}
 
 ```{ojs}
 //| echo: false
@@ -858,7 +927,7 @@ viewof sg_rate = wb_number_control({
 ```
 
 :::
-::: {.column width="25%"}
+::: {.column width="50%"}
 
 ```{ojs}
 //| echo: false
@@ -877,6 +946,21 @@ viewof sg_existing = wb_number_control({
 
 :::
 :::
+
+```{ojs}
+//| echo: false
+sg_goal_defaults = ({
+  "🏠 House Down Payment": {target: 30000, label: "Down payment (10–20% of home price)"},
+  "🚗 Car Purchase":       {target: 8000,  label: "Used car cash purchase or down payment"},
+  "👶 Family / Childcare": {target: 12000, label: "Birth, leave, or childcare buffer"},
+  "✈️ Other Goal":         {target: 5000,  label: "Custom savings target"}
+})
+```
+
+```{ojs}
+//| echo: false
+sg_goal_info = sg_goal_defaults[sg_goal_type]
+```
 
 ::: {.callout-tip appearance="simple"}
 ### Shared Home Goal Inputs
@@ -986,50 +1070,45 @@ wb_debt_monthly      = Math.min(wb_extra_loan_payment, wb_after_core)
 wb_after_debt        = Math.max(0, wb_after_core - wb_debt_monthly)
 wb_goal_monthly      = Math.round(wb_after_debt * wb_goal_share / 100)
 
-html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
-  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Take-Home/mo</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${wb_monthly_net}</div>
+html`<div style="display:grid;gap:16px;margin-top:16px;">
+  ${wb_group_banner({
+    step: "Reporter",
+    title: "Cash-flow reporter",
+    description: "These cards summarize the monthly ceiling created by your stipend, savings-rate target, and budget planner selections.",
+    accent: "#27ae60"
+  })}
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
+    ${wb_metric_card({label: "Take-Home/mo", value: `$${wb_monthly_net.toLocaleString()}`, accent: "#27ae60"})}
+    ${wb_metric_card({label: "Budget Planner Capacity", value: `$${wb_budget_capacity.toLocaleString()}`, note: "Selected savings + budget surplus", accent: wb_budget_capacity_accent})}
+    ${wb_metric_card({label: "Wealth Plan Target", value: `$${wb_savings_amt.toLocaleString()}`, note: `${wb_savings_pct}% of take-home`, accent: "#27ae60"})}
+    ${wb_metric_card({
+      label: "Planner Alignment",
+      value: wb_alignment_gap >= 0 ? "Within budget" : "Needs more room",
+      note: wb_alignment_gap >= 0 ? `$${wb_alignment_gap.toLocaleString()}/mo left over` : `$${Math.abs(wb_alignment_gap).toLocaleString()}/mo short`,
+      accent: wb_alignment_gap >= 0 ? "#27ae60" : "#e74c3c"
+    })}
   </div>
-  <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Budget Planner Capacity</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;">$${wb_budget_capacity.toLocaleString()}</div>
-    <div style="font-size:.72rem;opacity:.65;">Savings selected + surplus above</div>
+  ${wb_group_banner({
+    step: "Reporter",
+    title: "Account contribution reporter",
+    description: "These cards mirror the retirement and specialty account controls above so you can confirm each monthly contribution at a glance.",
+    accent: "#3498db"
+  })}
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
+    ${wb_metric_card({label: "Roth IRA", value: `$${wb_ira_effective.toLocaleString()}`, accent: "#8e44ad"})}
+    ${wb_metric_card({label: "403(b)", value: `$${(wb_403b_monthly || 0).toLocaleString()}`, accent: "#3498db"})}
+    ${wb_metric_card({label: "HSA", value: `$${(wb_hsa_monthly || 0).toLocaleString()}`, accent: wb_hsa_accent})}
+    ${wb_metric_card({label: "529 Plan", value: `$${(wb_529_monthly || 0).toLocaleString()}`, accent: wb_529_accent})}
   </div>
-  <div style="padding:14px 10px;border:2px solid #27ae60;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Wealth Plan Target</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#27ae60;">$${wb_savings_amt}</div>
-    <div style="font-size:.72rem;opacity:.65;">${wb_savings_pct}% of take-home</div>
-  </div>
-  <div style="padding:14px 10px;border:2px solid #8e44ad;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Roth IRA</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#8e44ad;">$${wb_ira_effective}</div>
-  </div>
-  <div style="padding:14px 10px;border:2px solid #e67e22;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Extra Loan Payment</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e67e22;">$${wb_debt_monthly}</div>
-  </div>
-  <div style="padding:14px 10px;border:2px solid #f39c12;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Goal Savings</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#f39c12;">$${wb_goal_monthly}</div>
-    <div style="font-size:.72rem;opacity:.65;">${sg_goal_type}</div>
-  </div>
-  <div style="padding:14px 10px;border:2px solid #3498db;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">403(b)</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#3498db;">$${wb_403b_monthly || 0}</div>
-  </div>
-  <div style="padding:14px 10px;border:2px solid #27ae60;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">HSA</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#27ae60;">$${wb_hsa_monthly || 0}</div>
-  </div>
-  <div style="padding:14px 10px;border:2px solid #e67e22;border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">529 Plan</div>
-    <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#e67e22;">$${wb_529_monthly || 0}</div>
-  </div>
-  <div style="padding:14px 10px;border:2px solid ${wb_alignment_gap >= 0 ? '#27ae60' : '#e74c3c'};border-radius:8px;text-align:center;">
-    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6">Planner Alignment</div>
-    <div style="font-size:1.1rem;font-weight:700;margin-top:4px;color:${wb_alignment_gap >= 0 ? '#27ae60' : '#e74c3c'};">${wb_alignment_gap >= 0 ? 'Within budget' : 'Needs more room'}</div>
-    <div style="font-size:.72rem;opacity:.65;">${wb_alignment_gap >= 0 ? `$${wb_alignment_gap.toLocaleString()}/mo left over` : `$${Math.abs(wb_alignment_gap).toLocaleString()}/mo short`}</div>
+  ${wb_group_banner({
+    step: "Reporter",
+    title: "Debt + goal reporter",
+    description: "Your extra loan payment and current-goal allocation feed the goal timeline and home-fund projection cards in the sections below.",
+    accent: "#f39c12"
+  })}
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
+    ${wb_metric_card({label: "Extra Loan Payment", value: `$${wb_debt_monthly.toLocaleString()}`, accent: wb_extra_loan_accent})}
+    ${wb_metric_card({label: "Goal Savings", value: `$${wb_goal_monthly.toLocaleString()}`, note: sg_goal_type, accent: "#f39c12"})}
   </div>
 </div>`
 ```
