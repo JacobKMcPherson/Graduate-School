@@ -52,9 +52,13 @@ hr {
   align-items: start;
 }
 
-.wealth-planner-split__inputs,
+.wealth-planner-split > .callout,
 .wealth-planner-split__outputs {
   min-width: 0;
+}
+
+.wealth-planner-split > .level3 {
+  grid-column: 1 / -1;
 }
 
 .wealth-planner-two-up {
@@ -65,7 +69,7 @@ hr {
 }
 
 @media (min-width: 1200px) {
-  .wealth-planner-split__inputs,
+  .wealth-planner-split > .callout,
   .wealth-planner-split__outputs {
     max-height: calc(100vh - 8rem);
     overflow-y: auto;
@@ -79,7 +83,7 @@ hr {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .wealth-planner-split__inputs,
+  .wealth-planner-split > .callout,
   .wealth-planner-split__outputs {
     max-height: none;
     overflow: visible;

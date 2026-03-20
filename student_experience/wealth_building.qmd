@@ -405,8 +405,7 @@ Plot.plot({
 
 Use this section to connect your **take-home pay, savings rate, Roth IRA contribution, student-loan strategy, and major savings goal** in one place.
 
-::: {.wealth-planner-split}
-::: {.wealth-planner-split__inputs}
+::::: {.wealth-planner-split}
 
 ::: {.callout-note appearance="simple"}
 ### Planner Inputs
@@ -1049,7 +1048,7 @@ viewof wb_home_existing = {
 :::
 
 :::
-::: {.wealth-planner-split__outputs}
+:::: {.wealth-planner-split__outputs}
 
 ```{ojs}
 //| echo: false
@@ -1430,8 +1429,8 @@ Plot.plot({
 })
 ```
 
-:::
-:::
+::::
+:::::
 
 ### 🧾 Account Options & Debt Strategy
 
@@ -1459,8 +1458,6 @@ If you carry undergraduate loans into graduate school:
 
 - [Federal Student Aid Loan Simulator](https://studentaid.gov/loan-simulator/)
 - [PSLF Help Tool](https://studentaid.gov/pslf/)
-
-:::
 
 ### Additional Resources
 
