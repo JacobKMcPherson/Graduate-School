@@ -62,7 +62,7 @@ When joining this project, please review the CRediT roles below and select the r
 
 Example:
 ```markdown
-| **Resources**           | ... | @your-github-username |
+| **Resources**           | ... | @mcphersonlab |
 ```
 
 ### 3. Collaboration Guidelines
