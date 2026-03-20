@@ -612,7 +612,7 @@ wb_choice_control = ({
 ```
 
 ::: {.columns}
-::: {.column width="50%"}
+::: {.column width="25%"}
 
 ```{ojs}
 //| echo: false
@@ -623,13 +623,13 @@ viewof wb_stipend = {
   const initVal = isFinite(wb_stipend_init) ? wb_stipend_init : 30000;
   const nearest = options.reduce((a,b) => Math.abs(b-initVal)<Math.abs(a-initVal)?b:a, 30000);
   return wb_number_control({
-    label: "Annual Stipend (pre-tax, $) — override if needed",
+    label: "Stipend ($/yr)",
     value: nearest,
     min: 15000,
     max: 60000,
     step: 1000,
     presets: [20000, 25000, 30000, 35000, 40000, 50000],
-    help: "Type any stipend amount or tap a quick-select button.",
+    help: "Enter your annual pre-tax stipend, or tap a quick-select amount.",
     accent: "#27ae60",
     storageKey: "phd_annual_stipend",
     format: d => `$${wb_format_number(d)}`
@@ -637,10 +637,13 @@ viewof wb_stipend = {
 }
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_savings_pct = wb_number_control({
-  label: "Savings, debt payoff & goal allocation (% of take-home)",
+  label: "Savings Rate (%)",
   value: 15,
   min: 0,
   max: 40,
@@ -652,47 +655,13 @@ viewof wb_savings_pct = wb_number_control({
 })
 ```
 
-```{ojs}
-//| echo: false
-viewof wb_ira_monthly = {
-  const saved = parseFloat(localStorage.getItem('phd_ira_monthly') || '100');
-  const options = [0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 350, 400, 450, 500, 550, 583];
-  const initSaved = isFinite(saved) ? saved : 100;
-  const nearest = options.reduce((a,b) => Math.abs(b-initSaved)<Math.abs(a-initSaved)?b:a, 100);
-  return wb_number_control({
-    label: "Monthly Roth IRA Contribution ($) — max $583/mo to hit $7,000/yr limit",
-    value: nearest,
-    min: 0,
-    max: 583,
-    step: 25,
-    presets: [0, 50, 100, 150, 250, 400, 583],
-    help: "Use quick amounts or type a custom monthly contribution.",
-    accent: "#8e44ad",
-    storageKey: "phd_ira_monthly",
-    format: d => `$${wb_format_number(d)}/mo`
-  });
-}
-```
-
-```{ojs}
-//| echo: false
-viewof wb_extra_loan_payment = wb_number_control({
-  label: "Extra student-loan payment ($/mo)",
-  value: 100,
-  min: 0,
-  max: 1000,
-  step: 25,
-  presets: [0, 50, 100, 150, 250, 400, 500],
-  help: "Set this to $0 to pause extra payments while keeping minimums in your budget plan.",
-  accent: "#e67e22",
-  format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
-})
-```
+:::
+::: {.column width="25%"}
 
 ```{ojs}
 //| echo: false
 viewof wb_goal_share = wb_number_control({
-  label: "Share of remaining savings directed to your current goal",
+  label: "Goal Share (%)",
   value: 60,
   min: 0,
   max: 100,
@@ -705,7 +674,53 @@ viewof wb_goal_share = wb_number_control({
 ```
 
 :::
-::: {.column width="50%"}
+::: {.column width="25%"}
+
+```{ojs}
+//| echo: false
+viewof wb_extra_loan_payment = wb_number_control({
+  label: "Extra Loan ($/mo)",
+  value: 100,
+  min: 0,
+  max: 1000,
+  step: 25,
+  presets: [0, 50, 100, 150, 250, 400, 500],
+  help: "Set this to $0 to pause extra payments while keeping minimums in your budget plan.",
+  accent: "#e67e22",
+  format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
+})
+```
+
+:::
+:::
+
+::: {.columns}
+::: {.column width="25%"}
+
+```{ojs}
+//| echo: false
+viewof wb_ira_monthly = {
+  const saved = parseFloat(localStorage.getItem('phd_ira_monthly') || '100');
+  const options = [0, 25, 50, 75, 100, 125, 150, 200, 250, 300, 350, 400, 450, 500, 550, 583];
+  const initSaved = isFinite(saved) ? saved : 100;
+  const nearest = options.reduce((a,b) => Math.abs(b-initSaved)<Math.abs(a-initSaved)?b:a, 100);
+  return wb_number_control({
+    label: "Roth IRA ($/mo)",
+    value: nearest,
+    min: 0,
+    max: 583,
+    step: 25,
+    presets: [0, 50, 100, 150, 250, 400, 583],
+    help: "Use quick amounts or type a custom monthly contribution. Max $583/mo for the $7,000/yr limit.",
+    accent: "#8e44ad",
+    storageKey: "phd_ira_monthly",
+    format: d => `$${wb_format_number(d)}/mo`
+  });
+}
+```
+
+:::
+::: {.column width="25%"}
 
 ```{ojs}
 //| echo: false
@@ -713,13 +728,13 @@ viewof wb_403b_monthly = {
   const saved = parseFloat(localStorage.getItem('phd_403b_monthly') || '0');
   const initVal = isFinite(saved) ? saved : 0;
   return wb_number_control({
-    label: "Monthly 403(b) Contribution ($) — max $1,917/mo ($23,000/yr)",
+    label: "403(b) ($/mo)",
     value: initVal,
     min: 0,
     max: 1917,
     step: 25,
     presets: [0, 50, 100, 200, 300, 500, 1000, 1917],
-    help: "Prioritize if your university offers an employer match. Pre-tax; taxed on withdrawal.",
+    help: "Max $1,917/mo ($23,000/yr). Prioritize if your university offers an employer match. Pre-tax; taxed on withdrawal.",
     accent: "#3498db",
     storageKey: "phd_403b_monthly",
     format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
@@ -727,19 +742,22 @@ viewof wb_403b_monthly = {
 }
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_hsa_monthly = {
   const saved = parseFloat(localStorage.getItem('phd_hsa_monthly') || '0');
   const initVal = isFinite(saved) ? saved : 0;
   return wb_number_control({
-    label: "Monthly HSA Contribution ($) — max $346/mo ($4,150/yr individual)",
+    label: "HSA ($/mo)",
     value: initVal,
     min: 0,
     max: 346,
     step: 25,
     presets: [0, 25, 50, 100, 175, 250, 346],
-    help: "Requires a qualifying high-deductible health plan (HDHP). Triple tax advantage.",
+    help: "Max $346/mo ($4,150/yr individual). Requires a qualifying high-deductible health plan (HDHP).",
     accent: "#27ae60",
     storageKey: "phd_hsa_monthly",
     format: d => d === 0 ? "None" : `$${wb_format_number(d)}/mo`
@@ -747,13 +765,16 @@ viewof wb_hsa_monthly = {
 }
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_529_monthly = {
   const saved = parseFloat(localStorage.getItem('phd_529_monthly') || '0');
   const initVal = isFinite(saved) ? saved : 0;
   return wb_number_control({
-    label: "Monthly 529 Plan Contribution ($)",
+    label: "529 ($/mo)",
     value: initVal,
     min: 0,
     max: 1500,
@@ -767,10 +788,16 @@ viewof wb_529_monthly = {
 }
 ```
 
+:::
+:::
+
+::: {.columns}
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof sg_goal_type = wb_choice_control({
-  label: "Current savings goal",
+  label: "Current Goal",
   value: "🏠 House Down Payment",
   options: ["🏠 House Down Payment", "🚗 Car Purchase", "👶 Family / Childcare", "✈️ Other Goal"],
   help: "The selected goal drives the timeline and projection cards below.",
@@ -793,41 +820,50 @@ sg_goal_defaults = ({
 sg_goal_info = sg_goal_defaults[sg_goal_type]
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof sg_target = wb_number_control({
-  label: `Target Amount ($) — ${sg_goal_info.label}`,
+  label: "Goal Amount ($)",
   value: sg_goal_info.target,
   min: 2000,
   max: 150000,
   step: 500,
   presets: [5000, 8000, 12000, 20000, 30000, 50000, 100000],
-  help: "Enter any goal amount to match your actual target.",
+  help: `Enter the amount for your ${sg_goal_info.label.toLowerCase()}.`,
   accent: "#f39c12",
   format: d => `$${wb_format_number(d)}`
 })
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof sg_rate = wb_number_control({
-  label: "Annual Interest / HYSA Rate (%)",
+  label: "HYSA Rate (%)",
   value: 4.5,
   min: 0,
   max: 10,
   step: 0.1,
   presets: [0, 1, 2, 3, 4, 4.5, 5, 5.5],
-  help: "Type a current HYSA or CD rate for a custom projection.",
+  help: "Type a current HYSA or CD rate for this projection.",
   accent: "#27ae60",
   decimals: 1,
   format: d => `${wb_format_number(d, 1)}%`
 })
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof sg_existing = wb_number_control({
-  label: "Existing savings toward this goal ($)",
+  label: "Current Saved ($)",
   value: 0,
   min: 0,
   max: 150000,
@@ -839,7 +875,6 @@ viewof sg_existing = wb_number_control({
 })
 ```
 
-:::
 :::
 :::
 
