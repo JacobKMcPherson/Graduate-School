@@ -612,7 +612,7 @@ wb_choice_control = ({
 ```
 
 ::: {.columns}
-::: {.column width="50%"}
+::: {.column width="25%"}
 
 ```{ojs}
 //| echo: false
@@ -652,6 +652,9 @@ viewof wb_savings_pct = wb_number_control({
 })
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_ira_monthly = {
@@ -689,6 +692,9 @@ viewof wb_extra_loan_payment = wb_number_control({
 })
 ```
 
+:::
+::: {.column width="25%"}
+
 ```{ojs}
 //| echo: false
 viewof wb_goal_share = wb_number_control({
@@ -703,9 +709,6 @@ viewof wb_goal_share = wb_number_control({
   format: d => `${d}%`
 })
 ```
-
-:::
-::: {.column width="50%"}
 
 ```{ojs}
 //| echo: false
@@ -726,6 +729,9 @@ viewof wb_403b_monthly = {
   });
 }
 ```
+
+:::
+::: {.column width="25%"}
 
 ```{ojs}
 //| echo: false
@@ -839,7 +845,6 @@ viewof sg_existing = wb_number_control({
 })
 ```
 
-:::
 :::
 :::
 
