@@ -693,7 +693,7 @@ col_expenses_base = [
   {item: "Utilities (electric, gas, water, internet)", base: 150, notes: "Typically $100–$200/mo"},
   {item: "Groceries",                             base: 380,  notes: "USDA moderate-cost plan"},
   {item: "Transportation",                        base: 120,  notes: "Transit pass or car; check university discount"},
-  {item: "Health insurance premium",              base: 80,   notes: "If not fully covered; see Health Insurance guide"},
+  {item: "Health insurance premium",              base: 120,  notes: "City-adjusted; typical university plan"},
   {item: "Dental / vision",                       base: 30,   notes: "If not covered by university plan"},
   {item: "Phone",                                 base: 60,   notes: "Budget carriers from ~$25/mo"},
   {item: "Personal care & clothing",              base: 80,   notes: ""},
