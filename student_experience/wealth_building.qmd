@@ -30,13 +30,107 @@ Use the interactive budget below. **Check or uncheck line items** to include or 
 
 ```{ojs}
 //| echo: false
-// Load shared state from localStorage
-bud_city_name = localStorage.getItem('phd_city') || 'Austin, TX'
-bud_coli_raw  = parseFloat(localStorage.getItem('phd_city_coli') || '100')
-bud_coli      = isFinite(bud_coli_raw) ? bud_coli_raw : 100
-bud_stipend_raw = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
-bud_stipend   = isFinite(bud_stipend_raw) ? bud_stipend_raw : 30000
-bud_monthly_net = Math.round((bud_stipend / 12) * 0.88)
+// Load shared state from localStorage, but allow the user to edit the linked values here.
+bud_initial_city_name = localStorage.getItem('phd_city') || 'Austin, TX'
+bud_initial_coli_raw  = parseFloat(localStorage.getItem('phd_city_coli') || '100')
+bud_initial_coli      = isFinite(bud_initial_coli_raw) ? bud_initial_coli_raw : 100
+bud_initial_stipend_raw = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
+bud_initial_stipend   = isFinite(bud_initial_stipend_raw) ? bud_initial_stipend_raw : 30000
+bud_austin_living_wage = 36000
+bud_living_wage_per_coli_point = bud_austin_living_wage / 100
+bud_take_home_multiplier = 0.88
+bud_clamp = (value, min, max, fallback) => {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return fallback
+  return Math.min(max, Math.max(min, parsed))
+}
+
+viewof bud_profile = {
+  const container = document.createElement('div')
+  container.style.cssText = 'display:grid;gap:10px;margin:10px 0 14px;padding:14px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:12px;background:rgba(39,174,96,.04);'
+
+  const title = document.createElement('div')
+  title.style.cssText = 'font-weight:700;line-height:1.35;'
+  title.textContent = 'Linked city and stipend inputs'
+
+  const helper = document.createElement('div')
+  helper.style.cssText = 'font-size:.8rem;line-height:1.45;opacity:.78;'
+  helper.textContent = 'These values start with the linked selections from Salary & Cost of Living, but you can fine-tune them here without rechecking each budget line item.'
+
+  const grid = document.createElement('div')
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;'
+
+  const fieldStyle = 'padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;background:var(--bs-body-bg,#fff);color:inherit;font:inherit;'
+  const makeField = (labelText, input) => {
+    const label = document.createElement('label')
+    label.style.cssText = 'display:flex;flex-direction:column;gap:6px;font-weight:600;'
+    const span = document.createElement('span')
+    span.textContent = labelText
+    label.append(span, input)
+    return label
+  }
+
+  const cityInput = document.createElement('input')
+  cityInput.type = 'text'
+  cityInput.value = bud_initial_city_name
+  cityInput.placeholder = 'e.g. Austin, TX'
+  cityInput.style.cssText = fieldStyle
+
+  const coliInput = document.createElement('input')
+  coliInput.type = 'number'
+  coliInput.min = '60'
+  coliInput.max = '220'
+  coliInput.step = '1'
+  coliInput.value = String(bud_initial_coli)
+  coliInput.style.cssText = fieldStyle
+
+  const stipendInput = document.createElement('input')
+  stipendInput.type = 'number'
+  stipendInput.min = '15000'
+  stipendInput.max = '60000'
+  stipendInput.step = '1000'
+  stipendInput.value = String(bud_initial_stipend)
+  stipendInput.style.cssText = fieldStyle
+
+  grid.append(
+    makeField('City', cityInput),
+    makeField('City Cost Index', coliInput),
+    makeField('Annual Stipend (pre-tax, $)', stipendInput)
+  )
+
+  const sync = () => {
+    const name = (cityInput.value || '').trim() || 'Austin, TX'
+    const coli = bud_clamp(coliInput.value, 60, 220, 100)
+    const stipend = bud_clamp(stipendInput.value, 15000, 60000, 30000)
+    coliInput.value = String(coli)
+    stipendInput.value = String(stipend)
+    localStorage.setItem('phd_city', name)
+    localStorage.setItem('phd_city_coli', String(coli))
+    // Salary & Cost of Living derives cost index from MIT living wage data using the same
+    // Austin baseline (cost index 100 ↔ ~$36,000 living wage), so this inverse calculation
+    // keeps the shared living-wage value aligned when the budget planner overrides city costs.
+    localStorage.setItem('phd_city_living_wage', String(Math.round(coli * bud_living_wage_per_coli_point)))
+    localStorage.setItem('phd_annual_stipend', String(stipend))
+    container.value = {name, coli, stipend}
+    container.dispatchEvent(new Event('input'))
+  }
+
+  ;[cityInput, coliInput, stipendInput].forEach((input) => {
+    input.addEventListener('input', sync)
+    input.addEventListener('change', sync)
+  })
+
+  container.append(title, helper, grid)
+  sync()
+  return container
+}
+
+bud_city_name = bud_profile.name
+bud_coli      = bud_profile.coli
+bud_stipend   = bud_profile.stipend
+// 0.88 ≈ 1 − 12% effective federal+state tax rate for a typical U.S. grad-student stipend;
+// this keeps the budget planner aligned with the same rough take-home assumption used elsewhere on the page.
+bud_monthly_net = Math.round((bud_stipend / 12) * bud_take_home_multiplier)
 
 // City-scaled budget line items
 // Base amounts are for cost index 100 (Austin, TX); rent/transport/groceries scale with the shared city cost index
@@ -45,11 +139,11 @@ bud_lines_def = [
   {id:"stipend",   label:"Net Stipend (after taxes)",              type:"income",  base: bud_monthly_net, scale:false, checked:true,  notes:"≈ stipend ÷ 12 × 0.88"},
   {id:"side",      label:"Side Income (tutoring, consulting…)",    type:"income",  base: 0,               scale:false, checked:false, notes:"Enter your monthly amount →", editable:true},
   // NEEDS
-  {id:"rent",      label:"Rent",                                   type:"needs",   base: 1050,            scale:true,  checked:true,  notes:"1BR; on-campus may be cheaper"},
-  {id:"util",      label:"Utilities (electric, gas, internet)",    type:"needs",   base: 150,             scale:true,  checked:true,  notes:"Avg. $100–$200"},
-  {id:"grocery",   label:"Groceries",                              type:"needs",   base: 380,             scale:true,  checked:true,  notes:"USDA moderate-cost plan"},
-  {id:"transport", label:"Transportation",                         type:"needs",   base: 120,             scale:true,  checked:true,  notes:"Transit pass or car"},
-  {id:"insurance", label:"Health Insurance Premium",               type:"needs",   base: 120,             scale:true,  checked:true,  notes:"City-adjusted; avg. university plan"},
+  {id:"rent",      label:"Rent",                                   type:"needs",   base: 1050,            scale:true,  checked:true,  notes:"1BR; on-campus may be cheaper", editable:true, prefill:"scaled"},
+  {id:"util",      label:"Utilities (electric, gas, internet)",    type:"needs",   base: 150,             scale:true,  checked:true,  notes:"Avg. $100–$200", editable:true, prefill:"scaled"},
+  {id:"grocery",   label:"Groceries",                              type:"needs",   base: 380,             scale:true,  checked:true,  notes:"USDA moderate-cost plan", editable:true, prefill:"scaled"},
+  {id:"transport", label:"Transportation",                         type:"needs",   base: 120,             scale:true,  checked:true,  notes:"Transit pass or car", editable:true, prefill:"scaled"},
+  {id:"insurance", label:"Health Insurance Premium",               type:"needs",   base: 120,             scale:true,  checked:true,  notes:"City-adjusted; avg. university plan", editable:true, prefill:"scaled"},
   {id:"phone",     label:"Phone",                                  type:"needs",   base: 60,              scale:false, checked:true,  notes:"Budget carriers from ~$25"},
   {id:"loans",     label:"Minimum Loan Payments",                  type:"needs",   base: 0,               scale:false, checked:false, notes:"Enter your monthly minimum →", editable:true},
   // WANTS
@@ -68,7 +162,7 @@ bud_lines_def = [
 ```{ojs}
 //| echo: false
 // Build checkbox table — HTML form; OJS reactive on checked IDs
-// Editable items (side income, min loan) render an inline number input instead of a static amount.
+// Editable items render an inline number input instead of a static amount.
 viewof bud_checked = {
   const typeColors = {income:"#27ae60", needs:"#e74c3c", wants:"#3498db", savings:"#8e44ad"};
   const typeBg     = {income:"rgba(39,174,96,.08)", needs:"rgba(231,76,60,.07)", wants:"rgba(52,152,219,.07)", savings:"rgba(142,68,173,.07)"};
@@ -102,10 +196,17 @@ viewof bud_checked = {
       card.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:start;padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;background:var(--bs-body-bg,#fff);cursor:pointer;';
 
       if (l.editable) {
-        // Restore previously entered amount from localStorage; auto-include if saved amount > 0
-        const savedAmt = Math.max(0, parseFloat(localStorage.getItem(`phd_bud_${l.id}`) || '0') || 0);
+        // Pre-populate city-scaled needs from the current linked city unless the user has already saved an override.
+        const savedRaw = localStorage.getItem(`phd_bud_${l.id}`);
+        const defaultAmt = l.prefill === 'scaled' ? scaled : l.base;
+        const savedAmt = savedRaw === null
+          ? defaultAmt
+          : Math.max(0, parseFloat(savedRaw || '0') || 0);
         editableAmounts[l.id] = savedAmt;
-        if (savedAmt > 0) checked.add(l.id);
+        if (savedRaw !== null) {
+          if (savedAmt > 0) checked.add(l.id);
+          else checked.delete(l.id);
+        }
         card.innerHTML = `
           <input type="checkbox" id="cb_${l.id}" ${checked.has(l.id) ? 'checked' : ''} style="margin-top:4px;cursor:pointer;">
           <div style="display:grid;gap:4px;min-width:0;">
@@ -342,13 +443,13 @@ wb_chip_css = (active, accent) => `
   background:${active ? wb_alpha(accent, 0.09) : wb_input_theme.bg};
   color:${active ? accent : wb_input_theme.text};
   border-radius:999px;
-  padding:6px 12px;
-  font-size:.8rem;
+  padding:4px 10px;
+  font-size:.76rem;
   font-weight:${active ? "700" : "600"};
-  line-height:1.2;
+  line-height:1.1;
   cursor:pointer;
   transition:all .15s ease;
-  box-shadow:${active ? `0 8px 18px ${wb_alpha(accent, 0.14)}` : "none"};
+  box-shadow:${active ? `0 5px 12px ${wb_alpha(accent, 0.12)}` : "none"};
 `
 
 wb_number_control = ({
@@ -365,23 +466,23 @@ wb_number_control = ({
   format = d => `${d}`
 }) => {
   const container = document.createElement("div");
-  container.style.cssText = `display:grid;gap:10px;padding:14px;border:1px solid ${wb_input_theme.border};border-radius:16px;background:${wb_input_theme.card};box-shadow:0 10px 28px rgba(15,23,42,.05);`;
+  container.style.cssText = `display:grid;gap:8px;padding:12px;border:1px solid ${wb_input_theme.border};border-radius:14px;background:${wb_input_theme.card};box-shadow:0 8px 22px rgba(15,23,42,.05);`;
 
   const title = document.createElement("div");
   title.style.cssText = "font-weight:700;line-height:1.35;";
   title.textContent = label;
 
   const row = document.createElement("div");
-  row.style.cssText = "display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;";
+  row.style.cssText = "display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px;align-items:center;";
 
   const minus = document.createElement("button");
   minus.type = "button";
   minus.textContent = "−";
   minus.setAttribute("aria-label", `Decrease ${label}`);
-  minus.style.cssText = wb_chip_css(false, accent) + "min-width:38px;padding:9px 0;font-size:1rem;";
+  minus.style.cssText = wb_chip_css(false, accent) + "min-width:34px;padding:7px 0;font-size:.95rem;";
 
   const inputWrap = document.createElement("div");
-  inputWrap.style.cssText = `display:grid;gap:4px;padding:10px 12px;border:1px solid ${wb_input_theme.border};border-radius:14px;background:${wb_input_theme.bg};`;
+  inputWrap.style.cssText = `display:grid;gap:4px;padding:9px 11px;border:1px solid ${wb_input_theme.border};border-radius:12px;background:${wb_input_theme.bg};`;
 
   const input = document.createElement("input");
   input.type = "number";
@@ -400,12 +501,12 @@ wb_number_control = ({
   plus.type = "button";
   plus.textContent = "+";
   plus.setAttribute("aria-label", `Increase ${label}`);
-  plus.style.cssText = wb_chip_css(false, accent) + "min-width:38px;padding:9px 0;font-size:1rem;";
+  plus.style.cssText = wb_chip_css(false, accent) + "min-width:34px;padding:7px 0;font-size:.95rem;";
 
   row.append(minus, inputWrap, plus);
 
   const chips = document.createElement("div");
-  chips.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;";
+  chips.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;";
 
   const hint = document.createElement("div");
   hint.style.cssText = "font-size:.78rem;line-height:1.4;opacity:.72;";
@@ -472,14 +573,14 @@ wb_choice_control = ({
   accent = "#6f42c1"
 }) => {
   const container = document.createElement("div");
-  container.style.cssText = `display:grid;gap:10px;padding:14px;border:1px solid ${wb_input_theme.border};border-radius:16px;background:${wb_input_theme.card};box-shadow:0 10px 28px rgba(15,23,42,.05);`;
+  container.style.cssText = `display:grid;gap:8px;padding:12px;border:1px solid ${wb_input_theme.border};border-radius:14px;background:${wb_input_theme.card};box-shadow:0 8px 22px rgba(15,23,42,.05);`;
 
   const title = document.createElement("div");
   title.style.cssText = "font-weight:700;line-height:1.35;";
   title.textContent = label;
 
   const chips = document.createElement("div");
-  chips.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;";
+  chips.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;";
 
   const hint = document.createElement("div");
   hint.style.cssText = "font-size:.78rem;line-height:1.4;opacity:.72;";

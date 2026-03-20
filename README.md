@@ -12,7 +12,7 @@ This repository is a **comprehensive toolkit** for PhD students, combining acade
 
 These guides are rendered as an interactive [Quarto](https://quarto.org/) website via GitHub Actions and deployed to GitHub Pages. The source files live in the [`student_experience/`](student_experience/) directory.
 
-> 🌐 **[View the live website](https://jacobkmcpherson.github.io/Graduate-School/)**
+> 🌐 **[View the live website](https://mcphersonlab.github.io/Graduate-School/)**
 
 | Resource | Description |
 |---|---|
@@ -62,7 +62,7 @@ When joining this project, please review the CRediT roles below and select the r
 
 Example:
 ```markdown
-| **Resources**           | ... | @JacobKMcPherson |
+| **Resources**           | ... | @mcphersonlab |
 ```
 
 ### 3. Collaboration Guidelines
@@ -87,4 +87,4 @@ For clarifications on CRediT roles or project process, open an issue or contact 
 
 **References:**
 - [CRediT Taxonomy](https://credit.niso.org/)
-- [PhD Student Experience Website](https://jacobkmcpherson.github.io/Graduate-School/)
+- [PhD Student Experience Website](https://mcphersonlab.github.io/Graduate-School/)
