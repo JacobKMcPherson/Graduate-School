@@ -405,6 +405,9 @@ Plot.plot({
 
 Use this section to connect your **take-home pay, savings rate, Roth IRA contribution, student-loan strategy, and major savings goal** in one place.
 
+::: {.wealth-planner-split}
+::: {.wealth-planner-split__inputs}
+
 ::: {.callout-note appearance="simple"}
 ### Planner Inputs
 
@@ -1045,6 +1048,9 @@ viewof wb_home_existing = {
 :::
 :::
 
+:::
+::: {.wealth-planner-split__outputs}
+
 ```{ojs}
 //| echo: false
 // 0.88 ≈ 1 − 12% effective federal+state tax rate typical for grad-student income bracket
@@ -1254,7 +1260,7 @@ sg_months_text = sg_existing >= sg_target
 sg_final_balance = sg_projection[sg_projection.length - 1]?.balance ?? 0
 sg_interest_earned = sg_projection[sg_projection.length - 1]?.interest ?? 0
 
-html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0;">
+html`<div class="wealth-planner-two-up">
   <div style="padding:12px 8px;border:2px solid #f39c12;border-radius:8px;text-align:center;">
     <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Goal</div>
     <div style="font-size:1.3rem;font-weight:700;color:#f39c12;margin-top:3px;">$${sg_target.toLocaleString()}</div>
@@ -1369,7 +1375,7 @@ wb_home_months_text = wb_home_existing >= wb_home_target
 wb_home_interest_earned = wb_home_projection[wb_home_projection.length - 1]?.interest ?? 0
 wb_home_target_line = [{month: 0, balance: wb_home_target}, {month: wb_home_projection[wb_home_projection.length - 1].month, balance: wb_home_target}]
 
-html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0;">
+html`<div class="wealth-planner-two-up">
   <div style="padding:12px 8px;border:2px solid #f39c12;border-radius:8px;text-align:center;">
     <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;opacity:.6;">Home Goal</div>
     <div style="font-size:1.3rem;font-weight:700;color:#f39c12;margin-top:3px;">$${wb_home_target.toLocaleString()}</div>
@@ -1423,6 +1429,9 @@ Plot.plot({
   ].filter(Boolean)
 })
 ```
+
+:::
+:::
 
 ### 🧾 Account Options & Debt Strategy
 
