@@ -95,13 +95,17 @@ viewof bud_checked = {
     for (const l of lines) {
       const scaled = l.scale ? Math.round(l.base * (bud_coli / 100)) : l.base;
       const card = document.createElement('label');
-      card.setAttribute('for', `cb_${l.id}`);
+      // Only set `for` on non-editable cards. Editable cards already have the checkbox
+      // inside the label; adding `for` on those cards would cause number-input clicks to
+      // unexpectedly toggle the checkbox via the label's activation behavior.
+      if (!l.editable) card.setAttribute('for', `cb_${l.id}`);
       card.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:start;padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;background:var(--bs-body-bg,#fff);cursor:pointer;';
 
       if (l.editable) {
-        // Restore previously entered amount from localStorage
+        // Restore previously entered amount from localStorage; auto-include if saved amount > 0
         const savedAmt = Math.max(0, parseFloat(localStorage.getItem(`phd_bud_${l.id}`) || '0') || 0);
         editableAmounts[l.id] = savedAmt;
+        if (savedAmt > 0) checked.add(l.id);
         card.innerHTML = `
           <input type="checkbox" id="cb_${l.id}" ${checked.has(l.id) ? 'checked' : ''} style="margin-top:4px;cursor:pointer;">
           <div style="display:grid;gap:4px;min-width:0;">
@@ -110,29 +114,22 @@ viewof bud_checked = {
               <div style="display:flex;align-items:center;gap:2px;white-space:nowrap;">
                 <span style="font-weight:700;font-size:.9rem;">$</span>
                 <input type="number" id="amt_${l.id}" value="${savedAmt}" min="0" max="10000" step="50"
+                  aria-label="Monthly amount for ${l.label}"
                   style="width:76px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:6px;padding:2px 5px;font-weight:700;font-size:.88rem;background:var(--bs-body-bg,#fff);color:inherit;">
                 <span style="font-weight:700;font-size:.9rem;">/mo</span>
               </div>
             </div>
             <div style="font-size:.77rem;opacity:.7;line-height:1.35;">${l.notes || '&nbsp;'}</div>
           </div>`;
-        const amtInput = card.querySelector(`#amt_${l.id}`);
-        // Prevent label's `for` from toggling the checkbox when the number input is clicked
-        amtInput.addEventListener('click', e => e.stopPropagation());
-        amtInput.addEventListener('mousedown', e => e.stopPropagation());
-        amtInput.addEventListener('input', e => {
-          e.stopPropagation();
-          editableAmounts[l.id] = Math.max(0, parseFloat(amtInput.value) || 0);
-          localStorage.setItem(`phd_bud_${l.id}`, String(editableAmounts[l.id]));
-          emit();
-        });
       } else {
+        // For the addl_savings card, add a stable id so a reactive cell can update its display
+        const amtSpanExtra = l.id === 'addl_savings' ? ' id="addl_savings_amt_display"' : '';
         card.innerHTML = `
           <input type="checkbox" id="cb_${l.id}" ${checked.has(l.id) ? 'checked' : ''} style="margin-top:2px;cursor:pointer;">
           <div style="display:grid;gap:4px;min-width:0;">
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
               <span style="font-weight:600;line-height:1.3;">${l.label}</span>
-              <span style="font-weight:700;white-space:nowrap;">$${scaled.toLocaleString()}</span>
+              <span${amtSpanExtra} style="font-weight:700;white-space:nowrap;">$${scaled.toLocaleString()}</span>
             </div>
             <div style="font-size:.77rem;opacity:.7;line-height:1.35;">${l.notes || '&nbsp;'}</div>
           </div>`;
@@ -155,6 +152,25 @@ viewof bud_checked = {
         renderCard();
         emit();
       });
+      // For editable cards: auto-check when amount > 0, auto-uncheck when it returns to 0
+      if (l.editable) {
+        const amtInput = card.querySelector(`#amt_${l.id}`);
+        amtInput.addEventListener('input', () => {
+          const newAmt = Math.max(0, parseFloat(amtInput.value) || 0);
+          editableAmounts[l.id] = newAmt;
+          localStorage.setItem(`phd_bud_${l.id}`, String(newAmt));
+          if (newAmt > 0 && !cb.checked) {
+            cb.checked = true;
+            checked.add(l.id);
+            renderCard();
+          } else if (newAmt === 0 && cb.checked) {
+            cb.checked = false;
+            checked.delete(l.id);
+            renderCard();
+          }
+          emit();
+        });
+      }
       renderCard();
       grid.appendChild(card);
     }
@@ -163,6 +179,16 @@ viewof bud_checked = {
   }
   container.value = {checked, amounts: editableAmounts};
   return container;
+}
+```
+
+```{ojs}
+//| echo: false
+// Reactively update the Tax-Advantaged Accounts card display to show the actual contribution sum.
+// Uses wb_accounts_total (defined in the Wealth Building planner cell) to avoid duplicating the formula.
+{
+  const el = document.getElementById('addl_savings_amt_display');
+  if (el) el.textContent = `$${(wb_accounts_total || 0).toLocaleString()}`;
 }
 ```
 
@@ -813,14 +839,16 @@ wb_savings_amt  = Math.round(wb_monthly_net * wb_savings_pct / 100)
 wb_budget_capacity = bud_total_savings + Math.max(0, bud_net_cashflow)
 wb_alignment_gap   = wb_budget_capacity - wb_savings_amt
 
-wb_emergency_monthly = Math.round(wb_savings_amt * 0.35)
-wb_ira_effective     = Math.min(wb_ira_monthly, Math.max(0, Math.round(wb_savings_amt * 0.5)))
-wb_after_core        = Math.max(0, wb_savings_amt - wb_emergency_monthly - wb_ira_effective)
+// Total of independently-set tax-advantaged account contributions
+wb_accounts_total    = (wb_403b_monthly || 0) + (wb_hsa_monthly || 0) + (wb_529_monthly || 0)
+// Savings available for emergency fund / IRA / debt / goal after dedicated account contributions
+wb_savings_available = Math.max(0, wb_savings_amt - wb_accounts_total)
+wb_emergency_monthly = Math.round(wb_savings_available * 0.35)
+wb_ira_effective     = Math.min(wb_ira_monthly, Math.max(0, Math.round(wb_savings_available * 0.5)))
+wb_after_core        = Math.max(0, wb_savings_available - wb_emergency_monthly - wb_ira_effective)
 wb_debt_monthly      = Math.min(wb_extra_loan_payment, wb_after_core)
 wb_after_debt        = Math.max(0, wb_after_core - wb_debt_monthly)
 wb_goal_monthly      = Math.round(wb_after_debt * wb_goal_share / 100)
-// Total of independently-set tax-advantaged account contributions
-wb_accounts_total    = (wb_403b_monthly || 0) + (wb_hsa_monthly || 0) + (wb_529_monthly || 0)
 
 html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
   <div style="padding:14px 10px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;text-align:center;">
