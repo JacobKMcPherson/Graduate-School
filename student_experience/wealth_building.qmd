@@ -139,11 +139,11 @@ bud_lines_def = [
   {id:"stipend",   label:"Net Stipend (after taxes)",              type:"income",  base: bud_monthly_net, scale:false, checked:true,  notes:"≈ stipend ÷ 12 × 0.88"},
   {id:"side",      label:"Side Income (tutoring, consulting…)",    type:"income",  base: 0,               scale:false, checked:false, notes:"Enter your monthly amount →", editable:true},
   // NEEDS
-  {id:"rent",      label:"Rent",                                   type:"needs",   base: 1050,            scale:true,  checked:true,  notes:"1BR; on-campus may be cheaper"},
-  {id:"util",      label:"Utilities (electric, gas, internet)",    type:"needs",   base: 150,             scale:true,  checked:true,  notes:"Avg. $100–$200"},
-  {id:"grocery",   label:"Groceries",                              type:"needs",   base: 380,             scale:true,  checked:true,  notes:"USDA moderate-cost plan"},
-  {id:"transport", label:"Transportation",                         type:"needs",   base: 120,             scale:true,  checked:true,  notes:"Transit pass or car"},
-  {id:"insurance", label:"Health Insurance Premium",               type:"needs",   base: 120,             scale:true,  checked:true,  notes:"City-adjusted; avg. university plan"},
+  {id:"rent",      label:"Rent",                                   type:"needs",   base: 1050,            scale:true,  checked:true,  notes:"1BR; on-campus may be cheaper", editable:true, prefill:"scaled"},
+  {id:"util",      label:"Utilities (electric, gas, internet)",    type:"needs",   base: 150,             scale:true,  checked:true,  notes:"Avg. $100–$200", editable:true, prefill:"scaled"},
+  {id:"grocery",   label:"Groceries",                              type:"needs",   base: 380,             scale:true,  checked:true,  notes:"USDA moderate-cost plan", editable:true, prefill:"scaled"},
+  {id:"transport", label:"Transportation",                         type:"needs",   base: 120,             scale:true,  checked:true,  notes:"Transit pass or car", editable:true, prefill:"scaled"},
+  {id:"insurance", label:"Health Insurance Premium",               type:"needs",   base: 120,             scale:true,  checked:true,  notes:"City-adjusted; avg. university plan", editable:true, prefill:"scaled"},
   {id:"phone",     label:"Phone",                                  type:"needs",   base: 60,              scale:false, checked:true,  notes:"Budget carriers from ~$25"},
   {id:"loans",     label:"Minimum Loan Payments",                  type:"needs",   base: 0,               scale:false, checked:false, notes:"Enter your monthly minimum →", editable:true},
   // WANTS
@@ -162,7 +162,7 @@ bud_lines_def = [
 ```{ojs}
 //| echo: false
 // Build checkbox table — HTML form; OJS reactive on checked IDs
-// Editable items (side income, min loan) render an inline number input instead of a static amount.
+// Editable items render an inline number input instead of a static amount.
 viewof bud_checked = {
   const typeColors = {income:"#27ae60", needs:"#e74c3c", wants:"#3498db", savings:"#8e44ad"};
   const typeBg     = {income:"rgba(39,174,96,.08)", needs:"rgba(231,76,60,.07)", wants:"rgba(52,152,219,.07)", savings:"rgba(142,68,173,.07)"};
@@ -196,10 +196,17 @@ viewof bud_checked = {
       card.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:start;padding:10px 12px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:10px;background:var(--bs-body-bg,#fff);cursor:pointer;';
 
       if (l.editable) {
-        // Restore previously entered amount from localStorage; auto-include if saved amount > 0
-        const savedAmt = Math.max(0, parseFloat(localStorage.getItem(`phd_bud_${l.id}`) || '0') || 0);
+        // Pre-populate city-scaled needs from the current linked city unless the user has already saved an override.
+        const savedRaw = localStorage.getItem(`phd_bud_${l.id}`);
+        const defaultAmt = l.prefill === 'scaled' ? scaled : l.base;
+        const savedAmt = savedRaw === null
+          ? defaultAmt
+          : Math.max(0, parseFloat(savedRaw || '0') || 0);
         editableAmounts[l.id] = savedAmt;
-        if (savedAmt > 0) checked.add(l.id);
+        if (savedRaw !== null) {
+          if (savedAmt > 0) checked.add(l.id);
+          else checked.delete(l.id);
+        }
         card.innerHTML = `
           <input type="checkbox" id="cb_${l.id}" ${checked.has(l.id) ? 'checked' : ''} style="margin-top:4px;cursor:pointer;">
           <div style="display:grid;gap:4px;min-width:0;">
