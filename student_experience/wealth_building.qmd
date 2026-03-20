@@ -36,6 +36,14 @@ bud_initial_coli_raw  = parseFloat(localStorage.getItem('phd_city_coli') || '100
 bud_initial_coli      = isFinite(bud_initial_coli_raw) ? bud_initial_coli_raw : 100
 bud_initial_stipend_raw = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
 bud_initial_stipend   = isFinite(bud_initial_stipend_raw) ? bud_initial_stipend_raw : 30000
+bud_austin_living_wage = 36000
+bud_living_wage_per_coli_point = bud_austin_living_wage / 100
+bud_take_home_multiplier = 0.88
+bud_clamp = (value, min, max, fallback) => {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return fallback
+  return Math.min(max, Math.max(min, parsed))
+}
 
 viewof bud_profile = {
   const container = document.createElement('div')
@@ -47,7 +55,7 @@ viewof bud_profile = {
 
   const helper = document.createElement('div')
   helper.style.cssText = 'font-size:.8rem;line-height:1.45;opacity:.78;'
-  helper.textContent = 'These values start with the linked selections from Salary & Cost of Living, but you can fine-tune them here without re-checking each budget line item.'
+  helper.textContent = 'These values start with the linked selections from Salary & Cost of Living, but you can fine-tune them here without rechecking each budget line item.'
 
   const grid = document.createElement('div')
   grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;'
@@ -90,21 +98,18 @@ viewof bud_profile = {
     makeField('Annual Stipend (pre-tax, $)', stipendInput)
   )
 
-  const clamp = (value, min, max, fallback) => {
-    const parsed = Number(value)
-    if (!Number.isFinite(parsed)) return fallback
-    return Math.min(max, Math.max(min, parsed))
-  }
-
   const sync = () => {
     const name = (cityInput.value || '').trim() || 'Austin, TX'
-    const coli = clamp(coliInput.value, 60, 220, 100)
-    const stipend = clamp(stipendInput.value, 15000, 60000, 30000)
+    const coli = bud_clamp(coliInput.value, 60, 220, 100)
+    const stipend = bud_clamp(stipendInput.value, 15000, 60000, 30000)
     coliInput.value = String(coli)
     stipendInput.value = String(stipend)
     localStorage.setItem('phd_city', name)
     localStorage.setItem('phd_city_coli', String(coli))
-    localStorage.setItem('phd_city_living_wage', String(Math.round(coli * 360)))
+    // Salary & Cost of Living derives cost index from MIT living wage data using the same
+    // Austin baseline (cost index 100 ↔ ~$36,000 living wage), so this inverse calculation
+    // keeps the shared living-wage value aligned when the budget planner overrides city costs.
+    localStorage.setItem('phd_city_living_wage', String(Math.round(coli * bud_living_wage_per_coli_point)))
     localStorage.setItem('phd_annual_stipend', String(stipend))
     container.value = {name, coli, stipend}
     container.dispatchEvent(new Event('input'))
@@ -123,7 +128,9 @@ viewof bud_profile = {
 bud_city_name = bud_profile.name
 bud_coli      = bud_profile.coli
 bud_stipend   = bud_profile.stipend
-bud_monthly_net = Math.round((bud_stipend / 12) * 0.88)
+// 0.88 ≈ 1 − 12% effective federal+state tax rate for a typical U.S. grad-student stipend;
+// this keeps the budget planner aligned with the same rough take-home assumption used elsewhere on the page.
+bud_monthly_net = Math.round((bud_stipend / 12) * bud_take_home_multiplier)
 
 // City-scaled budget line items
 // Base amounts are for cost index 100 (Austin, TX); rent/transport/groceries scale with the shared city cost index
