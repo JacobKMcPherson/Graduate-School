@@ -1112,6 +1112,17 @@ wb_after_core        = Math.max(0, wb_savings_available - wb_emergency_monthly -
 wb_debt_monthly      = Math.min(wb_extra_loan_payment, wb_after_core)
 wb_after_debt        = Math.max(0, wb_after_core - wb_debt_monthly)
 wb_goal_monthly      = Math.round(wb_after_debt * wb_goal_share / 100)
+wb_ira_requested     = wb_ira_monthly || 0
+wb_debt_requested    = wb_extra_loan_payment || 0
+wb_ira_note          = wb_ira_effective === wb_ira_requested
+  ? `Requested $${wb_ira_requested.toLocaleString()}/mo`
+  : `Requested $${wb_ira_requested.toLocaleString()}/mo; funded $${wb_ira_effective.toLocaleString()}/mo within this plan`
+wb_extra_loan_note   = wb_debt_monthly === wb_debt_requested
+  ? `Requested $${wb_debt_requested.toLocaleString()}/mo`
+  : `Requested $${wb_debt_requested.toLocaleString()}/mo; funded $${wb_debt_monthly.toLocaleString()}/mo after earlier allocations`
+wb_goal_note         = wb_after_debt > 0
+  ? `${sg_goal_type} • ${wb_goal_share}% of the $${wb_after_debt.toLocaleString()}/mo left after debt payoff`
+  : `${sg_goal_type} • No monthly room left after earlier allocations`
 
 html`<div style="display:grid;gap:16px;margin-top:16px;">
   ${wb_group_banner({
@@ -1134,11 +1145,11 @@ html`<div style="display:grid;gap:16px;margin-top:16px;">
   ${wb_group_banner({
     step: "Reporter",
     title: "Account contribution reporter",
-    description: "These cards mirror the retirement and specialty account controls above so you can confirm each monthly contribution at a glance.",
+    description: "These cards show the monthly contributions currently funded by the account controls above, including any savings-limit caps.",
     accent: "#3498db"
   })}
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
-    ${wb_metric_card({label: "Roth IRA", value: `$${wb_ira_effective.toLocaleString()}`, accent: "#8e44ad"})}
+    ${wb_metric_card({label: "Roth IRA", value: `$${wb_ira_effective.toLocaleString()}`, note: wb_ira_note, accent: "#8e44ad"})}
     ${wb_metric_card({label: "403(b)", value: `$${(wb_403b_monthly || 0).toLocaleString()}`, accent: "#3498db"})}
     ${wb_metric_card({label: "HSA", value: `$${(wb_hsa_monthly || 0).toLocaleString()}`, accent: wb_hsa_accent})}
     ${wb_metric_card({label: "529 Plan", value: `$${(wb_529_monthly || 0).toLocaleString()}`, accent: wb_529_accent})}
@@ -1146,12 +1157,12 @@ html`<div style="display:grid;gap:16px;margin-top:16px;">
   ${wb_group_banner({
     step: "Reporter",
     title: "Debt + goal reporter",
-    description: "Your extra loan payment and current-goal allocation feed the goal timeline and home-fund projection cards in the sections below.",
+    description: "These cards show the debt-payoff and goal amounts currently funded after the account contributions and earlier savings steps above.",
     accent: "#f39c12"
   })}
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
-    ${wb_metric_card({label: "Extra Loan Payment", value: `$${wb_debt_monthly.toLocaleString()}`, accent: wb_extra_loan_accent})}
-    ${wb_metric_card({label: "Goal Savings", value: `$${wb_goal_monthly.toLocaleString()}`, note: sg_goal_type, accent: "#f39c12"})}
+    ${wb_metric_card({label: "Extra Loan Payment", value: `$${wb_debt_monthly.toLocaleString()}`, note: wb_extra_loan_note, accent: wb_extra_loan_accent})}
+    ${wb_metric_card({label: "Goal Savings", value: `$${wb_goal_monthly.toLocaleString()}`, note: wb_goal_note, accent: "#f39c12"})}
   </div>
 </div>`
 ```
