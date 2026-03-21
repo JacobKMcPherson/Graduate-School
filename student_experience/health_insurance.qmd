@@ -178,13 +178,13 @@ phi_tidy = phi_cumul.flatMap(d => [
   const last  = phi_cumul[phi_cumul.length - 1] ?? { Exercise: 0, Diet: 0, Screenings: 0 }
   const total = last.Exercise + last.Diet + last.Screenings
   const value_vs_stipend = Math.round((total / Math.max(phi_shared_stipend, 1)) * 100)
-  const value_vs_take_home_months = (total / Math.max(phi_shared_take_home, 1)).toFixed(1)
+  const equivalent_take_home_months = (total / Math.max(phi_shared_take_home, 1)).toFixed(1)
   return html`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px;">
   <div style="padding:14px 10px;border:2px solid #27ae60;border-radius:8px;text-align:center;">
     <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;">Total Estimated Value</div>
     <div style="font-size:1.5rem;font-weight:700;margin-top:4px;color:#27ae60;">$${total.toLocaleString()}</div>
     <div style="font-size:.7rem;opacity:.55;margin-top:2px;">over ${phi_horizon} years</div>
-    <div style="font-size:.7rem;opacity:.55;margin-top:2px;">≈ ${value_vs_stipend}% of your linked stipend · ${value_vs_take_home_months} take-home months</div>
+    <div style="font-size:.7rem;opacity:.55;margin-top:2px;">≈ ${value_vs_stipend}% of your linked stipend · ${equivalent_take_home_months} take-home months</div>
   </div>
   <div style="padding:14px 10px;border:1px solid #dee2e6;border-radius:8px;text-align:center;">
     <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;">Linked Annual Stipend</div>
