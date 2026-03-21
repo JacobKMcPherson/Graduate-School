@@ -1163,14 +1163,13 @@ html`<div style="display:grid;gap:16px;margin-top:16px;">
 ```{ojs}
 //| echo: false
 budget_categories = [
-  {category: "Rent & Housing",        amount: Math.round(wb_needs_amt * 0.52), type: "Needs"},
-  {category: "Groceries",             amount: Math.round(wb_needs_amt * 0.17), type: "Needs"},
-  {category: "Utilities & Phone",     amount: Math.round(wb_needs_amt * 0.12), type: "Needs"},
-  {category: "Transportation",        amount: Math.round(wb_needs_amt * 0.11), type: "Needs"},
-  {category: "Health Insurance",      amount: Math.round(wb_needs_amt * 0.08), type: "Needs"},
-  {category: "Dining & Coffee",       amount: Math.round(wb_wants_amt * 0.40), type: "Wants"},
-  {category: "Entertainment & Subs.", amount: Math.round(wb_wants_amt * 0.32), type: "Wants"},
-  {category: "Clothing & Personal",   amount: Math.round(wb_wants_amt * 0.28), type: "Wants"},
+  ...bud_active
+    .filter(line => line.included && (line.type === "needs" || line.type === "wants"))
+    .map(line => ({
+      category: line.label,
+      amount: line.amount,
+      type: line.type === "needs" ? "Needs" : "Wants"
+    })),
   {category: "Emergency Fund",        amount: wb_emergency_monthly, type: "Savings"},
   {category: "Roth IRA",              amount: wb_ira_effective, type: "Savings"},
   {category: "Debt Repayment",        amount: wb_debt_monthly, type: "Savings"},
@@ -1181,7 +1180,8 @@ budget_categories = [
 ].filter(d => d.amount > 0)
 
 Plot.plot({
-  title: "Monthly Budget Breakdown (needs, wants, and wealth plan)",
+  title: "Monthly Budget + Wealth Building Breakdown",
+  subtitle: "Needs and wants come from your selected budget planner line items; savings bars come from the wealth-building controls.",
   width: 580,
   height: 380,
   marginLeft: 200,
