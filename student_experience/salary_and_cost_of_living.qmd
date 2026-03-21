@@ -357,7 +357,9 @@ cities_data = city_presets
 ```{ojs}
 //| echo: false
 viewof annual_stipend = {
-  const saved = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000');
+  const sharedState = window.phdSharedState;
+  const readSaved = () => parseFloat((sharedState?.get('phd_annual_stipend', '30000')) || '30000');
+  const saved = readSaved();
   const options = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
   const nearest = options.reduce((a,b) => Math.abs(b-saved)<Math.abs(a-saved)?b:a, 30000);
   const el = Inputs.select(options, {
@@ -365,7 +367,15 @@ viewof annual_stipend = {
     format: d => `$${d.toLocaleString()}`,
     value: nearest
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
+  const syncFromShared = () => {
+    const next = options.reduce((a, b) => Math.abs(b - readSaved()) < Math.abs(a - readSaved()) ? b : a, 30000);
+    if (Number(el.value) === next) return;
+    el.value = next;
+    el.dispatchEvent(new Event('input'));
+    el.dispatchEvent(new Event('change'));
+  };
+  el.addEventListener('change', () => (sharedState?.set ? sharedState.set('phd_annual_stipend', el.value) : localStorage.setItem('phd_annual_stipend', String(el.value))));
+  sharedState?.subscribe?.('phd_annual_stipend', syncFromShared);
   return el;
 }
 ```
@@ -373,10 +383,15 @@ viewof annual_stipend = {
 ```{ojs}
 //| echo: false
 viewof selected_city = {
-  const savedName = localStorage.getItem('phd_city') || 'Austin, TX'
-  const savedColi = parseFloat(localStorage.getItem('phd_city_coli') || '100')
-  const savedLivingWage = parseFloat(localStorage.getItem('phd_city_living_wage') || '36000')
-  const presetMatch = cities_data.find(c => c.name === savedName)
+  const sharedState = window.phdSharedState
+  const readSharedValue = () => ({
+    name: sharedState?.get('phd_city', 'Austin, TX') || 'Austin, TX',
+    coli: parseFloat(sharedState?.get('phd_city_coli', '100') || '100'),
+    living_wage: parseFloat(sharedState?.get('phd_city_living_wage', '36000') || '36000')
+  })
+  const initialValue = readSharedValue()
+  const exactPreset = cities_data.find(c => c.name === initialValue.name && c.coli === initialValue.coli && c.living_wage === initialValue.living_wage)
+  const presetMatch = exactPreset || cities_data.find(c => c.name === initialValue.name)
   const fallbackPreset = presetMatch || cities_data.find(c => c.name === "Austin, TX") || cities_data[0]
 
   const container = document.createElement('div')
@@ -425,7 +440,7 @@ viewof selected_city = {
   customNameInput.type = 'text'
   customNameInput.name = 'custom_city_name'
   customNameInput.placeholder = 'e.g. Madison, WI'
-  customNameInput.value = presetMatch ? '' : savedName
+  customNameInput.value = exactPreset ? '' : initialValue.name
   customNameInput.style.cssText = fieldStyle
 
   const customColiInput = document.createElement('input')
@@ -434,7 +449,7 @@ viewof selected_city = {
   customColiInput.min = '60'
   customColiInput.max = '220'
   customColiInput.step = '1'
-  customColiInput.value = String(Number.isFinite(savedColi) ? savedColi : 100)
+  customColiInput.value = String(Number.isFinite(initialValue.coli) ? initialValue.coli : 100)
   customColiInput.style.cssText = fieldStyle
 
   const customLivingWageInput = document.createElement('input')
@@ -443,7 +458,7 @@ viewof selected_city = {
   customLivingWageInput.min = '10000'
   customLivingWageInput.max = '200000'
   customLivingWageInput.step = '500'
-  customLivingWageInput.value = String(Number.isFinite(savedLivingWage) ? savedLivingWage : fallbackPreset.living_wage)
+  customLivingWageInput.value = String(Number.isFinite(initialValue.living_wage) ? initialValue.living_wage : fallbackPreset.living_wage)
   customLivingWageInput.style.cssText = fieldStyle
 
   customGrid.append(
@@ -470,6 +485,7 @@ viewof selected_city = {
   }
 
   const activeMode = () => modeInputs.find(input => input.checked)?.value || 'preset'
+  const sameValue = (a, b) => a.name === b.name && Number(a.coli) === Number(b.coli) && Number(a.living_wage) === Number(b.living_wage)
 
   function currentValue() {
     if (activeMode() === 'custom') {
@@ -483,16 +499,42 @@ viewof selected_city = {
     return cities_data.find(c => c.name === presetSelect.value) || fallbackPreset
   }
 
-  function sync() {
-    const isCustom = activeMode() === 'custom'
+  function applyValue(value, {persist = false} = {}) {
+    const exactMatch = cities_data.find(c => c.name === value.name && c.coli === value.coli && c.living_wage === value.living_wage)
+    const namedMatch = cities_data.find(c => c.name === value.name) || fallbackPreset
+    const isCustom = !exactMatch
+    modeInputs.forEach((input) => {
+      input.checked = input.value === (isCustom ? 'custom' : 'preset')
+    })
+    presetSelect.value = namedMatch.name
+    customName.value = isCustom ? value.name : ''
+    customColi.value = String(value.coli)
+    customLivingWage.value = String(value.living_wage)
     presetWrap.style.display = isCustom ? 'none' : 'flex'
     customGrid.style.display = isCustom ? 'grid' : 'none'
-    const value = currentValue()
-    localStorage.setItem('phd_city', value.name)
-    localStorage.setItem('phd_city_coli', String(value.coli))
-    localStorage.setItem('phd_city_living_wage', String(value.living_wage))
+    if (persist) {
+      if (sharedState?.set) {
+        sharedState.set('phd_city', value.name)
+        sharedState.set('phd_city_coli', value.coli)
+        sharedState.set('phd_city_living_wage', value.living_wage)
+      } else {
+        localStorage.setItem('phd_city', value.name)
+        localStorage.setItem('phd_city_coli', String(value.coli))
+        localStorage.setItem('phd_city_living_wage', String(value.living_wage))
+      }
+    }
     container.value = value
     container.dispatchEvent(new Event('input'))
+  }
+
+  function sync() {
+    applyValue(currentValue(), {persist: true})
+  }
+
+  const syncFromShared = () => {
+    const value = readSharedValue()
+    if (sameValue(container.value || {}, value)) return
+    applyValue(value)
   }
 
   ;[presetSelect, customName, customColi, customLivingWage, ...modeInputs].forEach((input) => {
@@ -500,7 +542,8 @@ viewof selected_city = {
     input.addEventListener('change', sync)
   })
 
-  sync()
+  sharedState?.subscribe?.(['phd_city', 'phd_city_coli', 'phd_city_living_wage'], syncFromShared)
+  applyValue(initialValue)
   return container
 }
 ```
@@ -508,7 +551,9 @@ viewof selected_city = {
 ```{ojs}
 //| echo: false
 viewof phd_duration_sal = {
-  const saved = parseFloat(localStorage.getItem('phd_duration') || '6');
+  const sharedState = window.phdSharedState;
+  const readSaved = () => parseFloat((sharedState?.get('phd_duration', '6')) || '6');
+  const saved = readSaved();
   const opts = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9];
   const nearest = opts.reduce((a,b) => Math.abs(b-saved)<Math.abs(a-saved)?b:a, 6);
   const el = Inputs.select(opts, {
@@ -516,7 +561,15 @@ viewof phd_duration_sal = {
     format: d => `${d} years`,
     value: nearest
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_duration', String(el.value)));
+  const syncFromShared = () => {
+    const next = opts.reduce((a, b) => Math.abs(b - readSaved()) < Math.abs(a - readSaved()) ? b : a, 6);
+    if (Number(el.value) === next) return;
+    el.value = next;
+    el.dispatchEvent(new Event('input'));
+    el.dispatchEvent(new Event('change'));
+  };
+  el.addEventListener('change', () => (sharedState?.set ? sharedState.set('phd_duration', el.value) : localStorage.setItem('phd_duration', String(el.value))));
+  sharedState?.subscribe?.('phd_duration', syncFromShared);
   return el;
 }
 ```
@@ -528,7 +581,11 @@ monthly_net   = Math.round(monthly_gross * 0.88)
 adjusted_pp   = Math.round(annual_stipend * (100 / selected_city.coli))
 
 {
-  localStorage.setItem('phd_annual_stipend', String(annual_stipend));
+  if (window.phdSharedState?.set) {
+    window.phdSharedState.set('phd_annual_stipend', annual_stipend);
+  } else {
+    localStorage.setItem('phd_annual_stipend', String(annual_stipend));
+  }
   localStorage.setItem('phd_adjusted_pp',    String(adjusted_pp));
 }
 

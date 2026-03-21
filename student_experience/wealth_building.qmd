@@ -46,6 +46,7 @@ bud_clamp = (value, min, max, fallback) => {
 }
 
 viewof bud_profile = {
+  const sharedState = window.phdSharedState
   const container = document.createElement('div')
   container.style.cssText = 'display:grid;gap:10px;margin:10px 0 14px;padding:14px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:12px;background:rgba(39,174,96,.04);'
 
@@ -104,14 +105,37 @@ viewof bud_profile = {
     const stipend = bud_clamp(stipendInput.value, 15000, 60000, 30000)
     coliInput.value = String(coli)
     stipendInput.value = String(stipend)
-    localStorage.setItem('phd_city', name)
-    localStorage.setItem('phd_city_coli', String(coli))
+    if (sharedState?.set) {
+      sharedState.set('phd_city', name)
+      sharedState.set('phd_city_coli', coli)
+    } else {
+      localStorage.setItem('phd_city', name)
+      localStorage.setItem('phd_city_coli', String(coli))
+    }
     // Salary & Cost of Living derives cost index from MIT living wage data using the same
     // Austin baseline (cost index 100 ↔ ~$36,000 living wage), so this inverse calculation
     // keeps the shared living-wage value aligned when the budget planner overrides city costs.
-    localStorage.setItem('phd_city_living_wage', String(Math.round(coli * bud_living_wage_per_coli_point)))
-    localStorage.setItem('phd_annual_stipend', String(stipend))
+    if (sharedState?.set) {
+      sharedState.set('phd_city_living_wage', Math.round(coli * bud_living_wage_per_coli_point))
+      sharedState.set('phd_annual_stipend', stipend)
+    } else {
+      localStorage.setItem('phd_city_living_wage', String(Math.round(coli * bud_living_wage_per_coli_point)))
+      localStorage.setItem('phd_annual_stipend', String(stipend))
+    }
     container.value = {name, coli, stipend}
+    container.dispatchEvent(new Event('input'))
+  }
+
+  const syncFromShared = () => {
+    const sharedName = sharedState?.get('phd_city', 'Austin, TX') || 'Austin, TX'
+    const sharedColi = bud_clamp(sharedState?.get('phd_city_coli', '100'), 60, 220, 100)
+    const sharedStipend = bud_clamp(sharedState?.get('phd_annual_stipend', '30000'), 15000, 60000, 30000)
+    const current = container.value || {}
+    if (current.name === sharedName && Number(current.coli) === sharedColi && Number(current.stipend) === sharedStipend) return
+    cityInput.value = sharedName
+    coliInput.value = String(sharedColi)
+    stipendInput.value = String(sharedStipend)
+    container.value = {name: sharedName, coli: sharedColi, stipend: sharedStipend}
     container.dispatchEvent(new Event('input'))
   }
 
@@ -121,6 +145,7 @@ viewof bud_profile = {
   })
 
   container.append(title, helper, grid)
+  sharedState?.subscribe?.(['phd_city', 'phd_city_coli', 'phd_annual_stipend'], syncFromShared)
   sync()
   return container
 }
@@ -502,6 +527,7 @@ wb_number_control = ({
   decimals = 0,
   format = d => `${d}`
 }) => {
+  const sharedState = window.phdSharedState;
   const container = document.createElement("div");
   container.style.cssText = wb_tinted_panel_css(accent);
 
@@ -578,7 +604,10 @@ wb_number_control = ({
       button.style.cssText = wb_chip_css(normalized === preset, accent);
       button.setAttribute("aria-pressed", normalized === preset ? "true" : "false");
     }
-    if (storageKey) localStorage.setItem(storageKey, String(normalized));
+    if (storageKey) {
+      if (sharedState?.set) sharedState.set(storageKey, normalized);
+      else localStorage.setItem(storageKey, String(normalized));
+    }
     container.dispatchEvent(new Event("input"));
   };
 
@@ -594,6 +623,15 @@ wb_number_control = ({
   plus.addEventListener("click", () => updateValue(container.value + step));
   input.addEventListener("input", () => syncFromInput(false));
   input.addEventListener("change", () => syncFromInput(true));
+
+  if (storageKey) {
+    sharedState?.subscribe?.(storageKey, () => {
+      const stored = Number(sharedState.get(storageKey, String(initialValue)));
+      const normalized = normalize(stored);
+      if (normalized === container.value) return;
+      updateValue(normalized);
+    });
+  }
 
   container.append(title, row);
   if (presets.length) container.append(chips);
@@ -1074,6 +1112,17 @@ wb_after_core        = Math.max(0, wb_savings_available - wb_emergency_monthly -
 wb_debt_monthly      = Math.min(wb_extra_loan_payment, wb_after_core)
 wb_after_debt        = Math.max(0, wb_after_core - wb_debt_monthly)
 wb_goal_monthly      = Math.round(wb_after_debt * wb_goal_share / 100)
+wb_ira_requested     = wb_ira_monthly || 0
+wb_debt_requested    = wb_extra_loan_payment || 0
+wb_ira_note          = wb_ira_effective === wb_ira_requested
+  ? `Requested $${wb_ira_requested.toLocaleString()}/mo`
+  : `Requested $${wb_ira_requested.toLocaleString()}/mo; funded $${wb_ira_effective.toLocaleString()}/mo within this plan`
+wb_extra_loan_note   = wb_debt_monthly === wb_debt_requested
+  ? `Requested $${wb_debt_requested.toLocaleString()}/mo`
+  : `Requested $${wb_debt_requested.toLocaleString()}/mo; funded $${wb_debt_monthly.toLocaleString()}/mo after earlier allocations`
+wb_goal_note         = wb_after_debt > 0
+  ? `${sg_goal_type} • ${wb_goal_share}% of the $${wb_after_debt.toLocaleString()}/mo left after debt payoff`
+  : `${sg_goal_type} • No monthly room left after earlier allocations`
 
 html`<div style="display:grid;gap:16px;margin-top:16px;">
   ${wb_group_banner({
@@ -1096,11 +1145,11 @@ html`<div style="display:grid;gap:16px;margin-top:16px;">
   ${wb_group_banner({
     step: "Reporter",
     title: "Account contribution reporter",
-    description: "These cards mirror the retirement and specialty account controls above so you can confirm each monthly contribution at a glance.",
+    description: "These cards show the monthly contributions currently funded by the account controls above, including any savings-limit caps.",
     accent: "#3498db"
   })}
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
-    ${wb_metric_card({label: "Roth IRA", value: `$${wb_ira_effective.toLocaleString()}`, accent: "#8e44ad"})}
+    ${wb_metric_card({label: "Roth IRA", value: `$${wb_ira_effective.toLocaleString()}`, note: wb_ira_note, accent: "#8e44ad"})}
     ${wb_metric_card({label: "403(b)", value: `$${(wb_403b_monthly || 0).toLocaleString()}`, accent: "#3498db"})}
     ${wb_metric_card({label: "HSA", value: `$${(wb_hsa_monthly || 0).toLocaleString()}`, accent: wb_hsa_accent})}
     ${wb_metric_card({label: "529 Plan", value: `$${(wb_529_monthly || 0).toLocaleString()}`, accent: wb_529_accent})}
@@ -1108,12 +1157,12 @@ html`<div style="display:grid;gap:16px;margin-top:16px;">
   ${wb_group_banner({
     step: "Reporter",
     title: "Debt + goal reporter",
-    description: "Your extra loan payment and current-goal allocation feed the goal timeline and home-fund projection cards in the sections below.",
+    description: "These cards show the debt-payoff and goal amounts currently funded after the account contributions and earlier savings steps above.",
     accent: "#f39c12"
   })}
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
-    ${wb_metric_card({label: "Extra Loan Payment", value: `$${wb_debt_monthly.toLocaleString()}`, accent: wb_extra_loan_accent})}
-    ${wb_metric_card({label: "Goal Savings", value: `$${wb_goal_monthly.toLocaleString()}`, note: sg_goal_type, accent: "#f39c12"})}
+    ${wb_metric_card({label: "Extra Loan Payment", value: `$${wb_debt_monthly.toLocaleString()}`, note: wb_extra_loan_note, accent: wb_extra_loan_accent})}
+    ${wb_metric_card({label: "Goal Savings", value: `$${wb_goal_monthly.toLocaleString()}`, note: wb_goal_note, accent: "#f39c12"})}
   </div>
 </div>`
 ```
@@ -1125,14 +1174,13 @@ html`<div style="display:grid;gap:16px;margin-top:16px;">
 ```{ojs}
 //| echo: false
 budget_categories = [
-  {category: "Rent & Housing",        amount: Math.round(wb_needs_amt * 0.52), type: "Needs"},
-  {category: "Groceries",             amount: Math.round(wb_needs_amt * 0.17), type: "Needs"},
-  {category: "Utilities & Phone",     amount: Math.round(wb_needs_amt * 0.12), type: "Needs"},
-  {category: "Transportation",        amount: Math.round(wb_needs_amt * 0.11), type: "Needs"},
-  {category: "Health Insurance",      amount: Math.round(wb_needs_amt * 0.08), type: "Needs"},
-  {category: "Dining & Coffee",       amount: Math.round(wb_wants_amt * 0.40), type: "Wants"},
-  {category: "Entertainment & Subs.", amount: Math.round(wb_wants_amt * 0.32), type: "Wants"},
-  {category: "Clothing & Personal",   amount: Math.round(wb_wants_amt * 0.28), type: "Wants"},
+  ...bud_active
+    .filter(line => line.included && (line.type === "needs" || line.type === "wants"))
+    .map(line => ({
+      category: line.label,
+      amount: line.amount,
+      type: line.type === "needs" ? "Needs" : "Wants"
+    })),
   {category: "Emergency Fund",        amount: wb_emergency_monthly, type: "Savings"},
   {category: "Roth IRA",              amount: wb_ira_effective, type: "Savings"},
   {category: "Debt Repayment",        amount: wb_debt_monthly, type: "Savings"},
@@ -1143,7 +1191,8 @@ budget_categories = [
 ].filter(d => d.amount > 0)
 
 Plot.plot({
-  title: "Monthly Budget Breakdown (needs, wants, and wealth plan)",
+  title: "Monthly Budget + Wealth Building Breakdown",
+  subtitle: "Needs and wants come from your selected budget planner line items; savings bars come from the wealth-building controls.",
   width: 580,
   height: 380,
   marginLeft: 200,

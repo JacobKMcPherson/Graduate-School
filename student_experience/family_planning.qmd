@@ -31,6 +31,8 @@ Starting or growing a family during a PhD program presents unique logistical, fi
 fp_stipend_init = parseFloat(localStorage.getItem('phd_annual_stipend') || '30000')
 
 viewof fp_stipend = {
+  const sharedState = window.phdSharedState;
+  const readSaved = () => parseFloat((sharedState?.get('phd_annual_stipend', '30000')) || '30000');
   const options = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
   const nearest = options.reduce((a,b) => Math.abs(b-(isFinite(fp_stipend_init)?fp_stipend_init:30000))<Math.abs(a-(isFinite(fp_stipend_init)?fp_stipend_init:30000))?b:a, 30000);
   const el = Inputs.select(options, {
@@ -38,7 +40,15 @@ viewof fp_stipend = {
     format: d => `$${d.toLocaleString()}`,
     value: nearest
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_annual_stipend', String(el.value)));
+  const syncFromShared = () => {
+    const next = options.reduce((a, b) => Math.abs(b - readSaved()) < Math.abs(a - readSaved()) ? b : a, 30000);
+    if (Number(el.value) === next) return;
+    el.value = next;
+    el.dispatchEvent(new Event('input'));
+    el.dispatchEvent(new Event('change'));
+  };
+  el.addEventListener('change', () => (sharedState?.set ? sharedState.set('phd_annual_stipend', el.value) : localStorage.setItem('phd_annual_stipend', String(el.value))));
+  sharedState?.subscribe?.('phd_annual_stipend', syncFromShared);
   return el;
 }
 ```
@@ -236,8 +246,10 @@ viewof fp_home_share = {
 ```{ojs}
 //| echo: false
 viewof fp_home_target = {
+  const sharedState = window.phdSharedState;
+  const readSaved = () => parseFloat((sharedState?.get('phd_home_goal_target', '30000')) || '30000');
   const options = [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 75000, 100000, 125000];
-  const saved = parseFloat(localStorage.getItem('phd_home_goal_target') || '30000');
+  const saved = readSaved();
   const initVal = isFinite(saved) ? saved : 30000;
   const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 30000);
   const el = Inputs.select(options, {
@@ -245,7 +257,15 @@ viewof fp_home_target = {
     format: d => `$${d.toLocaleString()}`,
     value: nearest
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_target', String(el.value)));
+  const syncFromShared = () => {
+    const next = options.reduce((a, b) => Math.abs(b - readSaved()) < Math.abs(a - readSaved()) ? b : a, 30000);
+    if (Number(el.value) === next) return;
+    el.value = next;
+    el.dispatchEvent(new Event('input'));
+    el.dispatchEvent(new Event('change'));
+  };
+  el.addEventListener('change', () => (sharedState?.set ? sharedState.set('phd_home_goal_target', el.value) : localStorage.setItem('phd_home_goal_target', String(el.value))));
+  sharedState?.subscribe?.('phd_home_goal_target', syncFromShared);
   return el;
 }
 ```
@@ -253,8 +273,10 @@ viewof fp_home_target = {
 ```{ojs}
 //| echo: false
 viewof fp_home_rate = {
+  const sharedState = window.phdSharedState;
+  const readSaved = () => parseFloat((sharedState?.get('phd_home_goal_rate', '4.5')) || '4.5');
   const options = [0, 1, 2, 3, 4, 4.5, 5, 5.5];
-  const saved = parseFloat(localStorage.getItem('phd_home_goal_rate') || '4.5');
+  const saved = readSaved();
   const initVal = isFinite(saved) ? saved : 4.5;
   const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 4.5);
   const el = Inputs.select(options, {
@@ -262,7 +284,15 @@ viewof fp_home_rate = {
     format: d => `${d}%`,
     value: nearest
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_rate', String(el.value)));
+  const syncFromShared = () => {
+    const next = options.reduce((a, b) => Math.abs(b - readSaved()) < Math.abs(a - readSaved()) ? b : a, 4.5);
+    if (Number(el.value) === next) return;
+    el.value = next;
+    el.dispatchEvent(new Event('input'));
+    el.dispatchEvent(new Event('change'));
+  };
+  el.addEventListener('change', () => (sharedState?.set ? sharedState.set('phd_home_goal_rate', el.value) : localStorage.setItem('phd_home_goal_rate', String(el.value))));
+  sharedState?.subscribe?.('phd_home_goal_rate', syncFromShared);
   return el;
 }
 ```
@@ -270,8 +300,10 @@ viewof fp_home_rate = {
 ```{ojs}
 //| echo: false
 viewof fp_home_existing = {
+  const sharedState = window.phdSharedState;
+  const readSaved = () => parseFloat((sharedState?.get('phd_home_goal_existing', '0')) || '0');
   const options = [0, 1000, 2500, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000];
-  const saved = parseFloat(localStorage.getItem('phd_home_goal_existing') || '0');
+  const saved = readSaved();
   const initVal = isFinite(saved) ? saved : 0;
   const nearest = options.reduce((a, b) => Math.abs(b - initVal) < Math.abs(a - initVal) ? b : a, 0);
   const el = Inputs.select(options, {
@@ -279,7 +311,15 @@ viewof fp_home_existing = {
     format: d => `$${d.toLocaleString()}`,
     value: nearest
   });
-  el.addEventListener('change', () => localStorage.setItem('phd_home_goal_existing', String(el.value)));
+  const syncFromShared = () => {
+    const next = options.reduce((a, b) => Math.abs(b - readSaved()) < Math.abs(a - readSaved()) ? b : a, 0);
+    if (Number(el.value) === next) return;
+    el.value = next;
+    el.dispatchEvent(new Event('input'));
+    el.dispatchEvent(new Event('change'));
+  };
+  el.addEventListener('change', () => (sharedState?.set ? sharedState.set('phd_home_goal_existing', el.value) : localStorage.setItem('phd_home_goal_existing', String(el.value))));
+  sharedState?.subscribe?.('phd_home_goal_existing', syncFromShared);
   return el;
 }
 ```
