@@ -46,6 +46,7 @@ bud_clamp = (value, min, max, fallback) => {
 }
 
 viewof bud_profile = {
+  const sharedState = window.phdSharedState
   const container = document.createElement('div')
   container.style.cssText = 'display:grid;gap:10px;margin:10px 0 14px;padding:14px;border:1px solid var(--bs-border-color,#dee2e6);border-radius:12px;background:rgba(39,174,96,.04);'
 
@@ -104,14 +105,37 @@ viewof bud_profile = {
     const stipend = bud_clamp(stipendInput.value, 15000, 60000, 30000)
     coliInput.value = String(coli)
     stipendInput.value = String(stipend)
-    localStorage.setItem('phd_city', name)
-    localStorage.setItem('phd_city_coli', String(coli))
+    if (sharedState?.set) {
+      sharedState.set('phd_city', name)
+      sharedState.set('phd_city_coli', coli)
+    } else {
+      localStorage.setItem('phd_city', name)
+      localStorage.setItem('phd_city_coli', String(coli))
+    }
     // Salary & Cost of Living derives cost index from MIT living wage data using the same
     // Austin baseline (cost index 100 ↔ ~$36,000 living wage), so this inverse calculation
     // keeps the shared living-wage value aligned when the budget planner overrides city costs.
-    localStorage.setItem('phd_city_living_wage', String(Math.round(coli * bud_living_wage_per_coli_point)))
-    localStorage.setItem('phd_annual_stipend', String(stipend))
+    if (sharedState?.set) {
+      sharedState.set('phd_city_living_wage', Math.round(coli * bud_living_wage_per_coli_point))
+      sharedState.set('phd_annual_stipend', stipend)
+    } else {
+      localStorage.setItem('phd_city_living_wage', String(Math.round(coli * bud_living_wage_per_coli_point)))
+      localStorage.setItem('phd_annual_stipend', String(stipend))
+    }
     container.value = {name, coli, stipend}
+    container.dispatchEvent(new Event('input'))
+  }
+
+  const syncFromShared = () => {
+    const sharedName = sharedState?.get('phd_city', 'Austin, TX') || 'Austin, TX'
+    const sharedColi = bud_clamp(sharedState?.get('phd_city_coli', '100'), 60, 220, 100)
+    const sharedStipend = bud_clamp(sharedState?.get('phd_annual_stipend', '30000'), 15000, 60000, 30000)
+    const current = container.value || {}
+    if (current.name === sharedName && Number(current.coli) === sharedColi && Number(current.stipend) === sharedStipend) return
+    cityInput.value = sharedName
+    coliInput.value = String(sharedColi)
+    stipendInput.value = String(sharedStipend)
+    container.value = {name: sharedName, coli: sharedColi, stipend: sharedStipend}
     container.dispatchEvent(new Event('input'))
   }
 
@@ -121,6 +145,7 @@ viewof bud_profile = {
   })
 
   container.append(title, helper, grid)
+  sharedState?.subscribe?.(['phd_city', 'phd_city_coli', 'phd_annual_stipend'], syncFromShared)
   sync()
   return container
 }
@@ -502,6 +527,7 @@ wb_number_control = ({
   decimals = 0,
   format = d => `${d}`
 }) => {
+  const sharedState = window.phdSharedState;
   const container = document.createElement("div");
   container.style.cssText = wb_tinted_panel_css(accent);
 
@@ -578,7 +604,10 @@ wb_number_control = ({
       button.style.cssText = wb_chip_css(normalized === preset, accent);
       button.setAttribute("aria-pressed", normalized === preset ? "true" : "false");
     }
-    if (storageKey) localStorage.setItem(storageKey, String(normalized));
+    if (storageKey) {
+      if (sharedState?.set) sharedState.set(storageKey, normalized);
+      else localStorage.setItem(storageKey, String(normalized));
+    }
     container.dispatchEvent(new Event("input"));
   };
 
@@ -594,6 +623,15 @@ wb_number_control = ({
   plus.addEventListener("click", () => updateValue(container.value + step));
   input.addEventListener("input", () => syncFromInput(false));
   input.addEventListener("change", () => syncFromInput(true));
+
+  if (storageKey) {
+    sharedState?.subscribe?.(storageKey, () => {
+      const stored = Number(sharedState.get(storageKey, String(initialValue)));
+      const normalized = normalize(stored);
+      if (normalized === container.value) return;
+      updateValue(normalized);
+    });
+  }
 
   container.append(title, row);
   if (presets.length) container.append(chips);

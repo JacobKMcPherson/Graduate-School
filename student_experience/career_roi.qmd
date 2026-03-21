@@ -33,6 +33,7 @@ roi_duration_init = parseFloat(localStorage.getItem('phd_duration')        || '6
 roi_alt_init      = parseFloat(localStorage.getItem('phd_alt_salary')      || '70000')
 
 viewof roi_controls = {
+  const sharedState = window.phdSharedState;
   const stipendOptions = [15000,16000,17000,18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,42000,44000,46000,48000,50000,52000,54000,56000,58000,60000];
   const durationOptions = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9];
   const altSalaryOptions = [40000,45000,50000,55000,60000,65000,70000,75000,80000,85000,90000,95000,100000,110000,120000,130000,140000,150000];
@@ -74,18 +75,45 @@ viewof roi_controls = {
       sector: sectorSelect.value,
       postdoc_years: Number(postdocSelect.value)
     };
-    localStorage.setItem('phd_annual_stipend', String(value.stipend));
-    localStorage.setItem('phd_duration', String(value.duration));
-    localStorage.setItem('phd_alt_salary', String(value.alt_salary));
+    if (sharedState?.set) {
+      sharedState.set('phd_annual_stipend', value.stipend);
+      sharedState.set('phd_duration', value.duration);
+      sharedState.set('phd_alt_salary', value.alt_salary);
+    } else {
+      localStorage.setItem('phd_annual_stipend', String(value.stipend));
+      localStorage.setItem('phd_duration', String(value.duration));
+      localStorage.setItem('phd_alt_salary', String(value.alt_salary));
+    }
     container.value = value;
     container.dispatchEvent(new Event('input'));
   }
+
+  const syncFromShared = () => {
+    let changed = false;
+    const sharedStipend = nearest(stipendOptions, parseFloat((sharedState?.get('phd_annual_stipend', '30000')) || '30000'), 30000);
+    const sharedDuration = nearest(durationOptions, parseFloat((sharedState?.get('phd_duration', '6')) || '6'), 6);
+    const sharedAlt = nearest(altSalaryOptions, parseFloat((sharedState?.get('phd_alt_salary', '70000')) || '70000'), 70000);
+    if (Number(stipendSelect.value) !== sharedStipend) {
+      stipendSelect.value = String(sharedStipend);
+      changed = true;
+    }
+    if (Number(durationSelect.value) !== sharedDuration) {
+      durationSelect.value = String(sharedDuration);
+      changed = true;
+    }
+    if (Number(altSalarySelect.value) !== sharedAlt) {
+      altSalarySelect.value = String(sharedAlt);
+      changed = true;
+    }
+    if (changed) update();
+  };
 
   [stipendSelect, durationSelect, altSalarySelect, sectorSelect, postdocSelect].forEach((input) => {
     input.addEventListener('change', update);
     input.addEventListener('input', update);
   });
 
+  sharedState?.subscribe?.(['phd_annual_stipend', 'phd_duration', 'phd_alt_salary'], syncFromShared);
   update();
   return container;
 }

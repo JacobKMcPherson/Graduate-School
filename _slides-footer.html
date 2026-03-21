@@ -352,3 +352,62 @@ main.slide-mode .slide-intro-hidden {
   }
 })();
 </script>
+<script>
+(function () {
+  'use strict';
+
+  var EVENT_NAME = 'phd-shared-state';
+
+  function emit(detail) {
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: detail }));
+  }
+
+  function normalize(value) {
+    return value == null ? '' : String(value);
+  }
+
+  function get(key, fallback) {
+    try {
+      var value = window.localStorage.getItem(key);
+      return value === null ? fallback : value;
+    } catch (err) {
+      return fallback;
+    }
+  }
+
+  function set(key, value) {
+    var next = normalize(value);
+    try {
+      if (window.localStorage.getItem(key) === next) return;
+      window.localStorage.setItem(key, next);
+    } catch (err) {
+      return;
+    }
+    emit({ key: key, value: next });
+  }
+
+  function subscribe(keys, callback) {
+    var watched = Array.isArray(keys) ? keys : [keys];
+    var handler = function (event) {
+      var detail = event && event.detail ? event.detail : {};
+      if (watched.indexOf(detail.key) === -1) return;
+      callback(detail);
+    };
+    window.addEventListener(EVENT_NAME, handler);
+    return function () {
+      window.removeEventListener(EVENT_NAME, handler);
+    };
+  }
+
+  window.addEventListener('storage', function (event) {
+    if (!event.key) return;
+    emit({ key: event.key, value: event.newValue, external: true });
+  });
+
+  window.phdSharedState = {
+    get: get,
+    set: set,
+    subscribe: subscribe
+  };
+})();
+</script>
