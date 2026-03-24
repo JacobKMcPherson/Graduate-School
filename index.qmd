@@ -66,7 +66,7 @@ These documents are living templates — fork the repository, customize them for
 
 ## Academic Templates
 
-This repository also includes LaTeX templates for academic work. See the [`manuscript/`](https://github.com/mcphersonlab/Graduate-School/tree/main/manuscript), [`grants/`](https://github.com/mcphersonlab/Graduate-School/tree/main/grants), [`presentations/`](https://github.com/mcphersonlab/Graduate-School/tree/main/presentations), and [`protocols/`](https://github.com/mcphersonlab/Graduate-School/tree/main/protocols) directories.
+This repository also includes LaTeX templates for academic work. See the [`manuscript/`](https://github.com/mcphersonlab/graduate-school/tree/main/manuscript), [`grants/`](https://github.com/mcphersonlab/graduate-school/tree/main/grants), [`presentations/`](https://github.com/mcphersonlab/graduate-school/tree/main/presentations), and [`protocols/`](https://github.com/mcphersonlab/graduate-school/tree/main/protocols) directories.
 
 This project uses [CRediT (Contributor Roles Taxonomy)](https://credit.niso.org/) to clearly specify the roles and contributions of each individual participant.
 
@@ -74,4 +74,4 @@ This project uses [CRediT (Contributor Roles Taxonomy)](https://credit.niso.org/
 
 ## Contributing
 
-If you have an update, correction, or additional resource to suggest, please [open an issue](https://github.com/mcphersonlab/Graduate-School/issues) or submit a pull request. Improving this repository helps every student who uses it.
+If you have an update, correction, or additional resource to suggest, please [open an issue](https://github.com/mcphersonlab/graduate-school/issues) or submit a pull request. Improving this repository helps every student who uses it.
