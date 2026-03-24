@@ -168,6 +168,8 @@ bud_lines_def = [
   {id:"util",      label:"Utilities (electric, gas, internet)",    type:"needs",   base: 150,             scale:true,  checked:true,  notes:"Avg. $100–$200", editable:true, prefill:"scaled"},
   {id:"grocery",   label:"Groceries",                              type:"needs",   base: 380,             scale:true,  checked:true,  notes:"USDA moderate-cost plan", editable:true, prefill:"scaled"},
   {id:"transport", label:"Transportation",                         type:"needs",   base: 120,             scale:true,  checked:true,  notes:"Transit pass or car", editable:true, prefill:"scaled"},
+  {id:"car_payment", label:"Car Payment (Toyota Camry, ~1yr/24k mi)", type:"needs", base: 515,             scale:false, checked:false, notes:"~$26k used Camry; 60-mo loan ~7% APR ≈ $515/mo", editable:true},
+  {id:"auto_ins",  label:"Auto Insurance",                         type:"needs",   base: 200,             scale:false, checked:false, notes:"Full coverage avg. ~$175–$215/mo (Camry)", editable:true},
   {id:"insurance", label:"Health Insurance Premium",               type:"needs",   base: 120,             scale:true,  checked:true,  notes:"City-adjusted; avg. university plan", editable:true, prefill:"scaled"},
   {id:"phone",     label:"Phone",                                  type:"needs",   base: 60,              scale:false, checked:true,  notes:"Budget carriers from ~$25"},
   {id:"loans",     label:"Minimum Loan Payments",                  type:"needs",   base: 0,               scale:false, checked:false, notes:"Enter your monthly minimum →", editable:true},

@@ -6,7 +6,7 @@ website:
   title: "PhD Graduate Student Experience"
   description: "Practical resources for PhD students: salary, wealth, family, health, and career."
   favicon: "thinking.png"
-  repo-url: https://github.com/mcphersonlab/Graduate-School
+  repo-url: https://github.com/mcphersonlab/graduate-school
   repo-actions: [edit, issue]
   navbar:
     left:
@@ -14,7 +14,7 @@ website:
         text: Home
     right:
       - icon: github
-        href: https://github.com/mcphersonlab/Graduate-School
+        href: https://github.com/mcphersonlab/graduate-school
   sidebar:
     style: docked
     search: true
